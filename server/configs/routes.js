@@ -65,6 +65,10 @@ const diskuploader = multer({storage:localstorage});
 const memuploader = multer({storage:memstorage});
 
 
+
+
+
+
 // token maker
 
 router.get(`/make_token` , async function(req , res){
@@ -283,6 +287,11 @@ router.get(`/item_picture/:id` , async function(req , res){
 
 
                   // REAL ROUTES
+
+
+                  router.get('/', (req, res) => {
+                    res.send('Hello World');
+                  });
 
 
 

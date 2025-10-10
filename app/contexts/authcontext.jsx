@@ -18,9 +18,9 @@ function AuthProvider({children}) {
          const loggedin = await SecureStore.getItemAsync('loggedin');
          const token = await SecureStore.getItemAsync('token');
     
-         setuser(user);
-         setloggedin(loggedin);
-         settoken(token);
+         if(user)setuser(user);
+        if(loggedin) setloggedin(loggedin);
+         if(token)settoken(token);
        }
        catch(err){
         console.log('error fetching auth variables in ' , err);
@@ -34,10 +34,10 @@ function AuthProvider({children}) {
         const react = async function(){
          try{
           if(loggedin){
-            await SecureStore.setItemAsync('loggedin' , true);
+            await SecureStore.setItemAsync('loggedin' , String(true));
            }
            else if (user){
-            await SecureStore.setItemAsync('user' , user);
+            await SecureStore.setItemAsync('user' , JSON.stringify(user));
            }
            else if(token){
             await SecureStore.setItemAsync('token' , token);
@@ -58,13 +58,13 @@ function AuthProvider({children}) {
     const react = async function(){
      try{
       if(!loggedin){
-        await SecureStore.setItemAsync('loggedin' , false);
+        await SecureStore.deleteItemAsync('loggedin');
        }
        else if (!user){
-        await SecureStore.setItemAsync('user' , null);
+        await SecureStore.deleteItemAsync('user');
        }
        else if(!token){
-        await SecureStore.setItemAsync('token' , null);
+        await SecureStore.deleteItemAsync('token');
        }
      }
      catch(err){

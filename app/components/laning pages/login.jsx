@@ -56,7 +56,7 @@ export default function Login({navigation}) {
             await gettoken();
             setsending(true);
             setloginerror(null);
-            const login = await fetch(`${base_url}/login` , {
+            const login = await fetch(`${base_url}/log_in` , {
               method : 'POST',
               headers : {'Content-Type' : 'application/json'},
               credentials:'include',
