@@ -1,4 +1,4 @@
 // baseURL.js
-const base_url = 'http://10.0.5.178:3000';
+const base_url = 'https://cashcrop.onrender.com';
 
 export default base_url;
