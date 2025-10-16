@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import Constants from 'expo-constants';
-import { Platform } from "react-native";
+import { Keyboard, Platform } from "react-native";
 // import * as MediaLibrary from 'expo-media-library';
 // import * as ImagePicker from 'expo-image-picker';
 import useMediaFunctions  from "../functions/mediafunctions";
@@ -27,6 +27,7 @@ export default function Signup({navigation}) {
   const [step, setStep] = useState(1);
   const [imageuri , setimageuri] = useState(null);
   const [showmodal , setshowmodal] = useState(false);
+  const [modaltype , setmodaltype] = useState(null);
   const [countries , setcountries] = useState([]);
   const [counties , setcounties] = useState([]);
   const [areas , setareas] = useState([]);
@@ -95,7 +96,7 @@ const fetchcounties = async function(){
 
   const submit = async function(){
     try{
-      if(!email || email.trim()== "" || !password || password.trim()== "" || !username || username.trim()== "" || !number || number.trim()== "" || !isNaN(number) || !role|| role.trim()== "" || !selectedcountry || selectedcountry.trim()== "" || !selectedcounty || selectedcounty.trim()== "" || !selectedarea || selectedarea.trim()== ""){
+      if(!email || email.trim()== "" || !password || password.trim()== "" || !username || username.trim()== "" || !number || number.trim()== "" || isNaN(number) || !role|| role.trim()== "" || !selectedcountry  || !selectedcounty ||  !selectedarea ){
         setsubmiterror('either a field is missing , or is in the wrong format ,check the values you provided')
         return;
       }
@@ -117,10 +118,6 @@ const fetchcounties = async function(){
           
           const create =await fetch(`${base_url}/create_account` , {
             method:'POST',
-            // headers : {
-            //   "Authorization": `Bearer ${token}`
-
-            // }
             body:data
           });
           if(create.ok){
@@ -145,6 +142,9 @@ const fetchcounties = async function(){
         else{
           const create =await fetch(`${base_url}/create_account` , {
             method:'POST',
+            headers : {
+              'Content-Type':'application/json'
+            },
             body:JSON.stringify({email ,password , username , number , selectedcountry , selectedcounty ,selectedarea , role})
           });
           if(create.ok){
@@ -312,34 +312,46 @@ const images = [
         <VStack space={4}>
           <Input
            width={'80%'}
-            value={selectedcountry}
+            value={selectedcountry?.countryName}
             minWidth="200"
-            placeholder="Select Country"
-            onFocus={() =>setshowmodal(true)}  
-            isReadOnly={true}
+            placeholder="Select Country" 
+            onFocus={() => {
+              setshowmodal(true);
+              setmodaltype('COUNTRIES');
+              Keyboard.dismiss(); // hide keyboard
+            }}
          />
            
         
 
           <Input
            width={'80%'}
-            selectedValue={county} 
+            // selectedValue={county} 
             minWidth="200"
             placeholder="Select County"
-            isReadOnly={true}
-            onFocus={() =>setshowmodal(true)}  
-            value={selectedcounty}
+            isReadOnly={!selectedcountry?true:false}
+            onFocus={() => {
+              setshowmodal(true);
+              setmodaltype('COUNTIES');
+              Keyboard.dismiss(); // hide keyboard
+            }} 
+            value={selectedcounty?.name}
           />
         
 
         <Input
            width={'80%'}
-            selectedValue={selectedarea} 
+            // selectedValue={selectedarea} 
             minWidth="200"
             placeholder="Select Area"
-            isReadOnly={true}
-            onFocus={() =>setshowmodal(true)}  
-            value={selectedcounty}
+            // isReadOnly={true}
+            isReadOnly={!(selectedcountry && selectedcounty  )?true:false}
+            onFocus={() => {
+              setshowmodal(true);
+              setmodaltype('LOCAL AREAS');
+              Keyboard.dismiss(); // hide keyboard
+            }}
+            value={selectedarea?.name}
           />
         
 
@@ -380,10 +392,10 @@ const images = [
           {submiterror &&
               <Text color={'red.600'} fontSize={'sm'} alignSelf={'center'} >{submiterror}</Text>
               }
-          <Button mt={6} colorScheme="teal" rounded="xl"    width={'50%'} alignSelf={'center'}  onPress={submit}>
+          <Button mt={6} colorScheme="teal" rounded="xl"  justifyContent={'center'} alignItems={'center'}  width={'50%'} alignSelf={'center'}  onPress={submit}>
             Complete Setup
             {sending && 
-                  <Spinner      color={'white'} width={'30px'} height={'30px'}       />
+                  <Spinner   alignSelf={'center'} ml={'auto'} mr={'auto'}   color={'white'} width={'30px'} height={'30px'}       />
                 }
           </Button>
           <Button variant="ghost"    width={'50%'} alignSelf={'center'}   onPress={handleBack}>
@@ -441,7 +453,7 @@ const images = [
           )}
     </Box>
      {showmodal &&   
-        <CustomModal    isOpen={showmodal}  onClose={()=>{setshowmodal(false)}}  title={!selectedcountry?'COUNTRIES':(selectedcountry && !selectedcounty)?'COUNTIES':(selectedcountry && selectedcounty)?'LOCAL AREAS':''}  items={(!selectedcountry)?countries:(selectedcountry && !selectedcounty)?counties:(selectedcountry && selectedcounty)?areas:[]}  setselectedcountry={setselectedcountry} setselectedcounty={setselectedcounty} setselectedarea={setselectedarea}     />
+        <CustomModal    isOpen={showmodal}  onClose={()=>{setshowmodal(false)}}  title={modaltype}  items={(modaltype == 'COUNTRIES')?countries:(modaltype == 'COUNTIES')?counties:(modaltype == 'LOCAL AREAS')?areas:[]}  setselectedcountry={setselectedcountry} setselectedcounty={setselectedcounty} setselectedarea={setselectedarea}     />
      }
     </ZStack>
         

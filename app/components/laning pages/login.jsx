@@ -19,6 +19,7 @@ import {
   Image,
   Alert,
   Spinner,
+  HStack,
 } from "native-base";
 import { TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -146,8 +147,12 @@ export default function Login({navigation}) {
           {(loginerror) &&  
           
              <Text color={'red.300'} alignSelf={'center'} >{loginerror}</Text>}
-          <Button mt={6} onPress={login}  width={'50%'} alignSelf={'center'} rounded="xl"  alignItems={'center'} justifyContent={'center'} >
-          Login  {(sending) && <Spinner  height={'20px'} width={'20px'}  color={'white'}  />}
+          <Button  mt={6} onPress={login}  width={'50%'} alignSelf={'center'} rounded="xl"  alignItems={'center'} justifyContent={'center'} >
+            <HStack alignItems={'center'} justifyContent={'center'} >
+           <Text color={'white'}  fontWeight={'bold'} > Login  </Text>
+            {(sending) && <Spinner  height={'10px'} width={'10px'}  color={'white'}  />}
+
+            </HStack>
           </Button>
         </VStack>
     

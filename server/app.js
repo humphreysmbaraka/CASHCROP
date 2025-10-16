@@ -16,6 +16,7 @@ app.use(cors({
     allowedHeaders: ['Content-Type'],  // Allow only Content-Type header
 }));
 
+app.use(express.json());
 
 app.use('/' , require('./configs/routes'));
 

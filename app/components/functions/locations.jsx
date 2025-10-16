@@ -44,7 +44,7 @@ async function getcounties(code) {
 
 async function getareas(code1 , code2) {
     try{
-        const areas = await fetch(`http://api.geonames.org/searchJSON?country=${county.countryCode}&adminCode1=${county.adminCode1}&featureClass=P&maxRows=1000&username=humphreeze`);
+        const areas = await fetch(`http://api.geonames.org/searchJSON?country=${code1}&adminCode1=${code2}&featureClass=P&maxRows=1000&username=humphreeze`);
         if(areas.ok){
            
           const list = await areas.json();

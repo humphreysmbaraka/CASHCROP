@@ -299,6 +299,12 @@ router.post(`/create_account` ,diskuploader.single('image') ,  async function(re
     try{
       const {email , password , username , number , role , country, county , area} = req.body;
      const upload = req.file;
+      const user = await User.findOne({email:email});
+      if(user){
+        console.log('email already in use');
+        return res.status(400).json({error:true , message:'email already exists', problem:err});
+
+      }
       const hash = await bcrypt.hash(password , 10);
       if(upload){
         const fileupload = new Promise(function(resolve , reject){
@@ -337,7 +343,7 @@ router.post(`/create_account` ,diskuploader.single('image') ,  async function(re
       }
       else{
         const newuser = new User({
-            image , email , hash, username , number ,role , country , county , area
+             email , hash, username , number ,role , country , county , area
          })
  
          newuser.save();
