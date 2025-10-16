@@ -12,7 +12,7 @@ app.use(express.urlencoded({extended:true}));
 
 app.use(cors({
     origin: '*',  // Replace with your frontend domain
-    methods: ['GET', 'POST' , 'PATCH'],  // Allow only GET and POST requests
+    methods: ['GET', 'POST' , 'PATCH' , 'DELETE'],  // Allow only GET and POST requests
     allowedHeaders: ['Content-Type'],  // Allow only Content-Type header
 }));
 

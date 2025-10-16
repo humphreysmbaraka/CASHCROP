@@ -7,16 +7,20 @@ const useGettoken =  function(){
     const {settoken} = useContext(authcontext);
 
     const gettoken = async function(){
+      let token;
         try{
-          
-          const token = await fetch(`${base_url}/make_token`);
-          if(token.ok){
-            const info = await token.json();
-            settoken(info.token);
+         
+           const fetchedtoken = await fetch(`${base_url}/make_token`);
+          if(fetchedtoken.ok){
+            const info = await fetchedtoken.json();
+            token = info.token;
           }
           else{
+            token = null;
             throw new Error('token was not successfully created');
+           
           }
+               return token;
         }
         catch(err){
           console.log('error getting token' , err);

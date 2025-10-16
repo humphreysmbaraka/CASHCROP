@@ -4,6 +4,7 @@ import { Box, VStack, Text, Image, Heading, HStack, Button, Pressable } from "na
 import { Platform } from "react-native";
 import Constants from 'expo-constants';
 import Feather from '@expo/vector-icons/Feather';
+import base_url from "../constants/baseurl";
 // const stockItems = [
 //   { id: 1, name: "Rice", price: "200", quantity: "10kg", image: require("../../assets/gmail.jpeg") },
 //   { id: 2, name: "Beans", price: "150", quantity: "5kg", image: require("../../assets/gmail.jpeg") },
@@ -23,13 +24,13 @@ export default function ShopView({navigation ,route}) {
     const {client ,shop} = route.params || {}
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10, paddingTop:Platform.OS==='android'?Constants.statusBarHeight:0  }}>
-      <Image source={shop?.image} alt="shop" height={200} width="100%" borderRadius={10} />
+      <Image source={{uri:fetch(`${base_url}/shop_picture/${shop?.image}`)}} alt="shop" height={200} width="100%" borderRadius={10} />
       <Heading mt={2}>{shop?.name}</Heading>
       <Text>Created on 08/09/2025</Text>
        {client && 
        <HStack width={'95%'}  space={'100px'} alignSelf={'center'} mt={'10px'} mb={'10px'} p={'4px'} alignItems={'center'} justifyContent={'center'} >
        <Feather name="phone-call" size={24} color="black" />
-       <Text color={'black'} fontWeight={'light'} >Call us on 0745509872</Text>
+       <Text color={'black'} fontWeight={'light'} >{`call us on ${shop.number}`}</Text>
        </HStack>
        }
       {/* <Text>Products: Cereals, Vegetables</Text> */}
@@ -37,10 +38,10 @@ export default function ShopView({navigation ,route}) {
       <Heading size="md" mt={4}>Available Stock</Heading>
       <HStack flexWrap="wrap" justifyContent="space-between" mt={2}>
         {
-        shop?.stock.length > 0?(
-            shop?.stock.map((item ,index) => (
+        shop?.items.length > 0?(
+            shop?.items.map((item ,index) => (
                 <Pressable  onPress={()=>{client?navigation.navigate('visitview' , {screen:'view' ,params:{item} }):navigation.navigate('shopitem' , {screen:'overview' , params:{item}})}} key={index} width="48%" mb={4} bg="gray.50" borderRadius="lg" shadow={1} overflow="hidden">
-                  <Image source={{uri:item?.image}} alt={item.name} height={120} width="100%" />
+                  <Image source={{uri:fetch(`/${base_url}/item_picture/${item?._id}`)|| null}} alt={item.name} height={120} width="100%" />
                   <Text p={2} fontWeight="bold">{item.name}</Text>
                   <Text p={2}>Price: {item.price}</Text>
                   <Text p={2}>Qty: {item.quantity}</Text>
@@ -54,7 +55,10 @@ export default function ShopView({navigation ,route}) {
       }
       </HStack>
 
-      <Button mb={'60px'} onPress={()=>{navigation.navigate('additem' , { screen: 'add' })}} mt={2}>Add Item</Button>
+     {!client &&  
+     
+     <Button mb={'60px'} onPress={()=>{navigation.navigate('additem' , { screen: 'add' })}} mt={2}>Add Item</Button>
+     }
     </ScrollView>
   );
 }

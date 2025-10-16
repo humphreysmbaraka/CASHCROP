@@ -29,7 +29,7 @@ import useGettoken from "../functions/get token";
 export default function Login({navigation}) {
     const [email , setemail] = useState(null);
     const [password , setpassword] = useState(null);
-    const {loggedin , setloggedin , user , setuser} = useContext(authcontext);
+    const {loggedin , setloggedin , user , setuser ,settoken} = useContext(authcontext);
     const [loginerror , setloginerror] = useState(null);
     const [sending , setsending] = useState(false);
     
@@ -50,12 +50,17 @@ export default function Login({navigation}) {
    const login = async function(){
     try{
         if(sending || !email || email.trim()=='' || !password || password.trim()==''){
-            return;
+           
+          if(sending){
+            setsending(false);
+          }
+          return;
         }
         else{
-            await gettoken();
-            setsending(true);
-            setloginerror(null);
+          setsending(true);
+          setloginerror(null);
+            const fetchedtoken = await gettoken();
+          
             const login = await fetch(`${base_url}/log_in` , {
               method : 'POST',
               headers : {'Content-Type' : 'application/json'},
@@ -68,8 +73,10 @@ export default function Login({navigation}) {
                 setsending(false);
                 console.log('login successful');
                 const info = await login.json();
+                settoken(fetchedtoken);
                 setuser(info.user);
                 setloggedin(true);
+               
             }
             else{
                 setsending(false);
@@ -80,14 +87,19 @@ export default function Login({navigation}) {
                 else{
                      setloginerror('server error');
                 }
-            }
-            setuser(null);
-            setloggedin(false);
 
+                setuser(null);
+                setloggedin(false);
+                settoken(null);
+    
+            }
+           
         }
     }
     catch(err){
         console.log('error logging in' ,err);
+        setsending(false);
+        setloginerror('error logging in');
 
     }
    }
@@ -131,8 +143,11 @@ export default function Login({navigation}) {
             variant="outline"
             size="lg"
           />
+          {(loginerror) &&  
+          
+             <Text color={'red.300'} alignSelf={'center'} >{loginerror}</Text>}
           <Button mt={6} onPress={login}  width={'50%'} alignSelf={'center'} rounded="xl">
-            Login  {sending && 
+          Login  {(sending) && 
              <Spinner  height={'20px'} width={'20px'}  color={'white'}  />
             }
           </Button>

@@ -64,7 +64,7 @@ export default function ViewItemPage({navigation ,route}) {
           Back
         </Button>
       </HStack>
-      <AddToCartModal   viewfromcart={false}      isOpen={openmodal}     onClose={() => setopenmodal(false)}        />
+      <AddToCartModal item  viewfromcart={false}      isOpen={openmodal}     onClose={() => setopenmodal(false)}        />
     </ScrollView>
   );
 }

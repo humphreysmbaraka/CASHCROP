@@ -16,12 +16,15 @@ export default function CreateShop({navigation}) {
   const [imageuri , setimageuri] = useState(null);
   const [submiterror , setsubmiterror] = useState(null);
   const [submitting , setsubmitting]  = useState(false);
+  const [countries , setcountries] = useState(null);
   const [counties , setcounties] = useState(null);
   const [areas , setareas] = useState(null);
   const [country , setcountry] = useState(null);
   const [county , setcounty] = useState(null);
   const [area , setarea] = useState(null);
   const [showmodal ,setshowmodal] = useState(false);
+  // const [creating , setcreating] = useState(false);
+  // const [createerror , setcreateerror] = useState[null]
   
 
   
@@ -55,12 +58,12 @@ export default function CreateShop({navigation}) {
      useEffect(function(){
        fetchcounties();
         
-     } ,[selectedcountry]);
+     } ,[country]);
    
      useEffect(function(){
        fetchareas();
         
-     } ,[selectedcounty]);
+     } ,[county]);
   
   
   const createshop = async function(){
@@ -192,7 +195,7 @@ export default function CreateShop({navigation}) {
           <Button mb={'60px'}  onPress={() => navigation.goBack()}>BACK</Button>
 
           {showmodal &&   
-        <CustomModal    isOpen={showmodal}  onClose={()=>{setshowmodal(false)}}  title={!selectedcountry?'COUNTRIES':(selectedcountry && !selectedcounty)?'COUNTIES':(selectedcountry && selectedcounty)?'LOCAL AREAS':''}  items={!selectedcountry?{countries}:(selectedcountry && !selectedcounty)?{counties}:(selectedcountry && selectedcounty)?{areas}:''}  setselectedcountry setselectedcounty setselectedarea     />
+        <CustomModal    isOpen={showmodal}  onClose={()=>{setshowmodal(false)}}  title={!country?'COUNTRIES':(country && !county)?'COUNTIES':(country && county)?'LOCAL AREAS':''}  items={!country?{countries}:(country && !county)?{counties}:(country && county)?{areas}:''}  setselectedcountry={setcountry} setselectedcounty={setcounty} setselectedarea={setarea}     />
      }
         </VStack>
       ) : (

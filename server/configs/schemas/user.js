@@ -15,7 +15,7 @@ const userschema = new mongoose.Schema({
    shops:[{type:mongoose.Schema.Types.ObjectId , required:false ,ref:'shop'}],
    orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],
    cart:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'item'}],
-   liked:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'item'}],
+   saved_items:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'item'}],
    favourite_shops:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'shop'}]
   
 } , {timestamps:true});

@@ -11,16 +11,21 @@ import {CameraView} from 'expo-camera';
 
 
 export default function AddItem({navigation}) {
-    const [imageuri , setimageuri] = useState(null);
-    const [name ,setname] = useState(null);
-    const [type ,settype] = useState(null);
-    const [description ,setdescription] = useState(null);
-    const [quantity ,setquantity] = useState(null);
-    const [unit ,setunit] = useState(null);
-    const [price ,setprice] = useState(null);
-    const [priceunit ,setpriceunit] = useState(null);
+    const [imageuri , setimageuri] = useState(editmode?item?.image:null);
+    const [name ,setname] = useState(editmode?item?.name:null);
+    const [type ,settype] = useState(editmode?item?.type:null);
+    const [description ,setdescription] = useState(editmode?item?.description:null);
+    const [quantity ,setquantity] = useState(editmode?item?.quantity:null);
+    const [unit ,setunit] = useState(editmode?item?.unit:null);
+    const [price ,setprice] = useState(editmode?item?.price:null);
+    const [priceunit ,setpriceunit] = useState(editmode?item?.price_unit:null);
     const [creating , setcreating] = useState(null);
     const [createerror , setcreateerror] = useState(null);
+
+    const [editting , seteditting] = useState(null);
+    const [editerror , setediterror] = useState(null);
+
+
     const [showcam , setshowcam] = useState(false);
     const camref = useRef(null);
     const [camdirection , setcamdirection] = useState('front');
@@ -30,8 +35,10 @@ export default function AddItem({navigation}) {
   const {launchcamera ,launchimagepicker , takepicture} = useMediaFunctions();
 
 
-
-
+  const item = route?.params?.item;
+  const edit = route?.params?.edit;
+  const editmode = item && edit;
+  
 
 
   const accessgallery = async function(){
@@ -66,7 +73,7 @@ export default function AddItem({navigation}) {
 
   const createitem = async function(){
     try{
-      if(!imageuri || !name || name.trim()=='' || !description|| description.trim()=='' || !quantity || quantity.trim()=='' || isNaN(quantity) || !unit || unit.trim()=='' || !price || price.trim()=='' || isNaN(price) || !priceunit || priceunit.trim()==''){
+      if(creating ||!imageuri || !name || name.trim()=='' || !description|| description.trim()=='' || !quantity || quantity.trim()=='' || isNaN(quantity) || !unit || unit.trim()=='' || !price || price.trim()=='' || isNaN(price) || !priceunit || priceunit.trim()==''){
         setcreateerror('check the data you provided , some could be missing , or in the wrong format');
         return;
       }
@@ -92,6 +99,9 @@ export default function AddItem({navigation}) {
         setcreating(false);
         setcreateerror(null);
         const info = await create.json();
+        const item = info.item;
+        navigation.navigate('shopstacks' , {screen:'shop'});
+        
       }
       else{
         setcreating(false);
@@ -108,6 +118,81 @@ export default function AddItem({navigation}) {
       console.log('could not add item' , err);
     }
   }
+
+
+
+
+
+
+
+
+
+
+
+  const edititem = async function(){
+    try{
+      if(editting || !imageuri || !name || name.trim()=='' || !description|| description.trim()=='' || !quantity || quantity.trim()=='' || isNaN(quantity) || !unit || unit.trim()=='' || !price || price.trim()=='' || isNaN(price) || !priceunit || priceunit.trim()==''){
+        setcreateerror('check the data you provided , some could be missing , or in the wrong format');
+        return;
+      }
+      seteditting(true);
+      setediterror(null);
+      const data = new FormData();
+      data.append("name" ,name );
+      data.append("type" ,type );
+      data.append("description" ,description );
+      data.append("quantity" ,quantity );
+      data.append("unit" ,unit );
+      data.append("price" ,price );
+      data.append("priceunit" ,priceunit );
+      data.append("image" ,imageuri );
+      data.append('id' , item._id);
+      // data.append("" , );
+
+
+      const create = await fetch(`${base_url}/edit_item` , {
+        method:'PATCH',
+        body:data
+      })
+      if(create.ok){
+        seteditting(false);
+        setediterror(null);
+        const info = await create.json();
+        const item = info.item;
+        navigation.navigate('shopstacks' , {screen:'shop'});
+        
+      }
+      else{
+        seteditting(false);
+        const info = await create.json();
+        if(String(info.status).startsWith('4')){
+     setediterror(info.message);
+        }
+        else{
+ setediterror('server error');
+        }
+      }
+    }
+    catch(err){
+      seteditting(false);
+      setediterror('could not edit');
+      console.log('could not edit item' , err);
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10  , paddingTop:Platform.OS=='android'?Constants.statusBarHeight:0}}>
@@ -218,7 +303,7 @@ export default function AddItem({navigation}) {
           <Input placeholder="Price" value={price} onChangeText={(val) => setprice(val.trim())} />
           <Input placeholder="Price per (kg, number, etc)" value={priceunit} onChangeText={(val) => setpriceunit(val.trim())} />
 
-          <Button mb={'60px'} onPress={() => setConfirmCard(true)}>Add Item</Button>
+          <Button mb={'60px'} onPress={() => setConfirmCard(true)}>CONFIRM</Button>
         </VStack>
       ) : (
         <Box bg="gray.50" p={4} borderRadius="lg" shadow={1}>
@@ -229,21 +314,43 @@ export default function AddItem({navigation}) {
           <Text>Price: {price}</Text>
           <Text>Price per: {priceunit}</Text>
            
-             {createerror && 
-             <Text color={'red'} alignSelf={'center'}  fontSize={'sm'}  >{createerror}</Text>
-             }
+            
           {/* <Button mt={2} onPress={() => {navigation.navigate('shopstacks' , {screen:'shop'})}}>Confirm
           {creating &&  
             <Spinner        color={'white'} width={'30px'} height={'30px'}                  />
            }
 
           </Button> */}
-           <Button mt={2} onPress={() => {createitem}}>Confirm
-          {creating &&  
+
+          {editmode ? (
+            <>
+            {editerror && 
+              <Text color={'red'} alignSelf={'center'}  fontSize={'sm'}  >{editerror}</Text>
+              }
+            <Button mt={2} onPress={() => {edititem}}>EDIT ITEM
+          {editting &&  
             <Spinner        color={'white'} width={'30px'} height={'30px'}                  />
            }
 
           </Button>
+          </>
+          ):(
+            <>
+
+            {createerror && 
+             <Text color={'red'} alignSelf={'center'}  fontSize={'sm'}  >{createerror}</Text>
+             }
+
+             <Button mt={2} onPress={() => {createitem}}>ADD ITEM
+             {creating &&  
+               <Spinner        color={'white'} width={'30px'} height={'30px'}                  />
+              }
+   
+             </Button>
+             </>
+          )}
+
+          
           <Button mt={2} mb={'60px'} onPress={() => setConfirmCard(false)}>Back</Button>
         </Box>
       )}

@@ -5,6 +5,7 @@ const dotenv = require('dotenv').config();
 const shopschema = new mongoose.Schema({
    image:{type:mongoose.Schema.Types.ObjectId , required:false},
    name:{type:String , required:true},
+   number:{type:String , required:true},
    type:{type:String , required:true},
    customtype:{type:String , required:false},
    visits:{type:Number , required:false},
