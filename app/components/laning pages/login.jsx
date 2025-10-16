@@ -81,7 +81,7 @@ export default function Login({navigation}) {
             else{
                 setsending(false);
                 const info = await login.json();
-                if((String(info.status)).startsWith('4')){
+                if((String(login.status)).startsWith('4')){
                    setloginerror(info.message);
                 }
                 else{
@@ -146,10 +146,8 @@ export default function Login({navigation}) {
           {(loginerror) &&  
           
              <Text color={'red.300'} alignSelf={'center'} >{loginerror}</Text>}
-          <Button mt={6} onPress={login}  width={'50%'} alignSelf={'center'} rounded="xl">
-          Login  {(sending) && 
-             <Spinner  height={'20px'} width={'20px'}  color={'white'}  />
-            }
+          <Button mt={6} onPress={login}  width={'50%'} alignSelf={'center'} rounded="xl"  alignItems={'center'} justifyContent={'center'} >
+          Login  {(sending) && <Spinner  height={'20px'} width={'20px'}  color={'white'}  />}
           </Button>
         </VStack>
     
