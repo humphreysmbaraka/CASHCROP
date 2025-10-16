@@ -302,7 +302,7 @@ router.post(`/create_account` ,diskuploader.single('image') ,  async function(re
       const user = await User.findOne({email:email});
       if(user){
         console.log('email already in use');
-        return res.status(400).json({error:true , message:'email already exists', problem:err});
+        return res.status(400).json({error:true , message:'email already exists'});
 
       }
       const hash = await bcrypt.hash(password , 10);
