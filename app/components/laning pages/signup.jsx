@@ -145,7 +145,7 @@ const fetchcounties = async function(){
             headers : {
               'Content-Type':'application/json'
             },
-            body:JSON.stringify({email ,password , username , number , selectedcountry , selectedcounty ,selectedarea , role})
+            body:JSON.stringify({email ,password , username , number , country:selectedcountry , county:selectedcounty ,area:selectedarea , role})
           });
           if(create.ok){
             setsending(false);
