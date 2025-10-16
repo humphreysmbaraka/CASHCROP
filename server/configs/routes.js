@@ -349,7 +349,7 @@ router.post(`/create_account` ,diskuploader.single('image') ,  async function(re
              email , password:hash, username , number ,role , country , county , area , OTP:OTP
          })
  
-         newuser.save();
+         await  newuser.save();
          return res.status(200).json({error:false , message:'user created successfully' , user:newuser})
       }
     }
