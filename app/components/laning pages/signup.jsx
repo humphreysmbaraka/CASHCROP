@@ -43,6 +43,14 @@ export default function Signup({navigation}) {
   const verifytoken = useVerifyToken();
   const gettoken = useGettoken();
  
+  useEffect(function(){
+        if(step !== 4){
+          setsending(false);
+        }
+        else if(step !==5){
+          setverifying(false);
+        }
+  } , [step]);
   
   const handleNext = () => setStep((prev) => prev + 1);
   const handleBack = () => setStep((prev) => prev - 1);
@@ -156,7 +164,7 @@ const fetchcounties = async function(){
           else{
            setsending(false);
            const info = await create.json();
-           if(String(info.status).startsWith('4')){
+           if(String(create.status).startsWith('4')){
             setsubmiterror(info.message);
            }
            else{
@@ -182,7 +190,12 @@ const fetchcounties = async function(){
      }
      else{
        setverifying(true);
-      const verify = await fetch(`${base_url}/verify_otp?id=${user._id}&otp=${otp.trim()}`);
+      const verify = await fetch(`${base_url}/verify_otp?id=${user._id}&otp=${otp.trim()}` , {
+        method:'POST',
+        // headers:{
+        //   'Content-Type':'application/json'
+        // }
+      });
       if(verify.ok){
         setverifying(false);
         setverificationerror(null);
@@ -193,7 +206,7 @@ const fetchcounties = async function(){
         setverifying(false);
        
         const info = await verify.json();
-        if(String(info.status).startsWith('4')){
+        if(String(verify.status).startsWith('4')){
           setverificationerror(info.message);
         }
         else{
@@ -425,10 +438,10 @@ const images = [
               {verificationerror &&
               <Text color={'red.600'} fontSize={'sm'} alignSelf={'center'} >{verificationerror}</Text>
               }
-              <Button mt={6} colorScheme="teal" rounded="xl" width={'50%'} alignSelf={'center'} onPress={verifyotp}>
+              <Button justifyContent={'center'}  alignItems={'center'} mt={6} colorScheme="teal" rounded="xl" width={'50%'} alignSelf={'center'} onPress={verifyotp}>
                 Verify OTP
                 {verifying && 
-                  <Spinner      color={'white'} width={'30px'} height={'30px'}       />
+                  <Spinner   alignSelf={'center'} ml={'auto'} mr={'auto'}    color={'white'} width={'30px'} height={'30px'}       />
                 }
               </Button>
               <Button variant="ghost" width={'50%'} alignSelf={'center'} onPress={handleBack}>

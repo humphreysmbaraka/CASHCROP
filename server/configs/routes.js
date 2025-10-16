@@ -364,6 +364,7 @@ router.post(`/create_account` ,diskuploader.single('image') ,  async function(re
 
 router.post(`/verify_otp` , async function(req , res){
     try{
+        console.log('verifying otp');
        const {id , otp} = req.query;
        const user = await User.findOne({_id:new ObjectId(id)});
        if(user){
