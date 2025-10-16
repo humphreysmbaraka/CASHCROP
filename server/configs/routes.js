@@ -306,6 +306,7 @@ router.post(`/create_account` ,diskuploader.single('image') ,  async function(re
 
       }
       const hash = await bcrypt.hash(password , 10);
+      
       if(upload){
         const fileupload = new Promise(function(resolve , reject){
             const name = upload.originalname;
@@ -333,17 +334,19 @@ router.post(`/create_account` ,diskuploader.single('image') ,  async function(re
         })
 
         const image = await fileupload;
+        const OTP =  Math.floor(100000 + Math.random() * 900000);
         const newuser = new User({
-           image , email , hash, username , number ,role , country , county , area
+           image , email , hash, username , number ,role , country , county , area , OTP:OTP
         })
 
-        newuser.save();
+        await newuser.save();
         return res.status(200).json({error:false , message:'user created successfully' , user:newuser})
 
       }
       else{
+        const OTP =  Math.floor(100000 + Math.random() * 900000);
         const newuser = new User({
-             email , hash, username , number ,role , country , county , area
+             email , hash, username , number ,role , country , county , area , OTP:OTP
          })
  
          newuser.save();
@@ -361,13 +364,13 @@ router.post(`/create_account` ,diskuploader.single('image') ,  async function(re
 
 router.post(`/verify_otp` , async function(req , res){
     try{
-       const {id , otp} = req.params;
+       const {id , otp} = req.query;
        const user = await User.findOne({_id:new ObjectId(id)});
        if(user){
            
-        if(otp === user.otp){
+        if(otp === user.OTP){
              console.log('OTP verification successful');
-             user.otp = null;
+             user.OTP = null;
              await user.save();
              return res.status(200).json({error:false , message:'otp verified successfully' , user});
 

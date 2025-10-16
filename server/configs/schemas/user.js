@@ -8,6 +8,7 @@ const userschema = new mongoose.Schema({
    password:{type:String , required:true},
    username:{type:String , required:true},
    number:{type:String , required:true},
+   OTP:{type:String , required:false , default:null},
    role:{type:String , required:true},
    country:{type:Object , required:true},
    county:{type:Object , required:true},
