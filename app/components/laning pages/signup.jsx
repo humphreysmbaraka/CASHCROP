@@ -159,6 +159,8 @@ const fetchcounties = async function(){
             setsending(false);
             setsubmiterror(null);
             const info = await create.json();
+            const user = info.user;
+            setuser(user);
              handleNext();
           }
           else{
