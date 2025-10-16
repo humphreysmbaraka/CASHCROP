@@ -336,7 +336,7 @@ router.post(`/create_account` ,diskuploader.single('image') ,  async function(re
         const image = await fileupload;
         const OTP =  Math.floor(100000 + Math.random() * 900000);
         const newuser = new User({
-           image , email , hash, username , number ,role , country , county , area , OTP:OTP
+           image , email , password:hash, username , number ,role , country , county , area , OTP:OTP
         })
 
         await newuser.save();
@@ -346,7 +346,7 @@ router.post(`/create_account` ,diskuploader.single('image') ,  async function(re
       else{
         const OTP =  Math.floor(100000 + Math.random() * 900000);
         const newuser = new User({
-             email , hash, username , number ,role , country , county , area , OTP:OTP
+             email , password:hash, username , number ,role , country , county , area , OTP:OTP
          })
  
          newuser.save();
