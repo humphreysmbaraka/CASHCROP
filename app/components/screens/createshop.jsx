@@ -80,7 +80,7 @@ export default function CreateShop({navigation}) {
         return;
        }
        else{
-        console.log('creating shop....')
+        console.log('creating shop....');
         setsubmitting(true);
         setsubmiterror(null);
 
@@ -93,6 +93,8 @@ export default function CreateShop({navigation}) {
         const filename = imageuri.split('/').pop();
         const match = /\.(\w+)$/.exec(filename);
         const fileType = match ? `image/${match[1]}` : 'image';
+
+        console.log('image details' , filename , match , fileType);
 
     data.append('image', {
       uri: imageuri,
@@ -109,6 +111,9 @@ export default function CreateShop({navigation}) {
          
         const create = await fetch(`${base_url}/create_shop` , {
           method:'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
           body:data
         })
 

@@ -537,6 +537,7 @@ router.post(`/create_item` , memuploader.single('image') ,  async function(req ,
         const upload = req.file;
         
          if(upload){
+            console.log('CREATING SHOP.....')
             const shop = await Shop.findOne({_id: new ObjectId(shop)});
             if(!shop){
                 console.log('shop not found');
