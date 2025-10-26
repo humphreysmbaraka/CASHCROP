@@ -323,12 +323,12 @@ router.post(`/create_account` ,memuploader.single('image') ,  async function(req
             const readstream = Readable.from(upload.buffer);
             readstream.pipe(uploadstream);
 
-            readstream.on('finish' , function(){
+            uploadstream.on('finish' , function(){
                    resolve(uploadstream.id);
             })
 
 
-            readstream.on('error' , function(err){
+            uploadstream.on('error' , function(err){
                   reject(err);
             })
         })
