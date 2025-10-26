@@ -507,6 +507,8 @@ router.post(`/create_shop` , memuploader.single('image') ,  async function(req ,
     }
     catch(err){
         console.log('error creating shop' , err);
+        return res.status(500).json({error:true , message:'server error' , problem:err});
+
     }
 })
 
