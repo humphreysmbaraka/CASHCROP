@@ -486,11 +486,13 @@ router.post(`/create_shop` , memuploader.single('image') ,  async function(req ,
            })
    
            const image = await fileupload;
+           console.log('IMAGE UPLOADED');
            const newshop = new Shop({
-              image , name ,type , customtype , description , country , county , area
+              image , name ,type , customtype , description , country:JSON.parse(country) , county:JSON.parse(county) , area:JSON.parse(area)
            })
    
            newshop.save();
+           console.log('SHOP CREATED SUCCESSFULLY');
            return res.status(200).json({error:false , message:'shop created successfully' , shop:newshop})
    
          }

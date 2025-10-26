@@ -239,6 +239,7 @@ const fetchcounties = async function(){
     try{
       setuser(returneduser);
       setloggedin(true);
+    
     }
     catch(err){
       console.log('could not start app' , err);

@@ -10,7 +10,7 @@ import { authcontext } from "../../contexts/authcontext";
 
 export default function MyShops({ navigation }) {
 
-    const user = useContext(authcontext);
+    const {user} = useContext(authcontext);
     const [fetching , setfetching] = useState(false);
     const [fetcherror , setfetcherror] = useState(null);
     const [shops , setshops] = useState([])
@@ -21,7 +21,8 @@ export default function MyShops({ navigation }) {
 
       setfetcherror(null);
       setfetching(true);
-        const res = await fetch(`${base_url}/get_shops/${user._id}`);
+         console.log('user info' , user);
+        const res = await fetch(`${base_url}/get_shops/${user?._id}`);
         if(res.ok){
           setfetcherror(null);
           setfetching(false);

@@ -14,13 +14,13 @@ function AuthProvider({children}) {
     useEffect(function(){
       const react = async function(){
        try{
-         const user = await SecureStore.getItemAsync('user');
-         const loggedin = await SecureStore.getItemAsync('loggedin');
-         const token = await SecureStore.getItemAsync('token');
+         const storeduser = await SecureStore.getItemAsync('user');
+         const storedloggedin = await SecureStore.getItemAsync('loggedin');
+         const storedtoken = await SecureStore.getItemAsync('token');
     
-         if(user)setuser(user);
-        if(loggedin) setloggedin(loggedin);
-         if(token)settoken(token);
+         if(storeduser)setuser(JSON.parse(storeduser));
+        if(storedloggedin) setloggedin(JSON.parse(storedloggedin));
+         if(storedtoken)settoken(storedtoken);
        }
        catch(err){
         console.log('error fetching auth variables in ' , err);
@@ -42,6 +42,8 @@ function AuthProvider({children}) {
            else if(token){
             await SecureStore.setItemAsync('token' , token);
            }
+
+           console.log('values found loggedin , user , token' , loggedin , user ,token);
          }
          catch(err){
           console.log('error reacting to changes in auth variables' , err)
@@ -49,6 +51,7 @@ function AuthProvider({children}) {
           }
 
           react();
+
    } , [user , loggedin , token]);
 
 
