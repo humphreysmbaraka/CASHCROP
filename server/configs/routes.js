@@ -297,7 +297,7 @@ router.get(`/item_picture/:id` , async function(req , res){
 
 router.post(`/create_account` ,memuploader.single('image') ,  async function(req , res){
     try{
-      const {email , password , username , number , role , country, county , area} = req.body;
+      const { email , password , username , number , role , country, county , area} = req.body;
      const upload = req.file;
       const user = await User.findOne({email:email});
       if(user){
@@ -531,15 +531,20 @@ router.post(`/create_shop` , memuploader.single('image') ,  async function(req ,
 
 
 
-router.post(`/create_item` , diskuploader.single('image') ,  async function(req , res){
+router.post(`/create_item` , memuploader.single('image') ,  async function(req , res){
     try{
-        const {name , type , description , quantity , unit , price , priceunit } = req.body;
+        const {shop , name , type , description , quantity , unit , price , priceunit } = req.body;
         const upload = req.file;
         
          if(upload){
+            const shop = await Shop.findOne({_id: new ObjectId(shop)});
+            if(!shop){
+                console.log('shop not found');
+                return res.status(400).json({error:true , message:'shop not found'});
+            }
            const fileupload = new Promise(function(resolve , reject){
                const name = upload.originalname;
-               const path = upload.path;
+            //    const path = upload.path;
                const size = upload.size;
                const type = upload.mimetype;
    
@@ -549,25 +554,27 @@ router.post(`/create_item` , diskuploader.single('image') ,  async function(req 
                    }
                })
    
-               const readstream = fs.createReadStream(path);
+               const readstream = Readable.from(upload.buffer);
                readstream.pipe(uploadstream);
    
-               readstream.on('finish' , function(){
+               uploadstream.on('finish' , function(){
                       resolve(uploadstream.id);
                })
    
    
-               readstream.on('error' , function(err){
+               uploadstream.on('error' , function(err){
                      reject(err);
                })
            })
    
            const image = await fileupload;
+           
            const newitem = new Item({
               image , name ,type , description , quantity , unit , price , price_unit
            })
-   
-           newshop.save();
+           await newitem.save();
+           shop.items.push(newitem._id);
+           await shop.save();
            return res.status(200).json({error:false , message:'item created successfully' , item:newitem})
    
          }

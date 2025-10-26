@@ -80,6 +80,7 @@ export default function CreateShop({navigation}) {
         return;
        }
        else{
+        console.log('creating shop....')
         setsubmitting(true);
         setsubmiterror(null);
 
@@ -133,7 +134,7 @@ export default function CreateShop({navigation}) {
     catch(err){
           setsubmitting(false);
           setsubmiterror('could not create shop');
-      console.log('could not create shop' , err);
+          console.log('could not create shop' , err);
     }
   }
 

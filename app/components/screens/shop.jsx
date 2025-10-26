@@ -57,7 +57,7 @@ export default function ShopView({navigation ,route}) {
 
      {!client &&  
      
-     <Button mb={'60px'} onPress={()=>{navigation.navigate('additem' , { screen: 'add' })}} mt={2}>Add Item</Button>
+     <Button mb={'60px'} onPress={()=>{navigation.navigate('additem' , { screen: 'add' , params:{shop} })}} mt={2}>Add Item</Button>
      }
     </ScrollView>
   );

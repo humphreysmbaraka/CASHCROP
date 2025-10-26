@@ -37,6 +37,7 @@ export default function AddItem({navigation}) {
 
   const item = route?.params?.item;
   const edit = route?.params?.edit;
+   const shop = route?.params?.shop;
   const editmode = item && edit;
   
 
@@ -87,11 +88,22 @@ export default function AddItem({navigation}) {
       data.append("unit" ,unit );
       data.append("price" ,price );
       data.append("priceunit" ,priceunit );
-      data.append("image" ,imageuri );
+      data.append ('shop' , shop?._id);
+      // data.append("image" ,imageuri );
+      const filename = imageuri.split('/').pop();
+      const match = /\.(\w+)$/.exec(filename);
+      const fileType = match ? `image/${match[1]}` : 'image';
+
+  data.append('image', {
+    uri: imageuri,
+    name: filename,
+    type: fileType,
+  });
+
       // data.append("" , );
 
 
-      const create = await fetch(`${base_url}/add_item` , {
+      const create = await fetch(`${base_url}/create_item` , {
         method:'POST',
         body:data
       })
