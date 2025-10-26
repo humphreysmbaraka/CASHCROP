@@ -55,8 +55,8 @@ export default function ShopView({navigation ,route}) {
 
 
 
-  console.log("Navigation State:", navigation.getState());
-  console.log("Current route:", route.name);
+  // console.log("Navigation State:", navigation.getState());
+  // console.log("Current route:", route.name);
 
 
 
@@ -79,7 +79,7 @@ export default function ShopView({navigation ,route}) {
         shop?.items.length > 0?(
             shop?.items.map((item ,index) => (
                 <Pressable  onPress={()=>{client?navigation.navigate('visitview' , {screen:'view' ,params:{item} }):navigation.navigate('shopitem' , {screen:'overview' , params:{item}})}} key={index} width="48%" mb={4} bg="gray.50" borderRadius="lg" shadow={1} overflow="hidden">
-                  <Image source={{uri:`/${base_url}/item_picture/${item?._id}`|| null}} alt={item.name} height={120} width="100%" />
+                  <Image source={{uri:`${base_url}/item_picture/${item?._id}`|| null}} alt={item.name} height={120} width="100%" />
                   <Text p={2} fontWeight="bold">{item.name}</Text>
                   <Text p={2}>Price: {item.price}</Text>
                   <Text p={2}>Qty: {item.quantity}</Text>

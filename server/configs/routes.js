@@ -544,7 +544,7 @@ router.post(`/create_item` , memuploader.single('image') ,  async function(req ,
         
          if(upload){
             console.log('CREATING ITEM.....')
-            const usershop = await Shop.findOne({_id: new ObjectId(shop)});
+            const usershop = await Shop.findOne({_id: new ObjectId(shop)}).populate('items').populate('owner');
             if(!usershop){
                 console.log('shop not found');
                 return res.status(400).json({error:true , message:'shop not found'});
