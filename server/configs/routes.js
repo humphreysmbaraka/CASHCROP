@@ -459,6 +459,7 @@ router.post(`/create_shop` , memuploader.single('image') ,  async function(req ,
         const upload = req.file;
         
          if(upload){
+            console.log('CREATING SHOP...');
            const fileupload = new Promise(function(resolve , reject){
                const name = upload.originalname;
             //    const path = upload.path;
@@ -474,12 +475,12 @@ router.post(`/create_shop` , memuploader.single('image') ,  async function(req ,
                const readstream = Readable.from(upload.buffer);
                readstream.pipe(uploadstream);
    
-               readstream.on('finish' , function(){
+               uploadstream.on('finish' , function(){
                       resolve(uploadstream.id);
                })
    
    
-               readstream.on('error' , function(err){
+               uploadstream.on('error' , function(err){
                      reject(err);
                })
            })
@@ -537,7 +538,7 @@ router.post(`/create_item` , memuploader.single('image') ,  async function(req ,
         const upload = req.file;
         
          if(upload){
-            console.log('CREATING SHOP.....')
+            console.log('CREATING ITEM.....')
             const usershop = await Shop.findOne({_id: new ObjectId(shop)});
             if(!usershop){
                 console.log('shop not found');

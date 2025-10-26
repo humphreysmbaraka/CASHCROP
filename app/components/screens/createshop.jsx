@@ -111,9 +111,6 @@ export default function CreateShop({navigation}) {
          
         const create = await fetch(`${base_url}/create_shop` , {
           method:'POST',
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          },
           body:data
         })
 
