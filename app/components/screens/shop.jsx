@@ -55,7 +55,8 @@ export default function ShopView({navigation ,route}) {
 
 
 
-
+  console.log("Navigation State:", navigation.getState());
+  console.log("Current route:", route.name);
 
 
 
@@ -94,7 +95,7 @@ export default function ShopView({navigation ,route}) {
 
      {!client &&  
      
-     <Button mb={'60px'} onPress={()=>{navigation.navigate('add' , {shop} )} } mt={2}>Add Item</Button>
+     <Button mb={'60px'}  onPress={() => {navigation.navigate('add', { shop })}}  mt={2}>Add Item</Button>
      }
     </ScrollView>
   );

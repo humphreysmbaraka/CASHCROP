@@ -492,7 +492,7 @@ router.post(`/create_shop` , memuploader.single('image') ,  async function(req ,
               image , name ,type , customtype , description , country:JSON.parse(country) , county:JSON.parse(county) , area:JSON.parse(area)
            })
    
-           newshop.save();
+           await newshop.save();
            console.log('SHOP CREATED SUCCESSFULLY');
            return res.status(200).json({error:false , message:'shop created successfully' , shop:newshop})
    

@@ -78,6 +78,7 @@ export default function AddItem({navigation , route}) {
         setcreateerror('check the data you provided , some could be missing , or in the wrong format');
         return;
       }
+      console.log(shop);
       setcreating(true);
       setcreateerror(null);
       const data = new FormData();
@@ -355,7 +356,7 @@ export default function AddItem({navigation , route}) {
 
              <Button mt={2}  display={'flex'} alignItems={'center'} justifyContent={'center'} onPress={() => {createitem()}}>ADD ITEM
              {creating &&  
-               <Spinner        color={'white'} width={'30px'} height={'30px'}                  />
+               <Spinner    ml={'auto'} mr={'auto'}    color={'white'} width={'30px'} height={'30px'}                  />
               }
    
              </Button>

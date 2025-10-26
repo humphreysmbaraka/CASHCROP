@@ -173,9 +173,10 @@ function Navigator() {
                 <Stack2.Screen              name='shops' component={MyShops}                                />
                 <Stack2.Screen              name='shop' component={ShopView}                                />
                 <Stack2.Screen              name='shopitem' component={Shopitemstack}                                />
-                <Stack2.Screen              name='additem' component={Additemstack}  />
+                {/* <Stack2.Screen              name='additem' component={Additemstack}  /> WAS IN THE ADDITEMSTACK NAVIGATOR , WHOSE SCREEN(S) I MOVED TO THIS NAVIGATOR UNDER ADD SCREEN */}
                 <Stack2.Screen             name='visitview' component={Itemstacks}                                />
                 <Stack2.Screen             name='create'    component={CreateShop}                                />
+                <Stack2.Screen            name='add'  component={AddItem}  />
 
             </Stack2.Navigator>
       
@@ -209,11 +210,11 @@ function Navigator() {
       }
 
 
-      const Additemstack = function(){
+      const Additemstack = function(){    // CONSIDERING REMOVAL OF THIS NAVIGATOR SINCE I RPLICATED ITS SCREEN(S) IN THE SHOPSTACKS NAVIGATOR
         return(
           
              <Stack4.Navigator  screenOptions={{ headerShown: false }}  initialRouteName='add' >
-                 <Stack4.Screen    name='add'  component={AddItem}  />
+                 {/* <Stack4.Screen    name='add'  component={AddItem}  />   REPLICATED IT IN THE SHOPSTACKES TO AVOI UNNECESSARY NAVIGATORS  */} 
                  {/* <Stack4.Screen    name='done'  component={Shopstacks}  /> should navigate to the shop screen */}
                  {/* <Stack4.Screen    name=''  component={}  />
                  <Stack4.Screen    name=''  component={}  /> */}
