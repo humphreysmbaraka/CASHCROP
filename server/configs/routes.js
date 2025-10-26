@@ -201,7 +201,7 @@ router.get(`/profile_picture/:id` , async function(req , res){
             console.log('image found'  , file)
             res.set('Content-Type', file.metadata?.type || 'image/jpeg'  );
             
-            const downloadstream = profilepicsbucket.openDownloadStream(id);
+            const downloadstream = profilepicsbucket.openDownloadStream(new ObjectId(id));
             downloadstream.pipe(res);
             downloadstream.on('error' , function(err){
                 console.log('error streaming profile picture' , err);
@@ -232,7 +232,7 @@ router.get(`/shop_picture/:id` , async function(req , res){
             console.log('image found'  , file)
             res.set('Content-Type', file.metadata?.type || 'image/jpeg'  );
             
-            const downloadstream = shoppicsbucket.openDownloadStream(id);
+            const downloadstream = shoppicsbucket.openDownloadStream(new ObjectId(id));
             downloadstream.pipe(res);
             downloadstream.on('error' , function(err){
                 console.log('error streaming shop picture' , err);
@@ -263,7 +263,7 @@ router.get(`/item_picture/:id` , async function(req , res){
             console.log('image found'  , file)
             res.set('Content-Type', file.metadata?.type || 'image/jpeg'  );
             
-            const downloadstream = itempicsbucket.openDownloadStream(id);
+            const downloadstream = itempicsbucket.openDownloadStream(new ObjectId(id));
             downloadstream.pipe(res);
             downloadstream.on('error' , function(err){
                 console.log('error streaming item picture' , err);

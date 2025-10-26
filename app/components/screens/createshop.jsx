@@ -107,10 +107,10 @@ export default function CreateShop({navigation}) {
 
 
 
-        // data.append('image' ,  imageuri);
-        data.append('country' , country );
-        data.append('county' ,  county);
-        data.append('area' , area);
+        data.append('image' ,  imageuri);
+        // data.append('country' , country );
+        // data.append('county' ,  county);
+        // data.append('area' , area);
          
         const create = await fetch(`${base_url}/create_shop` , {
           method:'POST',
