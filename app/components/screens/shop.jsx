@@ -58,7 +58,7 @@ export default function ShopView({navigation ,route}) {
   // console.log("Navigation State:", navigation.getState());
   // console.log("Current route:", route.name);
 
-
+  console.log('shop object'  ,shop);
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10, paddingTop:Platform.OS==='android'?Constants.statusBarHeight:0  }}>

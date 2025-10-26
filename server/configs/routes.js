@@ -582,6 +582,7 @@ router.post(`/create_item` , memuploader.single('image') ,  async function(req ,
            await newitem.save();
            usershop.items.push(newitem._id);
            await usershop.save();
+           console.log(usershop);
            return res.status(200).json({error:false , message:'item created successfully' , item:newitem , shop:usershop})
    
          }
