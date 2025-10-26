@@ -445,7 +445,7 @@ router.get(`/get_shops/:id` , async function(req , res){
     }
     catch(err){
         console.log('error getting shops' , err);
-        return res.status(500).status({error:true , message:'server error' , problem:err})
+        return res.status(500).json({error:true , message:'server error' , problem:err})
     }
 })
 
