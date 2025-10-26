@@ -459,7 +459,7 @@ router.post(`/create_shop` , memuploader.single('image') ,  async function(req ,
         const upload = req.file;
         
          if(upload){
-            console.log('CREATING SHOP...');
+            console.log('CREATING SHOP...' , req.body);
            const fileupload = new Promise(function(resolve , reject){
                const name = upload.originalname;
             //    const path = upload.path;
