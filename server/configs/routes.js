@@ -226,7 +226,7 @@ router.get(`/profile_picture/:id` , async function(req , res){
 
 router.get(`/shop_picture/:id` , async function(req , res){
     try{
-        const id = req.params.id;  // NOT THE USER I , BUT THE IMAGE FILE ID FROM THE USER OBJECT
+        const id = req.params.id;  // NOT THE SHOP ID , BUT THE IMAGE FILE ID FROM THE SHOP OBJECT
         const file = await shoppicsbucket.find({_id:new ObjectId(id)}).toArray();
         if(file?.length > 0){
             console.log('image found'  , file)
@@ -257,7 +257,7 @@ router.get(`/shop_picture/:id` , async function(req , res){
 
 router.get(`/item_picture/:id` , async function(req , res){
     try{
-        const id = req.params.id;  // NOT THE USER I , BUT THE IMAGE FILE ID FROM THE USER OBJECT
+        const id = req.params.id;  // NOT THE USER ITEM ID , BUT THE IMAGE FILE ID FROM THE ITEM OBJECT
         const file = await itempicsbucket.find({_id:new ObjectId(id)}).toArray();
         if(file?.length > 0){
             console.log('image found'  , file)
@@ -277,7 +277,7 @@ router.get(`/item_picture/:id` , async function(req , res){
 
     }
     catch(err){
-        console.log('error getting profile picture' , err);
+        console.log('error getting item picture' , err);
         return res.status(500).json({error:true , prolem:err ,message:'server error'})
     }
 })   
@@ -582,6 +582,8 @@ router.post(`/create_item` , memuploader.single('image') ,  async function(req ,
            await newitem.save();
            usershop.items.push(newitem._id);
            await usershop.save();
+           await usershop.populate('items');
+           await usershop.populate('owner');
            console.log(usershop);
            return res.status(200).json({error:false , message:'item created successfully' , item:newitem , shop:usershop})
    
