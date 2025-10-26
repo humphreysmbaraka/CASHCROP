@@ -113,7 +113,8 @@ export default function AddItem({navigation , route}) {
         setcreateerror(null);
         const info = await create.json();
         const item = info.item;
-        navigation.navigate('shop' , {shop});
+        const shopinfo = info.shop; 
+        navigation.navigate('shop' , {shop:shopinfo});
         
       }
       else{
