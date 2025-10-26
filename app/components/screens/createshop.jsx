@@ -87,6 +87,9 @@ export default function CreateShop({navigation}) {
         const data = new FormData();
         data.append('name' , name);
         data.append('type' , type);
+        data.append('country' , country);
+        data.append('county' , county);
+        data.append('area' , area);
         data.append('customtype' , customType );
         data.append('description' , description );
        
