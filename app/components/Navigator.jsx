@@ -274,7 +274,10 @@ const Itemstacks = function(){
 
 
 return (
-    <NavigationContainer>
+    <NavigationContainer    screenOptions={{
+      headerShown: false,
+      safeAreaInsets: { top: 0, bottom: 0 }, // 🔥 Disable protection region
+    }}>
         {loggedin ?
       <Bottomtabs/> :
      <Auth/>  

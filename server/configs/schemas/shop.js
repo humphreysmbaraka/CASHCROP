@@ -15,7 +15,7 @@ const shopschema = new mongoose.Schema({
    country:{type:Object , required:true},
    county:{type:Object , required:true},
    area:{type:Object , required:true},
-   owner:[{type:mongoose.Schema.Types.ObjectId , required:true ,ref:'user'}],
+   owner:{type:mongoose.Schema.Types.ObjectId , required:true ,ref:'user'},
    items:[{type:mongoose.Schema.Types.ObjectId , required:false ,ref:'item'}],
    orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],
    fans:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'user'}]// those who liked the shop

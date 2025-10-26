@@ -23,6 +23,42 @@ import base_url from "../constants/baseurl";
 
 export default function ShopView({navigation ,route}) {
     const {client ,shop} = route.params || {}
+
+  //  const [fetcherror , setfetcherror] = useState(null);
+  //  const [shopinfo ,setshopinfo] = useState(null);
+  //  const [fetching  , setfetching] = useState(false);
+
+  //   const getshop = async function(){
+  //     try{
+  //         setfetching(true);
+  //         setfetcherror(null);
+  //         const shop = await fetch(`${base_url}/get_shop/${shop?._id}`);
+  //         if(shop.ok){
+  //           setfetching(false);
+  //           setfetcherror(null);
+  //           const info = await shop.json();
+  //           setshopinfo(info.shop);
+  //         }
+  //         else{
+  //           setfetching(false);
+  //           setfetcherror('error occured while trying to fetch shop info');
+  //           console.log('could not get shop info');
+  //         }
+  //     }
+  //     catch(err){
+  //       setfetcherror('ERROR');
+  //       setfetching(false);
+  //       console.log('could not fetch shoo' , err);
+  //       throw new Error('error occured while fetching shop info');
+  //     }
+  //   }
+
+
+
+
+
+
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10, paddingTop:Platform.OS==='android'?Constants.statusBarHeight:0  }}>
       <Image source={{uri:`${base_url}/shop_picture/${shop?.image}`}} alt="shop" height={200} width="100%" borderRadius={10} />
@@ -58,7 +94,7 @@ export default function ShopView({navigation ,route}) {
 
      {!client &&  
      
-     <Button mb={'60px'} onPress={()=>{navigation.navigate('additem' , { screen: 'add' , params:{shop} })}} mt={2}>Add Item</Button>
+     <Button mb={'60px'} onPress={()=>{navigation.navigate('add' , {shop} )} } mt={2}>Add Item</Button>
      }
     </ScrollView>
   );

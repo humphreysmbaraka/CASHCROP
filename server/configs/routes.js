@@ -150,7 +150,7 @@ router.get(`/get_user/:id` , async function(req , res){
 router.get(`/get_shop/:id` , async function(req , res){
     try{
        const id = req.params.id;
-       const shop = await Shop.findOne({_id:new ObjectId(id)});
+       const shop = await Shop.findOne({_id:new ObjectId(id)}).populate('items').populate('owner');
        if(shop){
          console.log('shop found');
          return res.status(200).json({error:false , message:'shop found' , shop:shop})
@@ -434,7 +434,8 @@ router.post(`/log_in` , async function(req , res){
 router.get(`/get_shops/:id` , async function(req , res){
     try{
          const id = req.params.id;
-         const shops = await Shop.find({owner: new ObjectId(id)}).populate('items');
+         const shops = await Shop.find({owner: new ObjectId(id)}).populate('items').populate('owner');
+       
          if(!shops || shops.length == 0){
             console.log('no shops found');
             return res.status(200).json({error:false , message:'no shops found' ,shops:[]})

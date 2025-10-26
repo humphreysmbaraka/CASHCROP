@@ -14,11 +14,15 @@ import CreateShop from './components/screens/createshop';
 import ViewItem from './components/screens/item';
 import AddItem from './components/screens/additem';
 import { AuthProvider } from './contexts/authcontext';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigator from './components/Navigator';
 export default function App() {
   return (
     
-    <SafeAreaView  style={{ width:'100%' , flex:1 , backgroundColor:'white'}}   >
+    // <SafeAreaView  style={{ width:'100%' , flex:1 , backgroundColor:'white'}}   >
+      // <SafeAreaProvider>
+      <>
+      <StatusBar     translucent backgroundColor='transparent'    />
       <AuthProvider>
       <NativeBaseProvider>
                     {/* <Landing/> */}
@@ -33,7 +37,9 @@ export default function App() {
                     <Navigator/>
      </NativeBaseProvider>
      </AuthProvider>
-    </SafeAreaView>
+     </>
+    //  </SafeAreaProvider>
+    // </SafeAreaView>
   );
 }
 

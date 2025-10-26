@@ -10,7 +10,7 @@ import {CameraView} from 'expo-camera';
 
 
 
-export default function AddItem({navigation}) {
+export default function AddItem({navigation , route}) {
     const [imageuri , setimageuri] = useState(editmode?item?.image:null);
     const [name ,setname] = useState(editmode?item?.name:null);
     const [type ,settype] = useState(editmode?item?.type:null);
@@ -112,7 +112,7 @@ export default function AddItem({navigation}) {
         setcreateerror(null);
         const info = await create.json();
         const item = info.item;
-        navigation.navigate('shopstacks' , {screen:'shop'});
+        navigation.navigate('shop' , {shop});
         
       }
       else{
@@ -353,7 +353,7 @@ export default function AddItem({navigation}) {
              <Text color={'red'} alignSelf={'center'}  fontSize={'sm'}  >{createerror}</Text>
              }
 
-             <Button mt={2} onPress={() => {createitem}}>ADD ITEM
+             <Button mt={2}  display={'flex'} alignItems={'center'} justifyContent={'center'} onPress={() => {createitem()}}>ADD ITEM
              {creating &&  
                <Spinner        color={'white'} width={'30px'} height={'30px'}                  />
               }
