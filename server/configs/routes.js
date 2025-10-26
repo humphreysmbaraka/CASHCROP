@@ -258,6 +258,7 @@ router.get(`/shop_picture/:id` , async function(req , res){
 router.get(`/item_picture/:id` , async function(req , res){
     try{
         const id = req.params.id;  // NOT THE USER ITEM ID , BUT THE IMAGE FILE ID FROM THE ITEM OBJECT
+        console.log('item pic id' , id);
         const file = await itempicsbucket.find({_id:new ObjectId(id)}).toArray();
         if(file?.length > 0){
             console.log('image found'  , file)

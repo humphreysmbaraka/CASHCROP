@@ -80,9 +80,9 @@ export default function ShopView({navigation ,route}) {
             shop?.items.map((item ,index) => (
                 <Pressable  onPress={()=>{client?navigation.navigate('visitview' , {screen:'view' ,params:{item} }):navigation.navigate('shopitem' , {screen:'overview' , params:{item}})}} key={index} width="48%" mb={4} bg="gray.50" borderRadius="lg" shadow={1} overflow="hidden">
                   <Image source={{uri:`${base_url}/item_picture/${item?._image}`|| null}} alt={item.name} height={120} width="100%" />
-                  <Text p={2} fontWeight="bold">{item.name}</Text>
+                  <Text  width={'95%'} isTruncated  p={2} fontWeight="bold">{item.name}</Text>
                   <Text p={2}>Price: {item.price}</Text>
-                  <Text p={2}>Qty: {item.quantity}</Text>
+                  {/* <Text p={2}>Qty: {item.quantity}</Text> */}
                 </Pressable>
               ))
         )
