@@ -131,7 +131,7 @@ export default function Login({navigation}) {
             width={'80%'}
             placeholder="Email"
             value={email}
-            onChangeText={(val) => setemail(val)}
+            onChangeText={(val) => setemail(val.trim())}
             variant="outline"
             size="lg"
           />
@@ -140,7 +140,7 @@ export default function Login({navigation}) {
             placeholder="Password"
             type="password"
             value={password}
-            onChangeText={(val) => setpassword(val)}
+            onChangeText={(val) => setpassword(val.trim())}
             variant="outline"
             size="lg"
           />

@@ -11,7 +11,7 @@ const User = require('./schemas/user');
 const bcrypt = require('bcrypt');
 const Shop = require('./schemas/shop');
 const Item = require('./schemas/item');
-
+const {Readable} = require('stream');
 
 
           // DEFINR GRIDFS BUCKETS FOR FILE UPLOADS
@@ -295,7 +295,7 @@ router.get(`/item_picture/:id` , async function(req , res){
 
 
 
-router.post(`/create_account` ,diskuploader.single('image') ,  async function(req , res){
+router.post(`/create_account` ,memuploader.single('image') ,  async function(req , res){
     try{
       const {email , password , username , number , role , country, county , area} = req.body;
      const upload = req.file;
@@ -310,7 +310,7 @@ router.post(`/create_account` ,diskuploader.single('image') ,  async function(re
       if(upload){
         const fileupload = new Promise(function(resolve , reject){
             const name = upload.originalname;
-            const path = upload.path;
+            // const path = upload.path;
             const size = upload.size;
             const type = upload.mimetype;
 
@@ -320,7 +320,7 @@ router.post(`/create_account` ,diskuploader.single('image') ,  async function(re
                 }
             })
 
-            const readstream = fs.createReadStream(path);
+            const readstream = Readable.from(upload.buffer);
             readstream.pipe(uploadstream);
 
             readstream.on('finish' , function(){
@@ -440,7 +440,7 @@ router.get(`/get_shops/:id` , async function(req , res){
             return res.status(200).json({error:false , message:'no shops found' ,shops:[]})
          }
          else{
-            return res.status(200).json({error:false , message:'no shops found' ,shops:shops})
+            return res.status(200).json({error:false , message:'shops found' ,shops:shops})
          }
     }
     catch(err){
@@ -453,7 +453,7 @@ router.get(`/get_shops/:id` , async function(req , res){
 
 
 
-router.post(`/create_shop` , diskuploader.single('image') ,  async function(req , res){
+router.post(`/create_shop` , memuploader.single('image') ,  async function(req , res){
     try{
         const {name , type , customtype ,  description , county , country , area } = req.body;
         const upload = req.file;
@@ -461,7 +461,7 @@ router.post(`/create_shop` , diskuploader.single('image') ,  async function(req 
          if(upload){
            const fileupload = new Promise(function(resolve , reject){
                const name = upload.originalname;
-               const path = upload.path;
+            //    const path = upload.path;
                const size = upload.size;
                const type = upload.mimetype;
    
@@ -471,7 +471,7 @@ router.post(`/create_shop` , diskuploader.single('image') ,  async function(req 
                    }
                })
    
-               const readstream = fs.createReadStream(path);
+               const readstream = Readable.from(upload.buffer);
                readstream.pipe(uploadstream);
    
                readstream.on('finish' , function(){

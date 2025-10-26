@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ScrollView, Alert } from "react-native";
 import { Box, VStack, HStack, Image, Text, Button, Heading, Spinner } from "native-base";
 import Constants from 'expo-constants';
@@ -100,14 +100,14 @@ useEffect(function(){
 
 
 {fetcherror   && <Text  alignSelf={'center'} color={'red.700'} fontSize={'xs'} >{fetcherror}</Text>}
-        <Button  mb={'60px'} mt={4} onPress={() =>{getshops}}>
-        refetch  {fetching &&   <Spinner   color={'white'} width={'20px'} height={'20px'}              />}
+        <Button  mb={'60px'} mt={4} onPress={async () =>{await getshops()}}>
+        retry  {fetching &&   <Spinner   color={'white'} width={'20px'} height={'20px'}              />}
       </Button>
          
          </>
       ) : (
         <HStack flexWrap="wrap" justifyContent="space-between">
-          {shopsData.map((shop , index) => (
+          {shops.map((shop , index) => (
             <Box
               key={index}
               bg="gray.50"
@@ -119,7 +119,7 @@ useEffect(function(){
              
             >
               <Image
-                source={shop.image}
+                source={{uri:shop?.image}}
                 alt={shop.name}
                 height={120}
                 width="100%"

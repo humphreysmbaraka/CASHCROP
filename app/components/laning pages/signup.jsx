@@ -39,6 +39,7 @@ export default function Signup({navigation}) {
   const [submiterror , setsubmiterror] = useState(null);
   const [verificationerror , setverificationerror] = useState(null);
   const {launchimagepicker} = useMediaFunctions();
+  const [returneduser , setreturneduser] = useState(null);
 
   const verifytoken = useVerifyToken();
   const gettoken = useGettoken();
@@ -133,7 +134,8 @@ const fetchcounties = async function(){
             setsubmiterror(null);
             const info = await create.json();
             const user = info.user;
-            setuser(user);
+            console.log('user object returned'  , user);
+            setreturneduser(user);
 
           }
           else{
@@ -160,7 +162,8 @@ const fetchcounties = async function(){
             setsubmiterror(null);
             const info = await create.json();
             const user = info.user;
-            setuser(user);
+            setreturneduser(user);
+            console.log('user object returned'  , user);
              handleNext();
           }
           else{
@@ -192,7 +195,7 @@ const fetchcounties = async function(){
      }
      else{
        setverifying(true);
-      const verify = await fetch(`${base_url}/verify_otp?id=${user._id}&otp=${otp.trim()}` , {
+      const verify = await fetch(`${base_url}/verify_otp?id=${returneduser._id}&otp=${otp.trim()}` , {
         method:'POST',
         // headers:{
         //   'Content-Type':'application/json'
@@ -217,6 +220,19 @@ const fetchcounties = async function(){
 
       }
      }
+  }
+
+
+
+  const begin = async function(){
+    try{
+      setuser(returneduser);
+      setloggedin(true);
+    }
+    catch(err){
+      console.log('could not start app' , err);
+
+    }
   }
 
   
@@ -247,7 +263,7 @@ const images = [
             width={'80%'}
             placeholder="Email"
             value={email}
-            onChangeText={(val) => setemail(val)}
+            onChangeText={(val) => setemail(val.trim())}
             variant="outline"
             size="lg"
           />
@@ -256,7 +272,7 @@ const images = [
             placeholder="Password"
             type="password"
             value={password}
-            onChangeText={(val) => setpassword(val)}
+            onChangeText={(val) => setpassword(val.trim())}
             variant="outline"
             size="lg"
           />
@@ -432,7 +448,7 @@ const images = [
                 placeholder="Enter OTP"
                 keyboardType="numeric"
                 value={otp}
-                onChangeText={(val) => setotp(val)}
+                onChangeText={(val) => setotp(val.trim())}
                 variant="outline"
                 size="lg"
               />
@@ -461,7 +477,7 @@ const images = [
               <Text fontSize="md" textAlign="center" px={4}>
                 Connect with sellers and buyers across the nation to build a strong agricultural ecosystem.
               </Text>
-              <Button mt={6} colorScheme="teal" rounded="xl" width={'50%'} alignSelf={'center'} onPress={()=>{setloggedin(true)}} >
+              <Button mt={6} colorScheme="teal" rounded="xl" width={'50%'} alignSelf={'center'} onPress={begin} >
                 Begin
               </Button>
             </VStack>
