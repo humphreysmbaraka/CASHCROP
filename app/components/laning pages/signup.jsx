@@ -120,7 +120,17 @@ const fetchcounties = async function(){
           data.append('username' , username );
           data.append('number' , number);
           data.append('role' , role);
-          data.append('image' ,imageuri );
+          // data.append('image' ,imageuri );
+          const filename = imageuri.split('/').pop();
+          const match = /\.(\w+)$/.exec(filename);
+          const fileType = match ? `image/${match[1]}` : 'image';
+    
+      data.append('image', {
+        uri: imageuri,
+        name: filename,
+        type: fileType,
+      });
+
           data.append('country' , JSON.stringify(selectedcountry) );
           data.append('county' ,JSON.stringify(selectedcounty) );
           data.append('area' ,JSON.stringify(selectedarea) );
@@ -136,6 +146,7 @@ const fetchcounties = async function(){
             const user = info.user;
             console.log('user object returned'  , user);
             setreturneduser(user);
+            handleNext();
 
           }
           else{
@@ -302,10 +313,10 @@ const images = [
 
           {imageuri && 
               <>
-              <Button mt={6} colorScheme={'red'} width={'30px'} height={'30px'}  borderRadius={'50%'} color={'white'} alignSelf={'center'} onPress={()=>{setimageuri(null)}} >
+              <Button mt={6}  alignItems={'center'} justifyContent={'center'} colorScheme={'red'} width={'30px'} height={'30px'}  borderRadius={'50%'} color={'white'} alignSelf={'center'} onPress={()=>{setimageuri(null)}} >
               X
             </Button>
-           <Text mt={'10px'}  alignSelf={'center'} fontSize={'small'} fontWeight={'bold'}  >clear selected image</Text>
+           <Text mt={'10px'}  alignSelf={'center'} fontSize={'sm'} fontWeight={'bold'}  >clear selected image</Text>
 
 
               </>

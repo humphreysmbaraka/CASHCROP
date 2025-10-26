@@ -538,8 +538,8 @@ router.post(`/create_item` , memuploader.single('image') ,  async function(req ,
         
          if(upload){
             console.log('CREATING SHOP.....')
-            const shop = await Shop.findOne({_id: new ObjectId(shop)});
-            if(!shop){
+            const usershop = await Shop.findOne({_id: new ObjectId(shop)});
+            if(!usershop){
                 console.log('shop not found');
                 return res.status(400).json({error:true , message:'shop not found'});
             }
@@ -571,11 +571,11 @@ router.post(`/create_item` , memuploader.single('image') ,  async function(req ,
            const image = await fileupload;
            
            const newitem = new Item({
-              image , name ,type , description , quantity , unit , price , price_unit
+              image , name ,type , description , quantity , unit , price , price_unit:priceunit
            })
            await newitem.save();
-           shop.items.push(newitem._id);
-           await shop.save();
+           usershop.items.push(newitem._id);
+           await usershop.save();
            return res.status(200).json({error:false , message:'item created successfully' , item:newitem})
    
          }
