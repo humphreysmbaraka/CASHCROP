@@ -468,7 +468,7 @@ router.get(`/get_shops/:id` , async function(req , res){
          }
          else{
             const shoppromises = shops.map(function(val , ind){
-                return Shop.findOne({_id:new ObjectId(val)}).populate('owner').exec();
+                return Shop.findOne({_id:new ObjectId(val)}).populate('owner').populate('items').exec();
             })
 
             const shopobjects = await Promise.all(shoppromises);
