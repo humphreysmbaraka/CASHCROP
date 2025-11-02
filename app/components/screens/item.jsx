@@ -83,7 +83,7 @@ export default function ViewItem({navigation , route}) {
       <Button mt={4} onPress={() =>{navigation.navigate('edit' , {item , edit:true , shop ,  handlereturn})} }>Edit Item</Button>
       {deleteerror && <Text alignSelf={'center'} color={'red.200'}  fontSize={'xs'}    >{deleteerror}</Text>}
       <Button mt={2} mb={'60px'} colorScheme="danger" onPress={deleteitem}>
-        Delete Item   {deleting &&  <Spinner   width={'20px'} height={'20px'} color={'white'}             /> }
+        Delete Item   {deleting &&  <Spinner alignSelf={'center'} ml={'auto'} mr={'auto'}  width={'20px'} height={'20px'} color={'white'}             /> }
       </Button>
     </ScrollView>
   );

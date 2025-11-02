@@ -751,7 +751,7 @@ router.delete(`/delete_item` , async function(req , res){
             // })
             // sellingshop.items = newitemslist;
 
-            sellingshop.items = sellingshop.items.filter(val => !val.equals(itemId));
+            sellingshop.items = sellingshop.items.filter(val => !val.equals(item));
           
           
             await sellingshop.save();
