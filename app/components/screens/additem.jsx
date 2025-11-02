@@ -12,15 +12,15 @@ import {CameraView} from 'expo-camera';
 
 export default function AddItem({navigation , route}) {
 
-
+ const {item , edit , shop , handlereturn} = route?.params || {};
     
-  const item = route?.params?.item;
-  const edit = route?.params?.edit;
-   const shop = route?.params?.shop;
-   const handlereturn = route?.params?.handlereturn;
+  // const item = route?.params?.item;
+  // const edit = route?.params?.edit;
+  //  const shop = route?.params?.shop;
+  //  const handlereturn = route?.params?.handlereturn;
   const [editmode , seteditmode] = useState(null);
 
-
+ console.log('initial  item , edit , shop params   :' , item , edit , shop , route?.params);
 
     const [imageuri , setimageuri] = useState(editmode?item?.image:null);
     const [name ,setname] = useState(editmode?item?.name:null);
@@ -48,13 +48,16 @@ export default function AddItem({navigation , route}) {
 
 
   useEffect(() => {
+    console.log('current  item , edit , shop params  :' , item , edit , shop , route?.params);
     if (edit && item) {
       seteditmode(true);
     }
-    else{
+    else{  
       seteditmode(false);
     }
   }, [item, edit]);
+  
+    
   
 
 

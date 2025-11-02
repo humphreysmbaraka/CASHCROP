@@ -71,7 +71,7 @@ export default function ViewItem({navigation , route}) {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10 , paddingTop : Platform.OS=='android'?Constants.statusBarHeight:0 }}>
-      <Image source={{uri:item?.image || null}} alt={item?.name} height={200} width="100%" borderRadius={10} />
+      <Image source={{uri:`${base_url}/item_picture/${item?.image}` || null}} alt={item?.name} height={200} width="100%" borderRadius={10} />
       <VStack mt={2} space={1}>
         <Heading>{item?.name}</Heading>
         {/* <Text>{item.description}</Text> */}
@@ -80,7 +80,7 @@ export default function ViewItem({navigation , route}) {
         <Text>Price: {item?.price} per {item?.unit}</Text>
       </VStack>
 
-      <Button mt={4} onPress={() =>{navigation.navigate('edit' , {item:item , edit:true , handlereturn})} }>Edit Item</Button>
+      <Button mt={4} onPress={() =>{navigation.navigate('edit' , {item , edit:true , shop ,  handlereturn})} }>Edit Item</Button>
       {deleteerror && <Text alignSelf={'center'} color={'red.200'}  fontSize={'xs'}    >{deleteerror}</Text>}
       <Button mt={2} mb={'60px'} colorScheme="danger" onPress={deleteitem}>
         Delete Item   {deleting &&  <Spinner   width={'20px'} height={'20px'} color={'white'}             /> }

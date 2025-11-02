@@ -746,11 +746,14 @@ router.delete(`/delete_item` , async function(req , res){
     if(sellingshop){
          const comodity = await Item.findOne({_id:new ObjectId(item)});
          if(comodity){
-            const newitemslist = sellingshop.items.filter(function(val , ind){
-                return val !== item;
-            })
+            // const newitemslist = sellingshop.items.filter(function(val , ind){
+            //     return val !== new ObjectId(item);
+            // })
+            // sellingshop.items = newitemslist;
 
-            sellingshop.items = newitemslist;
+            sellingshop.items = sellingshop.items.filter(val => !val.equals(itemId));
+          
+          
             await sellingshop.save();
             await Item.deleteOne({_id:new ObjectId(item)});
             return res.status(200).json({eror:false , shop:sellingshop});
