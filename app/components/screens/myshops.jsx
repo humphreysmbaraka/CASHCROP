@@ -18,7 +18,7 @@ export default function MyShops({ navigation }) {
 
   const getshops = async function(){
     try{
-
+  console.log(user._id);
       setfetcherror(null);
       setfetching(true);
          console.log('user info' , user);
@@ -29,6 +29,7 @@ export default function MyShops({ navigation }) {
           const info = await res.json();
           const shops = info.shops;
           setshops(shops);
+
 
 
         }

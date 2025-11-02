@@ -76,6 +76,7 @@ export default function Login({navigation}) {
                 const info = await login.json();
                 settoken(fetchedtoken);
                 setuser(info.user);
+                console.log(info.user);
                 setloggedin(true);
                
             }

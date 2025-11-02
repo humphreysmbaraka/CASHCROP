@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
 import { Box, VStack, Text, Image, Heading, HStack, Button, Pressable } from "native-base";
 import { Platform } from "react-native";

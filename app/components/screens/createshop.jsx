@@ -92,7 +92,7 @@ export default function CreateShop({navigation}) {
         data.append('area' , JSON.stringify(area));
         data.append('customtype' , customType );
         data.append('description' , description );
-       
+        data.append('owner' , user?._id);
         const filename = imageuri.split('/').pop();
         const match = /\.(\w+)$/.exec(filename);
         const fileType = match ? `image/${match[1]}` : 'image';

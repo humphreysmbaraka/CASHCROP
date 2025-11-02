@@ -36,10 +36,10 @@ function AuthProvider({children}) {
           if(loggedin){
             await SecureStore.setItemAsync('loggedin' , String(true));
            }
-           else if (user){
+            if (user){
             await SecureStore.setItemAsync('user' , JSON.stringify(user));
            }
-           else if(token){
+            if(token){
             await SecureStore.setItemAsync('token' , token);
            }
 
@@ -63,10 +63,10 @@ function AuthProvider({children}) {
       if(!loggedin){
         await SecureStore.deleteItemAsync('loggedin');
        }
-       else if (!user){
+        if (!user){
         await SecureStore.deleteItemAsync('user');
        }
-       else if(!token){
+        if(!token){
         await SecureStore.deleteItemAsync('token');
        }
      }

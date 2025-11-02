@@ -409,7 +409,7 @@ router.post(`/log_in` , async function(req , res){
          console.log('user found');
          const match = await bcrypt.compare(password  ,user.password);
          if(match){
-            return res.status(200).json({error:false , message:'loged in successfully'});
+            return res.status(200).json({error:false , message:'loged in successfully' , user});
          }
          else{
             console.log('invalid password');
@@ -455,6 +455,7 @@ router.post(`/log_in` , async function(req , res){
 router.get(`/get_shops/:id` , async function(req , res){
     try{
          const id = req.params.id;
+         console.log('USER ID...' ,id);
          const user = await User.findOne({_id: new ObjectId(id)});
          if(!user){
             console.log('no such user found');
@@ -485,9 +486,13 @@ router.get(`/get_shops/:id` , async function(req , res){
 
 router.post(`/create_shop` , memuploader.single('image') ,  async function(req , res){
     try{
-        const {name , type , customtype ,  description , county , country , area } = req.body;
+        const {name , type , customtype ,  description , county , country , area , owner } = req.body;
         const upload = req.file;
-        
+      const user = User.findOne({_id: new ObjectId(owner)});
+        if(!user){
+            console.log('user not found');
+            return res.status(400).json({error:true , mesage:'user not found'});
+        }
          if(upload){
             console.log('CREATING SHOP...' , req.body);
            const fileupload = new Promise(function(resolve , reject){
@@ -518,10 +523,13 @@ router.post(`/create_shop` , memuploader.single('image') ,  async function(req ,
            const image = await fileupload;
            console.log('IMAGE UPLOADED');
            const newshop = new Shop({
-              image , name ,type , customtype , description , country:JSON.parse(country) , county:JSON.parse(county) , area:JSON.parse(area)
+             owner , image , name ,type , customtype , description , country:JSON.parse(country) , county:JSON.parse(county) , area:JSON.parse(area)
            })
    
            await newshop.save();
+
+         const newshops = user.shops.push(newshop._id);
+         await user.save();
            console.log('SHOP CREATED SUCCESSFULLY');
            return res.status(200).json({error:false , message:'shop created successfully' , shop:newshop})
    
