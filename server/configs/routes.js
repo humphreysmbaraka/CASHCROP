@@ -753,7 +753,7 @@ router.delete(`/delete_item` , async function(req , res){
             sellingshop.items = newitemslist;
             await sellingshop.save();
             await Item.deleteOne({_id:new ObjectId(item)});
-            return res.status(200).status({eror:false , shop:sellingshop});
+            return res.status(200).json({eror:false , shop:sellingshop});
          }
          else{
             console.log('no such item found');

@@ -121,7 +121,7 @@ useEffect(function(){
              
             >
               <Image
-                source={{uri:shop?.image}}
+                source={{uri:`${base_url}/shop_picture/${shop?.image}`}}
                 alt={shop.name}
                 height={120}
                 width="100%"

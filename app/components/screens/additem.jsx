@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ScrollView, Alert , Platform } from "react-native";
 import { Box, VStack, Input, Button, Avatar, Select, CheckIcon, Text, Heading, TextArea, Spinner, HStack , Pressable  } from "native-base";
 import Constants from 'expo-constants'
@@ -11,6 +11,17 @@ import {CameraView} from 'expo-camera';
 
 
 export default function AddItem({navigation , route}) {
+
+
+    
+  const item = route?.params?.item;
+  const edit = route?.params?.edit;
+   const shop = route?.params?.shop;
+   const handlereturn = route?.params?.handlereturn;
+  const [editmode , seteditmode] = useState(null);
+
+
+
     const [imageuri , setimageuri] = useState(editmode?item?.image:null);
     const [name ,setname] = useState(editmode?item?.name:null);
     const [type ,settype] = useState(editmode?item?.type:null);
@@ -35,11 +46,15 @@ export default function AddItem({navigation , route}) {
   const {launchcamera ,launchimagepicker , takepicture} = useMediaFunctions();
 
 
-  const item = route?.params?.item;
-  const edit = route?.params?.edit;
-   const shop = route?.params?.shop;
-   const handlereturn = route?.params?.handlereturn;
-  const editmode = item && edit;
+
+  useEffect(() => {
+    if (edit && item) {
+      seteditmode(true);
+    }
+    else{
+      seteditmode(false);
+    }
+  }, [item, edit]);
   
 
 

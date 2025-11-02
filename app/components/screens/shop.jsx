@@ -56,7 +56,7 @@ export default function ShopView({navigation ,route}) {
 
      {!client &&  
      
-     <Button mb={'60px'}  onPress={() => {navigation.navigate('add', { shop:shopobj })}}  mt={2}>Add Item</Button>
+     <Button mb={'60px'}  onPress={() => {navigation.navigate('add', { shop:shopobj ,handlereturn })}}  mt={2}>Add Item</Button>
      }
     </ScrollView>
   );
