@@ -4,6 +4,7 @@ import { Box, VStack, HStack, Text, Image, Button, Heading, Divider } from "nati
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 import AddToCartModal from "./addtocartmodal";
+import base_url from "../constants/baseurl";
 
 export default function ViewItemPage({navigation ,route}) {
   const [quantity, setQuantity] = useState(1);
@@ -18,7 +19,7 @@ export default function ViewItemPage({navigation ,route}) {
       {/* Item Info */}
       <HStack space={4} mb={4} alignItems="center">
         <Image
-          source={{uri:item?.image}}
+          source={{uri:`${base_url}/item_picture/${item.image}`}}
           alt="item"
           size="xl"
           borderRadius="md"

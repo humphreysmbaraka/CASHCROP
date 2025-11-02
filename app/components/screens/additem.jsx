@@ -38,6 +38,7 @@ export default function AddItem({navigation , route}) {
   const item = route?.params?.item;
   const edit = route?.params?.edit;
    const shop = route?.params?.shop;
+   const handlereturn = route?.params?.handlereturn;
   const editmode = item && edit;
   
 
@@ -114,6 +115,7 @@ export default function AddItem({navigation , route}) {
         const info = await create.json();
         const item = info.item;
         const shopinfo = info.shop; 
+        handlereturn(shopinfo);
         navigation.navigate('shop' , {shop:shopinfo});
         
       }
@@ -161,6 +163,7 @@ export default function AddItem({navigation , route}) {
       data.append("priceunit" ,priceunit );
       data.append("image" ,imageuri );
       data.append('id' , item._id);
+      data.append('shop' , shop?.id);
       // data.append("" , );
 
 
@@ -173,7 +176,9 @@ export default function AddItem({navigation , route}) {
         setediterror(null);
         const info = await create.json();
         const item = info.item;
-        navigation.navigate('shopstacks' , {screen:'shop'});
+        const shop = info.shop;
+        // handlereturn(shop)  // NOT NEEDED SINCE WE ARE NAVIGATING TO ANOTHER NAVIGATOR THUS THE COMPONENTS MOUNT AFRESH
+        navigation.navigate('shopstacks' , {screen:'shop' , params:{shop , client:false}});
         
       }
       else{

@@ -432,17 +432,46 @@ router.post(`/log_in` , async function(req , res){
 
 
 
+// router.get(`/get_shops/:id` , async function(req , res){
+//     try{
+//          const id = req.params.id;
+//          const shops = await Shop.find({owner: new ObjectId(id)}).populate('items').populate('owner');
+       
+//          if(!shops || shops.length == 0){
+//             console.log('no shops found');
+//             return res.status(200).json({error:false , message:'no shops found' ,shops:[]})
+//          }
+//          else{
+//             return res.status(200).json({error:false , message:'shops found' ,shops:shops})
+//          }
+//     }
+//     catch(err){
+//         console.log('error getting shops' , err);
+//         return res.status(500).json({error:true , message:'server error' , problem:err})
+//     }
+// })
+
+
 router.get(`/get_shops/:id` , async function(req , res){
     try{
          const id = req.params.id;
-         const shops = await Shop.find({owner: new ObjectId(id)}).populate('items').populate('owner');
-       
-         if(!shops || shops.length == 0){
-            console.log('no shops found');
-            return res.status(200).json({error:false , message:'no shops found' ,shops:[]})
+         const user = await User.findOne({_id: new ObjectId(id)});
+         if(!user){
+            console.log('no such user found');
+            return res.status(400).json({error:true , message:'no such user found'});
+         }
+         const shops = user.shops;
+         if(user.shops.length == 0){
+            console.log('user has no shops yet');
+            return res.status(200).json({error:false , shops:[]});
          }
          else{
-            return res.status(200).json({error:false , message:'shops found' ,shops:shops})
+            const shoppromises = shops.map(function(val , ind){
+                return Shop.findOne({_id:new ObjectId(val)}).populate('owner').exec();
+            })
+
+            const shopobjects = await Promise.all(shoppromises);
+            return res.status(200).json({error:false , shops:shopobjects});
          }
     }
     catch(err){
@@ -450,7 +479,6 @@ router.get(`/get_shops/:id` , async function(req , res){
         return res.status(500).json({error:true , message:'server error' , problem:err})
     }
 })
-
 
 
 
@@ -612,11 +640,17 @@ router.post(`/create_item` , memuploader.single('image') ,  async function(req ,
 
 router.patch(`/edit_item` , diskuploader.single('image') ,  async function(req , res){
     try{
-        const {name , type , description , quantity , unit , price , priceunit , id } = req.body;
+        const {name , type , description , quantity , unit , price , priceunit , id  , shop} = req.body;
         const upload = req.file;
+        const shopobj = await Shop.findOne({_id:new ObjectId(shop)});
+        if(!shopobj){
+            console.log('no such shop found');
+            return res.status(400).json({error:true , message:'no such shop found'});
+        }
+         
         const item = await Item.findOne({_id:new ObjectId(id)});
         if(item){
-           
+             
             if(upload){
                 const fileupload = new Promise(function(resolve , reject){
                     const name = upload.originalname;
@@ -651,11 +685,19 @@ router.patch(`/edit_item` , diskuploader.single('image') ,  async function(req ,
                 item.quantity = quantity;
                 item.unit = unit;
                 item.price = price;
-                item.price_unit = price_unit;
+                item.price_unit = priceunit;
                
         
                 await item.save();
-                return res.status(200).json({error:false , message:'item edited successfully' , item:newitem})
+                const newshopitems = shopobj.items.map(function(val , ind){
+                    if(val == item._id){
+                        return item;
+                    }
+                })
+
+                shopobj.items = newshopitems;
+                await shopobj.save();
+                return res.status(200).json({error:false , message:'item edited successfully' , item:newitem , shop:shopob})
         
               }
 
@@ -692,7 +734,7 @@ router.patch(`/edit_item` , diskuploader.single('image') ,  async function(req ,
 router.delete(`/delete_item` , async function(req , res){
     try{
     const {shop , item} = req.query;
-    const  sellingshop = await Shop.findOne({_id:new ObjectId(id)});
+    const  sellingshop = await Shop.findOne({_id:new ObjectId(shop)});
     if(sellingshop){
          const comodity = await Item.findOne({_id:new ObjectId(item)});
          if(comodity){
@@ -944,7 +986,7 @@ router.patch(`/remove_from_saved` , async function(req , res){
 
 
 
-router.patch(`/save_for_later` , async function(req , res){
+router.patch(`/move_to_saved` , async function(req , res){
     try{
         const {user , item} = req.query;
        const acount = await User.findOne({_id:new ObjectId(user)});
@@ -986,7 +1028,7 @@ router.patch(`/save_for_later` , async function(req , res){
        }
     }
     catch(err){
-        console.log('error saving item for later' , err);
+        console.log('error moving item to saved' , err);
         return res.status(500).json({error:true , message:'server error' , problem:err})
     }
 })

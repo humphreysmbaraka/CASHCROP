@@ -8,6 +8,8 @@ export default function ViewItem({navigation , route}) {
 
     const [deleting , setdeleting] = useState(false);
     const [deleteerror , setdeleteerror] = useState(null);
+    // const  {item} = route?.params ||{};
+    const {item , shop , handlereturn} = route?.params || {};
 
     const deleteitem = async function(){
        try{
@@ -16,6 +18,7 @@ export default function ViewItem({navigation , route}) {
         }
         else{
 
+          
           setdeleting(true);
           setdeleteerror(null);
           const res = await fetch(`${base_url}/delete_item?shop=${shop._id}&item=${item._id}` , {
@@ -30,7 +33,8 @@ export default function ViewItem({navigation , route}) {
             setdeleteerror(null);
             const info = await res.json();
             const newshop = info.shop;
-            
+            handlereturn(newshop);
+            navigation.goBack();            
            }
            else{
             setdeleting(false);
@@ -64,7 +68,7 @@ export default function ViewItem({navigation , route}) {
   //   image: require("../../assets/gmail.jpeg"),
   // };
 
-  const  {item} = route?.params ||{};
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10 , paddingTop : Platform.OS=='android'?Constants.statusBarHeight:0 }}>
       <Image source={{uri:item?.image || null}} alt={item?.name} height={200} width="100%" borderRadius={10} />
@@ -76,7 +80,7 @@ export default function ViewItem({navigation , route}) {
         <Text>Price: {item?.price} per {item?.unit}</Text>
       </VStack>
 
-      <Button mt={4} onPress={() =>{navigation.navigate('edit' , {item:item , edit:true})} }>Edit Item</Button>
+      <Button mt={4} onPress={() =>{navigation.navigate('edit' , {item:item , edit:true , handlereturn})} }>Edit Item</Button>
       {deleteerror && <Text alignSelf={'center'} color={'red.200'}  fontSize={'xs'}    >{deleteerror}</Text>}
       <Button mt={2} mb={'60px'} colorScheme="danger" onPress={deleteitem}>
         Delete Item   {deleting &&  <Spinner   width={'20px'} height={'20px'} color={'white'}             /> }
