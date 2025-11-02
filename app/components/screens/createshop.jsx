@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ScrollView, Platform, Alert, Keyboard } from "react-native";
 import { 
   Box, VStack, Input, Select, CheckIcon, Button, Text, Avatar, Heading, TextArea, Spinner, Pressable 
@@ -9,6 +9,7 @@ import { getareas, getcounties, getcountries } from "../functions/locations";
 import CustomModal from "../custommodal";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import useMediaFunctions from "../functions/mediafunctions";
+import { authcontext } from "../../contexts/authcontext";
 
 export default function CreateShop({navigation}) {
   const [name, setName] = useState(null);
@@ -29,6 +30,7 @@ export default function CreateShop({navigation}) {
   const [modaltype  ,setmodaltype] = useState(null);
   // const [creating , setcreating] = useState(false);
   // const [createerror , setcreateerror] = useState[null]
+  const {user} = useContext(authcontext);
   
  const {launchimagepicker} = useMediaFunctions();
  

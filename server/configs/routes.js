@@ -488,7 +488,7 @@ router.post(`/create_shop` , memuploader.single('image') ,  async function(req ,
     try{
         const {name , type , customtype ,  description , county , country , area , owner } = req.body;
         const upload = req.file;
-      const user = User.findOne({_id: new ObjectId(owner)});
+      const user = await User.findOne({_id: new ObjectId(owner)});
         if(!user){
             console.log('user not found');
             return res.status(400).json({error:true , mesage:'user not found'});
