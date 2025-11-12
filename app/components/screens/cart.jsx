@@ -32,6 +32,41 @@ export default function CartPage() {
   const [moveerror , setmoveerror] = useState(null);
  
 
+  const [buying , setbuying] = useState(false);
+  const [buyingerror , setbuyingerror] = useState(null);
+  const initiatepurchase = async function(){
+    try{
+    setbuying(true);
+    setbuyingerror(null);
+
+    const response = await fetch(`${base_url}/make_stk_pusk` , {
+      method:'POST',
+      body: JSON.stringify({userid:user._id , item:selecteditem._id ,quantity })
+    })
+
+    if(response.ok){
+      setbuying(false);
+      setbuyingerror(null);
+      const info = await response.json();
+    }
+    else{
+      const info = await response.json();
+      setbuying(false);
+      if(String(response.status).startsWith('4')){
+           setbuyingerror(info.message);
+      }
+      else{
+          setbuyingerror('server error');
+      }
+    }
+    }
+    catch(err){
+      console.log('could not initiae payment');
+      setbuying(false);
+      setbuyingerror('error');
+    }
+  }
+
   const select = async function(item){
     try{
    setselecteditem(item);
@@ -320,17 +355,18 @@ export default function CartPage() {
                   {activeTab === "cart" ? (
                     <>
                        {removeerror && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{removeerror}</Text>}
-                      <Button colorScheme="red" onPress={()=>{removefromcart(val)}}>Remove  {removing && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
+                      <Button colorScheme="red" onPress={()=>{removefromcart(val)}}>DELETE  {removing && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
                       {savingerror && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{savingerror}</Text>}
                       <Button colorScheme="gray" onPress={() => movetosaved(val)}>Save for later  {saving && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
                     </>
                   ) : (
                     <>
-                      <Button colorScheme="red" onPress={() => Alert.alert("Remove clicked")}>Remove</Button>
+                      <Button colorScheme="red" onPress={() => Alert.alert("Remove clicked")}>DELETE</Button>
                       <Button colorScheme="teal" onPress={() => Alert.alert("Move to cart")}>Move to Cart</Button>
                     </>
                   )}
                 </VStack>
+                <Button colorScheme={'green'} color={'white'} alignSelf={'center'} justifyContent={'center'} alignItems={'center'} >BUY</Button>
                 {/* <HStack space={2}>
                   {activeTab === "cart" ? (
                     <>
@@ -366,13 +402,13 @@ export default function CartPage() {
     <Text>Total: $120</Text>
     {activeTab === "cart" ? (
       <>
-        <Button colorScheme="red" onPress={() => Alert.alert("Remove clicked")}>Remove</Button>
+        <Button colorScheme="red" onPress={() => Alert.alert("Remove clicked")}>DELETE</Button>
         <Button colorScheme="gray" onPress={() => Alert.alert("Save for later")}>Save for later</Button>
       </>
     ) : (
       <>
       {remerror &&  <Text color={'red'} fontSize={'xs'} alignSelf={'center'} >{remerror}</Text>}
-        <Button colorScheme="red" onPress={() =>{removefromsaved(val)}}>Remove  {reming && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
+        <Button colorScheme="red" onPress={() =>{removefromsaved(val)}}>DELETE  {reming && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
         {moveerror &&  <Text color={'red'} fontSize={'xs'} alignSelf={'center'} >{moveerror}</Text>}
         <Button colorScheme="teal" onPress={() => movetocart(val)}>Move to Cart  {moving && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }  </Button>
       </>
@@ -431,13 +467,18 @@ export default function CartPage() {
         </Pressable> */}
       </VStack>
 
-     {(activeTab=='cart') && 
+     {/* {(activeTab=='cart') && 
      
      <Button mt={6} colorScheme="teal" w="100%" onPress={() => Alert.alert("Checkout pressed")}>
      Checkout
    </Button>}
 
-      <AddToCartModal viewfromcart={true} isOpen={modalOpen} onClose={() => setModalOpen(false)} item={selecteditem} />
+      <AddToCartModal viewfromcart={true} isOpen={modalOpen} onClose={() => setModalOpen(false)} item={selecteditem} /> */}
+
+      {setModalOpen   &&  
+            <AddToCartModal viewfromcart={true} isOpen={modalOpen} onClose={() => setModalOpen(false)} item={selecteditem} /> 
+
+      }
     </ScrollView>
   );
 }

@@ -9,6 +9,7 @@ const itemschema = new mongoose.Schema({
    description:{type:String , required:true},
    quantity:{type:Number , required:true},
    quantity_remaining:{type:Number , required:false},
+   out_of_stock : {type:Boolean , required:false ,default:false },
    unit:{type:String , required:true},
    price:{type:Number , required:true},
    price_unit:{type:String , required:true},

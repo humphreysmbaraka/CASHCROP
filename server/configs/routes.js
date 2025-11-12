@@ -849,6 +849,13 @@ router.post(`/add_to_cart/:id` , async function(req , res){
               const item = await Item.fondOne({_id:new ObjectId(id)});
               if(item){
                    console.log('item found');
+                   const alreadyincart = account.cart.some(function(val){
+                    return val.item.toString() == itemid;
+                   })
+                   if(alreadyincart){
+                    console.log('item is already in cart');
+                    return res.status(400).json({error:true , message:'item is already in cart'})
+                   }
                    account.cart.push(item._id);
                    await account.save();
                    console.log('item added to cart');
@@ -1159,7 +1166,89 @@ router.patch(`/move_to_cart` , async function(req , res){
 
 
 
+router.post(`/increment_cart_item` , async function(req , res){
+    try{
+     const {user , item} = req.body;
+     const account = await User.findOne({_id:new ObjectId(user)});
+     if(!account){
+        console.log('account not found')
+        return res.status(400).json({error:true , message:'account not found'});
+     }
+     else{
+        const product = await Item.findOne({_id: new ObjectId(item)});
+        if(!product){
+            console.log('product not found')
+        return res.status(400).json({error:true , message:'product not found'});
+        }
 
+        const incart = account.cart.find(function(val){
+            return val.item.toString() == item;
+        })
+
+        if(!incart){
+            console.log('product not in cart')
+            return res.status(400).json({error:true , message:'product not in cart'});
+        }
+      
+        incart.quantity += 1;
+
+        await account.save();
+
+        return res.status(200).json({error:false , message:'incremented successfully'});
+
+     }
+     
+    }
+    catch(err){
+        console.log('could not increment cart item quantity');
+        return res.status(500).json({error:true , message:'server error' , problem:err})
+    }
+})
+
+
+
+
+router.post(`/decrement_cart_item` , async function(req , res){
+    try{
+     const {user , item} = req.body;
+     const account = await User.findOne({_id:new ObjectId(user)});
+     if(!account){
+        console.log('account not found')
+        return res.status(400).json({error:true , message:'account not found'});
+     }
+     else{
+        const product = await Item.findOne({_id: new ObjectId(item)});
+        if(!product){
+            console.log('product not found')
+        return res.status(400).json({error:true , message:'product not found'});
+        }
+
+        const incart = account.cart.find(function(val){
+            return val.item.toString() == item;
+        })
+
+        if(!incart){
+            console.log('product not in cart')
+            return res.status(400).json({error:true , message:'product not in cart'});
+        }
+        if((incart.quantity - 1) < 0){
+            console.log('cannot decreent below 0')
+            return res.status(400).json({error:true , message:'cannot decrement below 0'});
+        }
+        incart.quantity -= 1;
+
+        await account.save();
+
+        return res.status(200).json({error:false , message:'decremented successfully'});
+
+     }
+     
+    }
+    catch(err){
+        console.log('could not decrement cart item quantity');
+        return res.status(500).json({error:true , message:'server error' , problem:err})
+    }
+})
 
 
 
@@ -1281,8 +1370,8 @@ router.post(`/create_payment_session` , async function(req , res){
 
 router.post(`make_an_stk_push` , async function(req , res){
     try{
-        let total_price = 0;
-       const {userid , items} = req.body;
+       
+       const {userid , item , quantity} = req.body;
      let {number} = req.body;
        // NUMBER CONVERSIONS , NORMALIZATION AND VERIFICATION
        let cleanednumber = number.replace(/\D/g, '');
@@ -1298,7 +1387,7 @@ router.post(`make_an_stk_push` , async function(req , res){
           }
         
        }
-
+  
        const prefixes = ['25470','25471','25472','25474','254757','254758','254759','25479'];
        const correctformat = prefixes.some(function(val , ind){
          return  cleanednumber.startsWith(val);
@@ -1317,27 +1406,48 @@ router.post(`make_an_stk_push` , async function(req , res){
         return res.status(400).json({error:true , message:'no such user found'});
        }
        else{
-        const products = user.cart.map(function(val , ind){
-            return Item.findOne({_id:new ObjectId(val.item)}).exec();
-        })
 
-       const products_list = await Promise.all(products);
+        const product = await Item.findOne({_id:item});
+        if(!product){
+         console.log('product not found');
+         return res.status(400).json({error:true , message:'product not found' });
+        }
+ 
+        if(product.out_of_stock){
+         console.log('product out of stock');
+         return res.status(400).json({error:true , message:'product out of stock' });
+        }
+ 
+        if(quantity > product.quantity_remaining){
+         console.log('demand exceeds available stock');
+         return res.status(400).json({error:true , message:'demand exceeds stock' });
+        }
 
-      products_list.forEach(function(val){
-         const cart_match = user.cart.filter(function(cartitem){
-            return cartitem.item == val._id;
-         })
-         if(cart_match.length ==0){
-            console.log('product not found in the cart');
-            throw new Error('product not found in cart');
-         }
-         else{
-            total_price +=  (val.price * cart_match[0].quantity);
-         }
-      })
+        const total_price = (quantity * product.price);
+
+        // USE THIS IF DOING A CHECK OUT ON CARTS WHERE THE USER PAYS FOR ALL PRODUCTS AT ONCE
+    //     const products = user.cart.map(function(val , ind){
+    //         return Item.findOne({_id:new ObjectId(val.item)}).exec();
+    //     })
+
+    //    const products_list = await Promise.all(products);
+
+    //   products_list.forEach(function(val){
+    //      const cart_match = user.cart.filter(function(cartitem){
+    //         return cartitem.item == val._id;
+    //      })
+    //      if(cart_match.length ==0){
+    //         console.log('product not found in the cart');
+    //         throw new Error('product not found in cart');
+    //      }
+    //      else{
+    //         total_price +=  (val.price * cart_match[0].quantity);
+    //      }
+    //   })
 
 
       // SENDING THE STK PUSH
+
 
       const consumerkey = process.env.CONSUMER_KEY.trim();
       const consumersecret = process.env.CONSUMER_SECRET.trim();
