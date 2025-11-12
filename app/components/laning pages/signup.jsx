@@ -15,9 +15,11 @@ import { getareas, getcounties, getcountries } from "../functions/locations";
 import base_url from "../constants/baseurl";
 import useVerifyToken from "../functions/verifytoken";
 import useGettoken from "../functions/get token";
+import useNotificationsetup from "../functions/notifications";
 
 export default function Signup({navigation}) {
    const {loggedin , setloggedin ,user , setuser ,token ,settoken} = useContext(authcontext);
+   const {extractpushtoken} = useNotificationsetup();
     const [email , setemail] = useState(null);
     const [password , setpassword] = useState(null);
     const [username , setusername] = useState(null);
@@ -112,7 +114,8 @@ const fetchcounties = async function(){
       else{
         setsubmiterror(null);
         setsending(true);
-        await gettoken();
+        const expopushtoken = await extractpushtoken();
+        await gettoken(); // GET THE JWT TOKEN FOR THE USER FROM BACK END SERVER
         if(imageuri){
           const data = new FormData();
           data.append('email' ,email );
@@ -120,6 +123,7 @@ const fetchcounties = async function(){
           data.append('username' , username );
           data.append('number' , number);
           data.append('role' , role);
+          data.append('expopushtoken'  ,expopushtoken);
           // data.append('image' ,imageuri );
           const filename = imageuri.split('/').pop();
           const match = /\.(\w+)$/.exec(filename);

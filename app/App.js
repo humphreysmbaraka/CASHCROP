@@ -16,6 +16,8 @@ import AddItem from './components/screens/additem';
 import { AuthProvider } from './contexts/authcontext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigator from './components/Navigator';
+import NETWORK_PROVIDER from './contexts/network and appstate';
+import EXPO_PUSH_TOKEN_PROVIDER from './contexts/expopushtoken';
 export default function App() {
   return (
     
@@ -23,31 +25,22 @@ export default function App() {
       // <SafeAreaProvider>
       <>
       <StatusBar     translucent backgroundColor='transparent'    />
-      <AuthProvider>
-      <NativeBaseProvider>
-                    {/* <Landing/> */}
-                    {/* <Signup/> */}
-                    {/* <OrdersPage/> */}
-                    {/* <ShoppingPage/> */}
-                    {/* <MyShops/> */}
-                    {/* <ShopView/> */}
-                    {/* <CreateShop/> */}
-                    {/* <ViewItem/> */}
-                    {/* <AddItem/> */}
+
+
+        <AuthProvider>
+        <EXPO_PUSH_TOKEN_PROVIDER>
+        <NETWORK_PROVIDER>
+        <NativeBaseProvider>
+                   
                     <Navigator/>
+
+
      </NativeBaseProvider>
+     </NETWORK_PROVIDER>
+     </EXPO_PUSH_TOKEN_PROVIDER>
      </AuthProvider>
      </>
     //  </SafeAreaProvider>
     // </SafeAreaView>
   );
 }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#fff',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//   },
-// });

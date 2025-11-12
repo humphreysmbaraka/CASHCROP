@@ -22,14 +22,14 @@ export default function AddItem({navigation , route}) {
 
  console.log('initial  item , edit , shop params   :' , item , edit , shop , route?.params);
 
-    const [imageuri , setimageuri] = useState(editmode?item?.image:null);
-    const [name ,setname] = useState(editmode?item?.name:null);
-    const [type ,settype] = useState(editmode?item?.type:null);
-    const [description ,setdescription] = useState(editmode?item?.description:null);
-    const [quantity ,setquantity] = useState(editmode?item?.quantity:null);
-    const [unit ,setunit] = useState(editmode?item?.unit:null);
-    const [price ,setprice] = useState(editmode?item?.price:null);
-    const [priceunit ,setpriceunit] = useState(editmode?item?.price_unit:null);
+    const [imageuri , setimageuri] = useState(item?.image ||null);
+    const [name ,setname] = useState(item?.name ||null);
+    const [type ,settype] = useState(item?.type || null);
+    const [description ,setdescription] = useState(item?.description || null);
+    const [quantity ,setquantity] = useState(item?.quantity || null);
+    const [unit ,setunit] = useState(item?.unit || null);
+    const [price ,setprice] = useState(item?.price || null);
+    const [priceunit ,setpriceunit] = useState(item?.price_unit || null);
     const [creating , setcreating] = useState(null);
     const [createerror , setcreateerror] = useState(null);
 

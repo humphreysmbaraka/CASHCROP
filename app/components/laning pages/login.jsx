@@ -26,8 +26,10 @@ import { Ionicons } from "@expo/vector-icons";
 import base_url from "../constants/baseurl";
 import { authcontext } from "../../contexts/authcontext";
 import useGettoken from "../functions/get token";
+import useNotificationsetup from "../functions/notifications";
 
 export default function Login({navigation}) {
+   const {extractpushtoken} = useNotificationsetup();
     const [email , setemail] = useState(null);
     const [password , setpassword] = useState(null);
     const {loggedin , setloggedin , user , setuser ,settoken} = useContext(authcontext);
@@ -60,13 +62,14 @@ export default function Login({navigation}) {
         else{
           setsending(true);
           setloginerror(null);
-            const fetchedtoken = await gettoken();
+           const expopushtoken = await extractpushtoken();
+            const fetchedtoken = await gettoken(); // GET THE JWT TOKEN FROM BACK END
           
             const login = await fetch(`${base_url}/log_in` , {
               method : 'POST',
               headers : {'Content-Type' : 'application/json'},
               credentials:'include',
-              body : JSON.stringify({email , password})
+              body : JSON.stringify({email , password , expopushtoken})
             })
 
             if(login.ok){

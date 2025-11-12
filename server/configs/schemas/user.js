@@ -15,9 +15,16 @@ const userschema = new mongoose.Schema({
    area:{type:Object , required:true},
    shops:[{type:mongoose.Schema.Types.ObjectId , required:false ,ref:'shop'}],
    orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],
-   cart:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'item'}],
-   saved_items:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'item'}],
-   favourite_shops:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'shop'}]
+   cart:[{
+     item:{type:mongoose.Schema.Types.ObjectId , required:false , ref:'item'},
+     quantity:{type : Number , required:false , default:1}
+   }],
+   saved_items:[{
+      item:{type:mongoose.Schema.Types.ObjectId , required:false , ref:'item'},
+      quantity:{type : Number , required:false , default:1}
+    }],
+   favourite_shops:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'shop'}],
+   expopushtoken: [{type:String , required:false}]
   
 } , {timestamps:true});
 

@@ -12,9 +12,65 @@ const bcrypt = require('bcrypt');
 const Shop = require('./schemas/shop');
 const Item = require('./schemas/item');
 const {Readable} = require('stream');
+const {Expo}= require('expo-server-sdk');   // FOR SENDING EXPO PUSH NOTIFICATIONS
+const stripe = require('stripe')(process.env.STRIPE_KEY);
+
+  // SETUP FOR EXPO PUSH NOTIFICATIONS
 
 
-          // DEFINR GRIDFS BUCKETS FOR FILE UPLOADS
+
+let expoclient = new Expo();
+
+const sendExpoNotification = async function(receiverId, message, title) {
+
+    try {
+      const user = await User.findOne({ _id: receiverId });
+      if (!user || !user.expopushtoken?.length) {
+        console.log('Could not send notification, no such user or no tokens found');
+        return;
+      }
+  
+      // Filter valid tokens
+      const validTokens = user?.expopushtoken.filter(Expo.isExpoPushToken);
+  
+      if (validTokens.length === 0) {
+        console.log('No valid Expo push tokens found');
+        return;
+      }
+  
+      // Create messages
+      const messages = validTokens.map(token => ({
+        to: token,
+        sound: 'default',
+        title,
+        body: message,
+        // data: { receiverId } optional extra data
+      }));
+  
+      // Chunk messages
+      const chunks = expoclient.chunkPushNotifications(messages);
+  
+      // Send each chunk sequentially
+      for (const chunk of chunks) {
+        const receipts = await expoclient.sendPushNotificationsAsync(chunk);
+        console.log('Notification receipts:', receipts);
+      }
+  
+      console.log('Expo notifications sent successfully');
+    } catch (err) {
+      console.log('Error sending Expo push notification:', err);
+    }
+  };
+
+
+
+
+
+
+
+
+
+          // DEFINE GRIDFS BUCKETS FOR FILE UPLOADS
 
 
 const conn = mongoose.createConnection(process.env.CONNECTION_STRING);
@@ -298,7 +354,7 @@ router.get(`/item_picture/:id` , async function(req , res){
 
 router.post(`/create_account` ,memuploader.single('image') ,  async function(req , res){
     try{
-      const { email , password , username , number , role , country, county , area} = req.body;
+      const { email , password , username , number , role , country, county , area , expopushtoken} = req.body;
      const upload = req.file;
       const user = await User.findOne({email:email});
       if(user){
@@ -337,7 +393,7 @@ router.post(`/create_account` ,memuploader.single('image') ,  async function(req
         const image = await fileupload;
         const OTP =  Math.floor(100000 + Math.random() * 900000);
         const newuser = new User({
-           image , email , password:hash, username , number ,role , country , county , area , OTP:OTP
+           image , email , password:hash, username , number ,role , country , county , area , OTP:OTP , expopushtoken
         })
 
         await newuser.save();
@@ -347,7 +403,7 @@ router.post(`/create_account` ,memuploader.single('image') ,  async function(req
       else{
         const OTP =  Math.floor(100000 + Math.random() * 900000);
         const newuser = new User({
-             email , password:hash, username , number ,role , country , county , area , OTP:OTP
+             email , password:hash, username , number ,role , country , county , area , OTP:OTP , expopushtoken
          })
  
          await  newuser.save();
@@ -403,12 +459,15 @@ router.post(`/verify_otp` , async function(req , res){
 
 router.post(`/log_in` , async function(req , res){
     try{
-      const {email , password} = req.body;
+      const {email , password , expopushtoken} = req.body;
       const user = await User.findOne({email:email});
       if(user){
          console.log('user found');
          const match = await bcrypt.compare(password  ,user.password);
          if(match){
+            user.expopushtoken = expopushtoken;
+            await user.saved();
+            console.log('expopushtoken updated');
             return res.status(200).json({error:false , message:'loged in successfully' , user});
          }
          else{
@@ -1172,23 +1231,194 @@ router.get(`/search/:query/:page` , async function(req , res){
 
 
 
-router.get(`make_token` , async function(req , res){
+router.post(`/create_payment_session` , async function(req , res){
     try{
+        const {product , buyer} = req.body;
+         const user = await User.findOne({_id: new ObjectId(buyer)});
+         if(!user){
+            console.log('no such user found');
+            return res.status(400).json({error:true , message:'no such user found'});
+         }
+         else{
+            const products = user.cart.map(function(val , ind){
+                return Item.findOne({_id:new ObjectId(val.item)}).exec();
+            })
 
+           const products_list = await Promise.all(products);
+
+            const session = await stripe.checkout.sessions.create({
+                payment_method_types:['card'],
+                mode:'payment',
+                line_items: products_list.map(function(val , ind){
+                    return {
+                        price_data:{
+                            product_data:{
+                                name:val.name
+                            },
+                            currency:'usd',
+                            unit_amount: val.price // THIS VALUE MUST BE IN CENTS/ SMALLEST MONEY UNIT FOR USED CURRENCY
+                            
+
+                        },
+                        quantity: user.cart[ind].quantity
+                    }
+                }),
+                success_url : null,// A SUCCESS URL ( I AM USING REACT NATIVE , SO WILL NEED A WORKAROUND)
+                cancel_url : null// A SUCCESS URL ( I AM USING REACT NATIVE , SO WILL NEED A WORKAROUND)
+            })
+
+            res.json({ sessionId: session.id });
+
+         }
     }
     catch(err){
-        console.log('error making token' , err);
+        console.log('error creating stripe payment session' , err);
+        return res.status(500).json({error:true , message:'server error' , problem:err});
     }
 })
 
 
 
-router.get(`make_token` , async function(req , res){
+router.post(`make_an_stk_push` , async function(req , res){
     try{
+        let total_price = 0;
+       const {userid , items} = req.body;
+     let {number} = req.body;
+       // NUMBER CONVERSIONS , NORMALIZATION AND VERIFICATION
+       let cleanednumber = number.replace(/\D/g, '');
+       if(!cleanednumber.startsWith('254')){
+          if(cleanednumber.startsWith('0')){
+            cleanednumber = '254' + cleanednumber.slice(1);
+          }
+          else if(cleanednumber.startsWith('+254')){
+            cleanednumber = '254' + cleanednumber.slice(4);
+          }
+          else{
+            cleanednumber = 'invalid'
+          }
+        
+       }
 
+       const prefixes = ['25470','25471','25472','25474','254757','254758','254759','25479'];
+       const correctformat = prefixes.some(function(val , ind){
+         return  cleanednumber.startsWith(val);
+       })
+       if(cleanednumber =='invalid' || cleanednumber.length !== 12  || !correctformat){
+        console.log('provided number is not is valid format');
+        return res.status(400).json({error:true , message:'invalid number format'});
+       }
+
+
+
+
+       const user = await User.findOne({_id:new ObjectId(userid)});
+       if(!user){
+        console.log('no such user found');
+        return res.status(400).json({error:true , message:'no such user found'});
+       }
+       else{
+        const products = user.cart.map(function(val , ind){
+            return Item.findOne({_id:new ObjectId(val.item)}).exec();
+        })
+
+       const products_list = await Promise.all(products);
+
+      products_list.forEach(function(val){
+         const cart_match = user.cart.filter(function(cartitem){
+            return cartitem.item == val._id;
+         })
+         if(cart_match.length ==0){
+            console.log('product not found in the cart');
+            throw new Error('product not found in cart');
+         }
+         else{
+            total_price +=  (val.price * cart_match[0].quantity);
+         }
+      })
+
+
+      // SENDING THE STK PUSH
+
+      const consumerkey = process.env.CONSUMER_KEY.trim();
+      const consumersecret = process.env.CONSUMER_SECRET.trim();
+      const shortcode = process.env.SHORTCODE;
+      const passkey = process.env.PASSKEY.trim();
+      const callbackurl = process.env.CALLBACK_URL.trim();
+      const timestamp = new Date().toISOString().replace(/[^0-9]/g , '').slice(0,14);
+      const authkey = new Buffer.from(`${consumerkey}:${consumersecret}`).toString('base64');
+      const password = new Buffer.from(`${shortcode}${passkey}${timestamp}`).toString('base64');
+
+      console.log('fetching auth token');
+      const authtoken = await fetch(`${process.env.LIVE_AUTH_URL}` , {
+       headers: {
+         'Authorization' : `Basic ${authkey}`,
+         'Content-Type' : 'application/json'
+       },
+       method:'GET'
+      })
+
+      if(authtoken.ok){
+       const tokeninfo = await authtoken.json();
+       const token = tokeninfo.access_token;
+       console.log('auth token successfully retrieved' , tokeninfo , token);
+
+       
+
+       const stkpayload = {
+         BusinessShortCode:shortcode,
+         Password:password,
+         Timestamp:timestamp,
+         TransactionType : 'CustomerPayBillOnline',
+         Amount :total_price,
+         PartyA:number,
+         PartyB:shortcode,
+         PhoneNumber:number,
+         CallBackURL:callbackurl,
+         AccountReference :process.env.ACCOUNT_REF,
+         TransactionDesc:'joinin'
+
+       }
+
+       const response = await fetch(process.env.LIVE_LNM_URL.trim() , {
+         headers:{
+           'Authorization' : `Bearer ${token}`,
+           'Content-Type': 'application/json'
+         },
+         
+         method:'POST',
+         body:JSON.stringify(stkpayload)
+       });
+
+       console.log('sending payload' , JSON.stringify(stkpayload));
+     
+       if(response.ok){
+         console.log('stk pushed successfully');
+         const responseinfo = await response.json();
+         console.log('TOKEN PUSH INFO' , responseinfo);
+           return res.status(200).json({error:false , message:'stk pushed successfully' , info:responseinfo});
+       }
+       else{
+         console.log('failed to  push stk');
+         const responseinfo = await response.json();
+         console.log(response , responseinfo);
+         return res.status(500).json({error:true , message:'error pushing stk' })
+       }
+       
+      }
+      else{
+       console.log('error getting auth token (from auth URL)');
+       return res.status(500).json({error:true , message:'server error getting auth token'});
+      }
+
+
+
+
+
+       }
     }
     catch(err){
-        console.log('error making token' , err);
+        console.log('error pushing an STK push' , err);
+        return res.status(500).json({error:true , message:'server error' , problem:err})
     }
 })
 
