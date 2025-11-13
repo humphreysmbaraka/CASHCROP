@@ -764,7 +764,7 @@ router.patch(`/edit_item` , diskuploader.single('image') ,  async function(req ,
 
                 shopobj.items = newshopitems;
                 await shopobj.save();
-                return res.status(200).json({error:false , message:'item edited successfully' , item:item , shop:shopob})
+                return res.status(200).json({error:false , message:'item edited successfully' , item:item , shop:shopobj})
         
               }
 
@@ -790,7 +790,7 @@ router.patch(`/edit_item` , diskuploader.single('image') ,  async function(req ,
 
                 shopobj.items = newshopitems;
                 await shopobj.save();
-                return res.status(200).json({error:false , message:'item edited successfully' , item:item , shop:shopob})
+                return res.status(200).json({error:false , message:'item edited successfully' , item:item , shop:shopobj})
                
                  }
 
