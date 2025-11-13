@@ -229,7 +229,8 @@ function Navigator() {
           
                  <Stack5.Navigator screenOptions={{ headerShown: false }}  initialRouteName='edit' >
                     <Stack5.Screen       name='edit'  component={AddItem}   />
-                    {/* <Stack5.Screen       name='done'  component={Shopstacks}   />   should navigate to the shop screen */}
+                    {/* should navigate to the shop screen */}
+                    <Stack5.Screen       name='done'  component={Shopstacks}   />   
                     {/* <Stack5.Screen       name=''  component={}   />
                     <Stack5.Screen       name=''  component={}   />
                     <Stack5.Screen       name=''  component={}   /> */}

@@ -9,7 +9,7 @@ import base_url from "../constants/baseurl";
 
 export default function ShopView({navigation ,route}) {
     const {client ,shop} = route.params || {}
-    const [shopobj , setshopobj] = useState(null);
+    const [shopobj , setshopobj] = useState(shop || null);
      
        useEffect(function(){
            setshopobj(shop);

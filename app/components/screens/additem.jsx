@@ -208,7 +208,7 @@ export default function AddItem({navigation , route}) {
         const item = info.item;
         const shop = info.shop;
         // handlereturn(shop)  // NOT NEEDED SINCE WE ARE NAVIGATING TO ANOTHER NAVIGATOR THUS THE COMPONENTS MOUNT AFRESH
-        navigation.navigate('shopstacks' , {screen:'shop' , params:{shop , client:false}});
+        navigation.navigate('done' , {screen:'shop' , params:{shop , client:false}});
         
       }
       else{

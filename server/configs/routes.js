@@ -673,7 +673,7 @@ router.post(`/create_item` , memuploader.single('image') ,  async function(req ,
            const image = await fileupload;
            
            const newitem = new Item({
-              image , name ,type , description , quantity , unit , price , price_unit:priceunit
+            shop ,  image , name ,type , description , quantity , unit , price , price_unit:priceunit
            })
            await newitem.save();
            usershop.items.push(newitem._id);

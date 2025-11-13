@@ -13,7 +13,7 @@ const itemschema = new mongoose.Schema({
    unit:{type:String , required:true},
    price:{type:Number , required:true},
    price_unit:{type:String , required:true},
-   shop:[{type:mongoose.Schema.Types.ObjectId , required:true , ref:'shop'}],
+   shop:{type:mongoose.Schema.Types.ObjectId , required:true , ref:'shop'},
    orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'user'}]
 
 } , {timestamps:true});
