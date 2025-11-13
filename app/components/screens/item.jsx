@@ -8,8 +8,38 @@ export default function ViewItem({navigation , route}) {
 
     const [deleting , setdeleting] = useState(false);
     const [deleteerror , setdeleteerror] = useState(null);
+   
     // const  {item} = route?.params ||{};
     const {item , shop , handlereturn} = route?.params || {};
+
+
+    const initiatedelete = async function(){
+      try{
+        Alert.alert(
+          'DELETE ITEM!',
+          'proceed to delete item',
+          [
+            {
+              text:'NO!',
+              style:'cancel',
+              onPress: function(){
+                return;
+              }
+            },
+  
+            {
+              text:'YES',
+              onPress: function(){
+                deleteitem()
+              }
+            }
+          ]
+         )
+      }
+      catch(err){
+        console.log('could not initiate delete' , err);
+      }
+    }
 
     const deleteitem = async function(){
        try{
@@ -17,7 +47,7 @@ export default function ViewItem({navigation , route}) {
           return;
         }
         else{
-
+     
           
           setdeleting(true);
           setdeleteerror(null);
@@ -34,7 +64,7 @@ export default function ViewItem({navigation , route}) {
             const info = await res.json();
             const newshop = info.shop;
             handlereturn(newshop);
-            navigation.goBack();            
+            navigation.navigate('shop' , {shop:newshop});            
            }
            else{
             setdeleting(false);
@@ -82,9 +112,9 @@ export default function ViewItem({navigation , route}) {
         <Text  alignSelf={'center'} width={'90%'}>{item?.description}</Text>
       </VStack>
 
-      <Button mt={4} onPress={() =>{navigation.navigate('edit' ,{screen:'edit' ,params:{ item , edit:true , shop ,  handlereturn}})} }>Edit Item</Button>
+      <Button mt={4} onPress={() =>{navigation.navigate('add' , { item , edit:true , shop ,  handlereturn})} }>Edit Item</Button>
       {deleteerror && <Text alignSelf={'center'} color={'red.200'}  fontSize={'xs'}    >{deleteerror}</Text>}
-      <Button mt={2} mb={'60px'} colorScheme="danger" onPress={deleteitem}>
+      <Button mt={2} mb={'60px'} colorScheme="danger" onPress={initiatedelete}>
         Delete Item   {deleting &&  <Spinner alignSelf={'center'} ml={'auto'} mr={'auto'}  width={'20px'} height={'20px'} color={'white'}             /> }
       </Button>
     </ScrollView>

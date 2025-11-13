@@ -811,6 +811,7 @@ router.patch(`/edit_item` , memuploader.single('image') ,  async function(req , 
 
 
 router.delete(`/delete_item` , async function(req , res){
+    
     try{
     const {shop , item} = req.query;
     const  sellingshop = await Shop.findOne({_id:new ObjectId(shop)});
@@ -822,9 +823,11 @@ router.delete(`/delete_item` , async function(req , res){
             // })
             // sellingshop.items = newitemslist;
 
-            sellingshop.items = sellingshop.items.filter(val => !val.equals(item));
+            sellingshop.items = sellingshop.items.filter(function(val){
+              return  val && val.toString() !== item;
+            });
           
-          
+        
             await sellingshop.save();
             await Item.deleteOne({_id:new ObjectId(item)});
             return res.status(200).json({eror:false , shop:sellingshop});

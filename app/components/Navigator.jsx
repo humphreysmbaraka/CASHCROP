@@ -172,16 +172,48 @@ function Navigator() {
             <Stack2.Navigator screenOptions={{ headerShown: false }}  initialRouteName='shops' >
                 <Stack2.Screen              name='shops' component={MyShops}                                />
                 <Stack2.Screen              name='shop' component={ShopView}                                />
-                <Stack2.Screen              name='shopitem' component={Shopitemstack}                                />
+                {/* <Stack2.Screen              name='shopitem' component={Shopitemstack}                                /> */}
                 {/* <Stack2.Screen              name='additem' component={Additemstack}  /> WAS IN THE ADDITEMSTACK NAVIGATOR , WHOSE SCREEN(S) I MOVED TO THIS NAVIGATOR UNDER ADD SCREEN */}
                 <Stack2.Screen             name='visitview' component={Itemstacks}                                />
                 <Stack2.Screen             name='create'    component={CreateShop}                                />
                 <Stack2.Screen            name='add'  component={AddItem}  />
-
+               <Stack2.Screen               name='shopitem'  component={ViewItem}   />
+                {/* <Stack2.Screen         name='edit'  component={AddItem}             /> */}
+              
             </Stack2.Navigator>
       
         )
       }
+
+
+      const Editshopitem = function(){
+        return(
+          
+                 <Stack5.Navigator screenOptions={{ headerShown: false }}  initialRouteName='edit' >
+                    <Stack5.Screen       name='edit'  component={AddItem}   />
+                    {/* should navigate to the shop screen */}
+                    <Stack5.Screen       name='done'  component={Shopstacks}   />   
+                    {/* <Stack5.Screen       name=''  component={}   />
+                    <Stack5.Screen       name=''  component={}   />
+                    <Stack5.Screen       name=''  component={}   /> */}
+                 </Stack5.Navigator>
+         
+        )
+      }
+
+
+      const Shopitemstack =  function(){   // CONSIDERING REMOVING THIS , AN ABSORB IT INTO SHOPSTACKS
+        return(
+        
+         <Stack3.Navigator screenOptions={{ headerShown: false }}  initialRouteName='overview' >
+             {/* <Stack3.Screen    name='overview' component={ViewItem}  /> */}
+             {/* <Stack3.Screen    name='edit' component={Editshopitem}  /> */}
+             {/* <Stack3.Screen    name='delete' component={Shopstacks}  />should navigate to the shop screen */}
+             {/* <Stack3.Screen    name='done' component={Shopstacks}  />  */}
+         </Stack3.Navigator>
+  
+        )
+       }
 
 
      const Shoppingstacks = function(){
@@ -196,18 +228,7 @@ function Navigator() {
      }
   
 
-      const Shopitemstack =  function(){
-       return(
-       
-        <Stack3.Navigator screenOptions={{ headerShown: false }}  initialRouteName='overview' >
-            <Stack3.Screen    name='overview' component={ViewItem}  />
-            <Stack3.Screen    name='edit' component={Editshopitem}  />
-            {/* <Stack3.Screen    name='delete' component={Shopstacks}  />should navigate to the shop screen */}
-            {/* <Stack3.Screen    name='done' component={Shopstacks}  />  */}
-        </Stack3.Navigator>
- 
-       )
-      }
+  
 
 
       const Additemstack = function(){    // CONSIDERING REMOVAL OF THIS NAVIGATOR SINCE I RPLICATED ITS SCREEN(S) IN THE SHOPSTACKS NAVIGATOR
@@ -224,20 +245,7 @@ function Navigator() {
        }
  
 
-      const Editshopitem = function(){
-        return(
-          
-                 <Stack5.Navigator screenOptions={{ headerShown: false }}  initialRouteName='edit' >
-                    <Stack5.Screen       name='edit'  component={AddItem}   />
-                    {/* should navigate to the shop screen */}
-                    <Stack5.Screen       name='done'  component={Shopstacks}   />   
-                    {/* <Stack5.Screen       name=''  component={}   />
-                    <Stack5.Screen       name=''  component={}   />
-                    <Stack5.Screen       name=''  component={}   /> */}
-                 </Stack5.Navigator>
-         
-        )
-      }
+ 
 
 
 // when user clicks an item on the shopping page
