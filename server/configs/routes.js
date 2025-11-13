@@ -829,6 +829,9 @@ router.delete(`/delete_item` , async function(req , res){
           
         
             await sellingshop.save();
+            await sellingshop.populate('items');
+            await sellingshop.populate('owner');
+
             await Item.deleteOne({_id:new ObjectId(item)});
             return res.status(200).json({eror:false , shop:sellingshop});
          }
