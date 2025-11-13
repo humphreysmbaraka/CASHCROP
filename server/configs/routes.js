@@ -705,7 +705,7 @@ router.post(`/create_item` , memuploader.single('image') ,  async function(req ,
 
 
 
-router.patch(`/edit_item` , diskuploader.single('image') ,  async function(req , res){
+router.patch(`/edit_item` , memuploader.single('image') ,  async function(req , res){
     try{
         const {name , type , description , quantity , unit , price , priceunit , id  , shop} = req.body;
         const upload = req.file;
@@ -721,7 +721,7 @@ router.patch(`/edit_item` , diskuploader.single('image') ,  async function(req ,
             if(upload){
                 const fileupload = new Promise(function(resolve , reject){
                     const name = upload.originalname;
-                    const path = upload.path;
+                    // const path = upload.path;
                     const size = upload.size;
                     const type = upload.mimetype;
         
@@ -731,7 +731,8 @@ router.patch(`/edit_item` , diskuploader.single('image') ,  async function(req ,
                         }
                     })
         
-                    const readstream = fs.createReadStream(path);
+                    // const readstream = fs.createReadStream(path);
+                    const readstream = Readable.from(upload.buffer);
                     readstream.pipe(uploadstream);
         
                     readstream.on('finish' , function(){
