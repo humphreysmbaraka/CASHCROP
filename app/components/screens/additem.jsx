@@ -18,15 +18,16 @@ export default function AddItem({navigation , route}) {
   // const edit = route?.params?.edit;
   //  const shop = route?.params?.shop;
   //  const handlereturn = route?.params?.handlereturn;
+  // console.log('ROUTE PARAMS' , route);
   const [editmode , seteditmode] = useState(null);
 
  console.log('initial  item , edit , shop params   :' , item , edit , shop , route?.params);
 
-    const [imageuri , setimageuri] = useState(item?.image ||null);
+    const [imageuri , setimageuri] = useState(null);
     const [name ,setname] = useState(item?.name ||null);
     const [type ,settype] = useState(item?.type || null);
     const [description ,setdescription] = useState(item?.description || null);
-    const [quantity ,setquantity] = useState(item?.quantity || null);
+    const [quantity ,setquantity] = useState(item?.quantity_remaining || null);
     const [unit ,setunit] = useState(item?.unit || null);
     const [price ,setprice] = useState(item?.price || null);
     const [priceunit ,setpriceunit] = useState(item?.price_unit || null);
@@ -165,7 +166,7 @@ export default function AddItem({navigation , route}) {
 
   const edititem = async function(){
     try{
-      if(editting || !imageuri || !name || name.trim()=='' || !description|| description.trim()=='' || !quantity || quantity.trim()=='' || isNaN(quantity) || !unit || unit.trim()=='' || !price || price.trim()=='' || isNaN(price) || !priceunit || priceunit.trim()==''){
+      if(editting ||  !name || name.trim()=='' || !description|| description.trim()=='' || !quantity || quantity.trim()=='' || isNaN(quantity) || !unit || unit.trim()=='' || !price || price.trim()=='' || isNaN(price) || !priceunit || priceunit.trim()==''){
         setcreateerror('check the data you provided , some could be missing , or in the wrong format');
         return;
       }
@@ -179,7 +180,19 @@ export default function AddItem({navigation , route}) {
       data.append("unit" ,unit );
       data.append("price" ,price );
       data.append("priceunit" ,priceunit );
-      data.append("image" ,imageuri );
+      // data.append("image" ,imageuri );
+      if(imageuri){
+        const filename = imageuri.split('/').pop();
+        const match = /\.(\w+)$/.exec(filename);
+        const fileType = match ? `image/${match[1]}` : 'image';
+  
+    data.append('image', {
+      uri: imageuri,
+      name: filename,
+      type: fileType,
+    });
+      }
+     
       data.append('id' , item._id);
       data.append('shop' , shop?.id);
       // data.append("" , );
@@ -233,11 +246,17 @@ export default function AddItem({navigation , route}) {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10  , paddingTop:Platform.OS=='android'?Constants.statusBarHeight:0}}>
-      <Heading size="lg" mb={4}>Add Item</Heading>
+      <Heading size="lg" mb={4}>{edit?'EDIT ITEM':'ADD ITEM'}</Heading>
 
       {!confirmCard ? (
         <VStack space={4}>
-          <Avatar size="2xl" bg="gray.300" alignSelf="center" source={{uri:imageuri || undefined}} />
+          <Avatar size="2xl" bg="gray.300" alignSelf="center"  source={
+    imageuri
+      ? { uri: imageuri } // show the newly picked local image
+      : item?.image
+      ? { uri: `${base_url}/item_picture/${item.image}` } // fallback to old image
+      : undefined
+  } />
           <Text mt={'10px'} alignSelf={'center'}   >provide an image for the product</Text>
 
           {imageuri &&  
@@ -359,14 +378,14 @@ export default function AddItem({navigation , route}) {
 
           </Button> */}
 
-          {editmode ? (
+          {edit ? (
             <>
             {editerror && 
-              <Text color={'red'} alignSelf={'center'}  fontSize={'sm'}  >{editerror}</Text>
+              <Text color={'red.600'} alignSelf={'center'}  fontSize={'sm'}  >{editerror}</Text>
               }
-            <Button mt={2} onPress={() => {edititem}}>EDIT ITEM
+            <Button mt={2} alignSelf={'center'} justifyContent={'center'} alignItems={'center'} onPress={() => {edititem()}}>EDIT ITEM
           {editting &&  
-            <Spinner        color={'white'} width={'30px'} height={'30px'}                  />
+            <Spinner    mr={'auto'} ml={'auto'} alignSelf={'center'}    color={'white'} width={'30px'} height={'30px'}                  />
            }
 
           </Button>

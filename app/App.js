@@ -17,7 +17,7 @@ import { AuthProvider } from './contexts/authcontext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigator from './components/Navigator';
 import NETWORK_PROVIDER from './contexts/network and appstate';
-import EXPO_PUSH_TOKEN_PROVIDER from './contexts/expopushtoken';
+// import EXPO_PUSH_TOKEN_PROVIDER from './contexts/expopushtoken';
 export default function App() {
   return (
     
@@ -28,7 +28,7 @@ export default function App() {
 
 
         <AuthProvider>
-        <EXPO_PUSH_TOKEN_PROVIDER>
+        {/* <EXPO_PUSH_TOKEN_PROVIDER> */}
         <NETWORK_PROVIDER>
         <NativeBaseProvider>
                    
@@ -37,7 +37,7 @@ export default function App() {
 
      </NativeBaseProvider>
      </NETWORK_PROVIDER>
-     </EXPO_PUSH_TOKEN_PROVIDER>
+     {/* </EXPO_PUSH_TOKEN_PROVIDER> */}
      </AuthProvider>
      </>
     //  </SafeAreaProvider>

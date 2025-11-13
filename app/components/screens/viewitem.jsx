@@ -10,8 +10,8 @@ export default function ViewItemPage({navigation ,route}) {
   const [quantity, setQuantity] = useState(1);
   const pricePerUnit = 120; // Example price per unit
   const [openmodal ,setopenmodal] = useState(false);
-  const {item} = route?.params || {};
-  
+  const item = route?.params || route?.params?.params?.item || {};
+  console.log('ROUTE PARAMS' , route.params);
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: "white", paddingTop: Platform.OS === "android" ? Constants.statusBarHeight : 0, padding: 10 }}

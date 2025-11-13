@@ -78,9 +78,11 @@ export default function ViewItem({navigation , route}) {
         {/* <Text>Added on: {item.date}</Text> */}
         <Text>Available Quantity: {item?.quantity} {item?.unit}</Text>
         <Text>Price: {item?.price} per {item?.unit}</Text>
+        <Text mt={'10px'} alignSelf={'center'} fontWeight={'bold'} >PRODUCT ESCRIPTION</Text>
+        <Text  alignSelf={'center'} width={'90%'}>{item?.description}</Text>
       </VStack>
 
-      <Button mt={4} onPress={() =>{navigation.navigate('edit' , {item , edit:true , shop ,  handlereturn})} }>Edit Item</Button>
+      <Button mt={4} onPress={() =>{navigation.navigate('edit' ,{screen:'edit' ,params:{ item , edit:true , shop ,  handlereturn}})} }>Edit Item</Button>
       {deleteerror && <Text alignSelf={'center'} color={'red.200'}  fontSize={'xs'}    >{deleteerror}</Text>}
       <Button mt={2} mb={'60px'} colorScheme="danger" onPress={deleteitem}>
         Delete Item   {deleting &&  <Spinner alignSelf={'center'} ml={'auto'} mr={'auto'}  width={'20px'} height={'20px'} color={'white'}             /> }

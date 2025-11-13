@@ -1320,51 +1320,7 @@ router.get(`/search/:query/:page` , async function(req , res){
 
 
 
-router.post(`/create_payment_session` , async function(req , res){
-    try{
-        const {product , buyer} = req.body;
-         const user = await User.findOne({_id: new ObjectId(buyer)});
-         if(!user){
-            console.log('no such user found');
-            return res.status(400).json({error:true , message:'no such user found'});
-         }
-         else{
-            const products = user.cart.map(function(val , ind){
-                return Item.findOne({_id:new ObjectId(val.item)}).exec();
-            })
 
-           const products_list = await Promise.all(products);
-
-            const session = await stripe.checkout.sessions.create({
-                payment_method_types:['card'],
-                mode:'payment',
-                line_items: products_list.map(function(val , ind){
-                    return {
-                        price_data:{
-                            product_data:{
-                                name:val.name
-                            },
-                            currency:'usd',
-                            unit_amount: val.price // THIS VALUE MUST BE IN CENTS/ SMALLEST MONEY UNIT FOR USED CURRENCY
-                            
-
-                        },
-                        quantity: user.cart[ind].quantity
-                    }
-                }),
-                success_url : null,// A SUCCESS URL ( I AM USING REACT NATIVE , SO WILL NEED A WORKAROUND)
-                cancel_url : null// A SUCCESS URL ( I AM USING REACT NATIVE , SO WILL NEED A WORKAROUND)
-            })
-
-            res.json({ sessionId: session.id });
-
-         }
-    }
-    catch(err){
-        console.log('error creating stripe payment session' , err);
-        return res.status(500).json({error:true , message:'server error' , problem:err});
-    }
-})
 
 
 
