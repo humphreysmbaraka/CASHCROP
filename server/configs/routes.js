@@ -13,7 +13,7 @@ const Shop = require('./schemas/shop');
 const Item = require('./schemas/item');
 const {Readable} = require('stream');
 const {Expo}= require('expo-server-sdk');   // FOR SENDING EXPO PUSH NOTIFICATIONS
-const stripe = require('stripe')(process.env.STRIPE_KEY);
+
 
   // SETUP FOR EXPO PUSH NOTIFICATIONS
 
