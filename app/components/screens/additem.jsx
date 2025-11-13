@@ -362,7 +362,13 @@ export default function AddItem({navigation , route}) {
         </VStack>
       ) : (
         <Box bg="gray.50" p={4} borderRadius="lg" shadow={1}>
-           <Avatar size="2xl" bg="gray.300" alignSelf="center" source={{uri:imageuri || undefined}} />
+           <Avatar size="2xl" bg="gray.300" alignSelf="center"  source={
+    imageuri
+      ? { uri: imageuri } // show the newly picked local image
+      : item?.image
+      ? { uri: `${base_url}/item_picture/${item.image}` } // fallback to old image
+      : undefined
+  }  />
           <Text fontWeight="bold">{name}</Text>
           <Text>Description: {description}</Text>
           <Text>Qty: {quantity} {unit}</Text>

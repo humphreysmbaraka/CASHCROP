@@ -771,7 +771,7 @@ router.patch(`/edit_item` , diskuploader.single('image') ,  async function(req ,
               else{
                 console.log('no image was attached');
 
-                item.image = image;
+              
                 item.name = name;
                 item.type = type;
                 item.description = description;
