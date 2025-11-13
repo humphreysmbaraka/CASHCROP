@@ -757,14 +757,12 @@ router.patch(`/edit_item` , memuploader.single('image') ,  async function(req , 
                
         
                 await item.save();
-                const newshopitems = shopobj.items.map(function(val , ind){
-                    if(val == item._id){
-                        return item;
-                    }
-                })
+               
 
-                shopobj.items = newshopitems;
+              
                 await shopobj.save();
+                await shopobj.populate('items');
+                await shopobj.populate('owner');
                 return res.status(200).json({error:false , message:'item edited successfully' , item:item , shop:shopobj})
         
               }
@@ -783,13 +781,9 @@ router.patch(`/edit_item` , memuploader.single('image') ,  async function(req , 
                
         
                 await item.save();
-                const newshopitems = shopobj.items.map(function(val , ind){
-                    if(val == item._id){
-                        return item;
-                    }
-                })
+                
 
-                shopobj.items = newshopitems;
+             
                 await shopobj.save();
                 return res.status(200).json({error:false , message:'item edited successfully' , item:item , shop:shopobj})
                
