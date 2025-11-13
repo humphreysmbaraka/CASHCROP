@@ -466,7 +466,7 @@ router.post(`/log_in` , async function(req , res){
          const match = await bcrypt.compare(password  ,user.password);
          if(match){
             user.expopushtoken = expopushtoken;
-            await user.saved();
+            await user.save();
             console.log('expopushtoken updated');
             return res.status(200).json({error:false , message:'loged in successfully' , user});
          }
@@ -769,14 +769,29 @@ router.patch(`/edit_item` , diskuploader.single('image') ,  async function(req ,
               }
 
               else{
-                //    const newuser = new User({
-                //        image , email , hash, username , number ,role , country , county , area
-                //     })
-            
-                //     newuser.save();
-                //     return res.status(200).json({error:false , message:'user created successfully' , user:newuser})
-                console.log('request did not have an image attached to it');
-                return res.status(400).json({error:true , message:'attach image to the request'})
+                console.log('no image was attached');
+
+                item.image = image;
+                item.name = name;
+                item.type = type;
+                item.description = description;
+                item.quantity = quantity;
+                item.unit = unit;
+                item.price = price;
+                item.price_unit = priceunit;
+               
+        
+                await item.save();
+                const newshopitems = shopobj.items.map(function(val , ind){
+                    if(val == item._id){
+                        return item;
+                    }
+                })
+
+                shopobj.items = newshopitems;
+                await shopobj.save();
+                return res.status(200).json({error:false , message:'item edited successfully' , item:newitem , shop:shopob})
+               
                  }
 
 

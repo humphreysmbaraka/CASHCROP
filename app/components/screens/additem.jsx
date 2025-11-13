@@ -181,20 +181,19 @@ export default function AddItem({navigation , route}) {
       data.append("price" ,price );
       data.append("priceunit" ,priceunit );
       // data.append("image" ,imageuri );
-      if(imageuri){
-        const filename = imageuri.split('/').pop();
+      if (imageuri && !imageuri.startsWith("http")) {
+        const filename = imageuri.split("/").pop();
         const match = /\.(\w+)$/.exec(filename);
-        const fileType = match ? `image/${match[1]}` : 'image';
-  
-    data.append('image', {
-      uri: imageuri,
-      name: filename,
-      type: fileType,
-    });
+        const fileType = match ? `image/${match[1]}` : "image";
+        data.append("image", {
+          uri: imageuri,
+          name: filename,
+          type: fileType,
+        });
       }
      
       data.append('id' , item._id);
-      data.append('shop' , shop?.id);
+      data.append('shop' , shop?._id);
       // data.append("" , );
 
 
