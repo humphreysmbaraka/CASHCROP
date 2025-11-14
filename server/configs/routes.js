@@ -1302,8 +1302,8 @@ router.get(`/get_suggestions/:query` , async function(req , res){
        const recomendations = await Item.find({
         $or: [
             { name: { $regex: query, $options: "i" } },  // match by name
-            { description: { $regex: query, $options: "i" } }, // match by desc
-            { type: { $regex: query, $options: "i" } },  // match by type
+            // { description: { $regex: query, $options: "i" } }, // match by desc
+            // { type: { $regex: query, $options: "i" } },  // match by type
           ]
        }).select('name').limit(10);
 

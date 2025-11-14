@@ -107,6 +107,7 @@ export default function ShoppingPage({navigation}) {
         setsearcherror(false);
         setlooking(false);
          const info = await recomendations.json();
+         console.log('suggestion info' , info)
          setmatches(info.recomendations);
     
        }
@@ -325,9 +326,8 @@ export default function ShoppingPage({navigation}) {
    
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "white" , paddingTop:Platform.OS==='android'?Constants.statusBarHeight:0 }}  onScroll={handleScroll}
-    scrollEventThrottle={16}   >
-      <VStack s pace={4} padding={4} pb={'70px'} >
+   
+      <VStack flex={1}  bg={'white'}  paddingTop={Platform.OS==='android'?Constants.statusBarHeight:0 } pace={4} padding={4} pb={'70px'} >
         {/* Search Bar */}
         <Input
           placeholder="Search for items..."
@@ -341,13 +341,13 @@ export default function ShoppingPage({navigation}) {
 
         {/* Conditional Results */}
         {(query?.length > 0 && matches) && (
-          <Box mt={'5px'} bg={'black'} width={'95%'}  maxH={'400px'} alignItems={'center'} justifyContent={'center'} borderWidth={0} borderRadius={'10px'} p={'2px'} >
+          <Box mt={'5px'} bg={'black'} width={'95%'}  maxH={'300px'} alignItems={'center'} justifyContent={'center'} borderWidth={0} borderRadius={'10px'} p={'2px'} >
             
           
           <FlatList  width={'100%'}  initialNumToRender={15} maxToRenderPerBatch={20}  windowSize={5} data={matches} keyExtractor={function(item , index){return index.toString()}}     renderItem={function({item}){
             return(
               <Pressable   onPress={()=>{clickedrecomendation(item.trim())}}  width={'98%'} height={'35px'} mt={'5px'} mb={'5px'} borderBottomColor={'black'} borderBottomWidth={'1px'}            >
-                <Text width={'90%'} textAlign={'left'} fontSize={'sm'} fontWeight={'bold'} color={'white'} >{item}</Text>
+                <Text width={'90%'} textAlign={'left'} fontSize={'sm'} fontWeight={'bold'} color={'white'} >{item.name}</Text>
               </Pressable>
             )
           }}              />
@@ -358,6 +358,8 @@ export default function ShoppingPage({navigation}) {
         )}
 
         {(results && results?.length !== 0)&&
+           <ScrollView style={{ flex: 1, backgroundColor: "white" , paddingTop:Platform.OS==='android'?Constants.statusBarHeight:0 }}  onScroll={handleScroll}
+           scrollEventThrottle={16}   >
         <HStack  p={'4px'} alignItems={'center'} justifyContent={'center'} flexWrap={'wrap'}  >
           {results?.map(function(val , ind){
             return(
@@ -388,6 +390,7 @@ export default function ShoppingPage({navigation}) {
 
           {gettingmore && <Spinner         color={'blue'} width={'30px'} height={'30px'} alignSelf={'center'}        />}
         </HStack>
+        </ScrollView>
 }
 
         {/* initial results , when one opens the page before doing or searching anythig */}
@@ -398,7 +401,8 @@ export default function ShoppingPage({navigation}) {
             {/* <Text onPress={()=>{getfiltereditems(String(section))}} fontSize="md" fontWeight="bold" letterSpacing={'2px'} mt={4} mb={2}>
               {section}
             </Text> */}
-            <ScrollView   style={{ flex: 1, backgroundColor: "white" , paddingTop:Platform.OS==='android'?Constants.statusBarHeight:0 }}  onScroll={handleScroll}  >
+              <ScrollView style={{ flex: 1, backgroundColor: "white" , paddingTop:Platform.OS==='android'?Constants.statusBarHeight:0 }}  onScroll={handleScroll}
+    scrollEventThrottle={16}   >
               <HStack   width={'95%'} alignSelf={'center'} flexWrap={'wrap'}  space={3}>
                 {items.map((item, i) => (
                   <Pressable key={i} onPress={()=>{navigation.navigate('clickitem' , {screen:'view' , params:{item}})}}>
@@ -436,6 +440,6 @@ export default function ShoppingPage({navigation}) {
           </>
         ))}
       </VStack>
-    </ScrollView>
+ 
   );
 }
