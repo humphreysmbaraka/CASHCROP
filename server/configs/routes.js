@@ -1272,7 +1272,30 @@ router.post(`/decrement_cart_item` , async function(req , res){
 
 
 
-router.get(`/get_sugestions/:query` , async function(req , res){
+router.get(`get_initial_results` , async function(req , res){
+     try{
+        console.log('getting initial reesults');
+         const results = await Item.aggregate([
+           { $sample : {size:20}}
+         ])
+
+         if(!results){
+            console.log('no initial results found');
+            return res.status(400).json({error:true , message:'no results found'});
+         }
+
+         else{
+            console.log('results fetched');
+            return res.status(200).json({error:false , message:'results fetched successfully', items:results})
+         }
+     }
+     catch(err){
+        console.log('could not get results to display' , err);
+        return res.status(500).json({error:true , message:'server error' , problem:err});
+     }
+})
+
+router.get(`/get_suggestions/:query` , async function(req , res){
     try{
        const query = req.params.query;
 

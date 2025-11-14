@@ -46,7 +46,7 @@ export default function ShoppingPage({navigation}) {
         return;
       }
       setgettinginit(true);
-      setiniterror(false);
+      setiniterror(null);
 
       const response = await fetch(`${base_url}/get_initial_results` , {
         method:'GET',
@@ -59,9 +59,9 @@ export default function ShoppingPage({navigation}) {
       if(response.ok){
         setgettinginit(false);
         setiniterror(null);
-        setinitialresults(async function(prev){
+        setinitialresults(function(prev){
           if(prev){
-            return [...prev , info.items];
+            return [...prev , ...info.items];
           }
           else{
             return info.items;
@@ -70,7 +70,7 @@ export default function ShoppingPage({navigation}) {
       }
       else{
         setgettinginit(false);
-        if(String(response.status.startsWith('4'))){
+        if(String(response.status).startsWith('4')){
           setiniterror(info.message);
         }
         else{
@@ -82,8 +82,20 @@ export default function ShoppingPage({navigation}) {
       console.log('could not get initial products' ,err);
       setgettinginit(false);
       setiniterror('error')
+      throw new Error(err);
     }
   }
+
+  useEffect(function(){
+        (async function(){
+          try{
+       await getInitialProducts();
+          }
+          catch(err){
+            console.log('could not fetch initial products' , err);
+          }
+        })();
+  } ,[])
 
 
    const getmatches = async function(){
@@ -118,7 +130,21 @@ export default function ShoppingPage({navigation}) {
     }
    }
 
-
+ useEffect(function(){
+      if(!query || query.trim()== ''){
+        return;
+      }
+      else{
+       (async function(){
+        try{
+         await getmatches();
+        }
+        catch(err){
+          console.log('could not get matches' , err);
+        }
+       })();
+      }
+ } , [query]);
 
 
    const clickedrecomendation = async function(name){
@@ -238,37 +264,37 @@ export default function ShoppingPage({navigation}) {
 
 
 
-   const getfiltereditems = async function(filter){
-    try{
-       flag = (filter=='CLOSE TO YOU')?user?.area?.name:(filter=='ALL')?null:null;
-       setlooking(true);
-       setsearcherror(null);
-      //  setquery(name);
-       const res = await fetch(`${base_url}/search_items/${flag}`);
-       if(res.ok){
-        setsearcherror(false);
-        setlooking(false);
-         const info = await res.json();
+  //  const getfiltereditems = async function(filter){
+  //   try{
+  //      flag = (filter=='CLOSE TO YOU')?user?.area?.name:(filter=='ALL')?null:null;
+  //      setlooking(true);
+  //      setsearcherror(null);
+     
+  //      const res = await fetch(`${base_url}/search_items/${flag}`);
+  //      if(res.ok){
+  //       setsearcherror(false);
+  //       setlooking(false);
+  //        const info = await res.json();
     
-       }
-       else{
+  //      }
+  //      else{
     
-        setlooking(false);
-         const info = await res.json();
-         if(String(info.status).startsWith('4')){
-        setsearcherror(info.message);
-         }
-         else{
-          setsearcherror('server error');
-         }
+  //       setlooking(false);
+  //        const info = await res.json();
+  //        if(String(info.status).startsWith('4')){
+  //       setsearcherror(info.message);
+  //        }
+  //        else{
+  //         setsearcherror('server error');
+  //        }
 
 
-       }
-    }
-    catch(err){
-      console.log('error finding matches' , err);
-    }
-   }
+  //      }
+  //   }
+  //   catch(err){
+  //     console.log('error finding matches' , err);
+  //   }
+  //  }
 
 
 
@@ -305,7 +331,7 @@ export default function ShoppingPage({navigation}) {
         {/* Search Bar */}
         <Input
           placeholder="Search for items..."
-          value={search}
+          value={query}
           onChangeText={(val)=>{
             setquery(val.trim())}}
           size="lg"
@@ -314,14 +340,14 @@ export default function ShoppingPage({navigation}) {
         />
 
         {/* Conditional Results */}
-        {query?.length > 0 && (
-          <Box width={'95%'}  maxH={'400px'} alignItems={'center'} justifyContent={'center'} borderWidth={0} borderRadius={'10px'} p={'2px'} >
+        {(query?.length > 0 && matches) && (
+          <Box mt={'5px'} bg={'black'} width={'95%'}  maxH={'400px'} alignItems={'center'} justifyContent={'center'} borderWidth={0} borderRadius={'10px'} p={'2px'} >
             
           
           <FlatList  width={'100%'}  initialNumToRender={15} maxToRenderPerBatch={20}  windowSize={5} data={matches} keyExtractor={function(item , index){return index.toString()}}     renderItem={function({item}){
             return(
               <Pressable   onPress={()=>{clickedrecomendation(item.trim())}}  width={'98%'} height={'35px'} mt={'5px'} mb={'5px'} borderBottomColor={'black'} borderBottomWidth={'1px'}            >
-                <Text width={'90%'} textAlign={'left'} fontSize={'sm'} fontWeight={'bold'} >{item}</Text>
+                <Text width={'90%'} textAlign={'left'} fontSize={'sm'} fontWeight={'bold'} color={'white'} >{item}</Text>
               </Pressable>
             )
           }}              />
