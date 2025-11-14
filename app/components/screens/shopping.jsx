@@ -34,9 +34,56 @@ export default function ShoppingPage({navigation}) {
   const [searcherror , setsearcherror] = useState(null);
   const [page , setpage] = useState(0);
   const [gettingmore , setgettingmore] = useState(false);
+
+  // for when getting initial items to display
   const [initialresults , setinitialresults] = useState(null);
+  const [gettinginit , setgettinginit] = useState(false);
+  const [initerror , setiniterror] = useState(null);
 
+  const getInitialProducts = async function(){
+    try{
+      if(gettinginit){
+        return;
+      }
+      setgettinginit(true);
+      setiniterror(false);
 
+      const response = await fetch(`${base_url}/get_initial_results` , {
+        method:'GET',
+        headers:{
+          'Content-Type':'application/json'
+        }
+      }) 
+
+      const info = await response.json();
+      if(response.ok){
+        setgettinginit(false);
+        setiniterror(null);
+        setinitialresults(async function(prev){
+          if(prev){
+            return [...prev , info.items];
+          }
+          else{
+            return info.items;
+          }
+        });
+      }
+      else{
+        setgettinginit(false);
+        if(String(response.status.startsWith('4'))){
+          setiniterror(info.message);
+        }
+        else{
+          setiniterror('server error')
+        }
+      }
+    }
+    catch(err){
+      console.log('could not get initial products' ,err);
+      setgettinginit(false);
+      setiniterror('error')
+    }
+  }
 
 
    const getmatches = async function(){
@@ -267,7 +314,7 @@ export default function ShoppingPage({navigation}) {
         />
 
         {/* Conditional Results */}
-        {query.length > 0 && (
+        {query?.length > 0 && (
           <Box width={'95%'}  maxH={'400px'} alignItems={'center'} justifyContent={'center'} borderWidth={0} borderRadius={'10px'} p={'2px'} >
             
           
@@ -284,7 +331,7 @@ export default function ShoppingPage({navigation}) {
           </Box>
         )}
 
-        {(results?.length !== 0)&&
+        {(results && results?.length !== 0)&&
         <HStack  p={'4px'} alignItems={'center'} justifyContent={'center'} flexWrap={'wrap'}  >
           {results?.map(function(val , ind){
             return(
@@ -317,14 +364,16 @@ export default function ShoppingPage({navigation}) {
         </HStack>
 }
 
-        {/* Sections */}
-        {["CLOSE TO YOU" ,"ALL"].map((section, idx) => (
-          <VStack   key={idx} space={2}>
-            <Text onPress={()=>{getfiltereditems(String(section))}} fontSize="md" fontWeight="bold" letterSpacing={'2px'} mt={4} mb={2}>
+        {/* initial results , when one opens the page before doing or searching anythig */}
+        {((!results) && (initialresults && initialresults.length > 0)) &&
+          initialresults.map((section, idx) => (
+            <>
+           {/* <VStack   key={idx} space={2}> */}
+            {/* <Text onPress={()=>{getfiltereditems(String(section))}} fontSize="md" fontWeight="bold" letterSpacing={'2px'} mt={4} mb={2}>
               {section}
-            </Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <HStack space={3}>
+            </Text> */}
+            <ScrollView   style={{ flex: 1, backgroundColor: "white" , paddingTop:Platform.OS==='android'?Constants.statusBarHeight:0 }}  onScroll={handleScroll}  >
+              <HStack   width={'95%'} alignSelf={'center'} flexWrap={'wrap'}  space={3}>
                 {items.map((item, i) => (
                   <Pressable key={i} onPress={()=>{navigation.navigate('clickitem' , {screen:'view' , params:{item}})}}>
                     <Box
@@ -350,8 +399,15 @@ export default function ShoppingPage({navigation}) {
                   </Pressable>
                 ))}
               </HStack>
+              {gettinginit &&  
+               <Spinner  color={'blue.400'} size={'20x'} alignSelf={'center'} mr={'auto'}  ml={'auto'}     />
+              }
+              {initerror &&  
+                <Text color={'red.600'} alignSelf={'center'} mr={'auto'}  ml={'auto'}  >{initerror}</Text>
+              }
             </ScrollView>
-          </VStack>
+          {/* </VStack> */}
+          </>
         ))}
       </VStack>
     </ScrollView>

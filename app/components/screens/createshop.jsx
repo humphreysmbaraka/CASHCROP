@@ -204,6 +204,7 @@ export default function CreateShop({navigation}) {
             <Select.Item label="Meat" value="meat" />
             <Select.Item label="Livestock" value="livestock" />
             <Select.Item label="Vegetables" value="vegetables" />
+            <Select.Item label="Farm equipment" value="Farm equipment" />
             <Select.Item label="Other" value="other" />
           </Select>
 

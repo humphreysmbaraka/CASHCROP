@@ -13,6 +13,7 @@ const userschema = new mongoose.Schema({
    country:{type:Object , required:true},
    county:{type:Object , required:true},
    area:{type:Object , required:true},
+   saerch_querries:[{type:String , required:false , default:[]}],
    shops:[{type:mongoose.Schema.Types.ObjectId , required:false ,ref:'shop'}],
    orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],
    cart:[{
