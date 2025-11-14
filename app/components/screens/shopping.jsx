@@ -59,6 +59,7 @@ export default function ShoppingPage({navigation}) {
       if(response.ok){
         setgettinginit(false);
         setiniterror(null);
+        console.log('initial results fetched' , info);
         setinitialresults(function(prev){
           if(prev){
             return [...prev , ...info.items];
@@ -96,6 +97,10 @@ export default function ShoppingPage({navigation}) {
           }
         })();
   } ,[])
+
+  useEffect(function(){
+   console.log('initial results change etected' ,initialresults);
+  } ,[initialresults])
 
 
    const getmatches = async function(){
@@ -395,7 +400,7 @@ export default function ShoppingPage({navigation}) {
 
         {/* initial results , when one opens the page before doing or searching anythig */}
         {((!results) && (initialresults && initialresults.length > 0)) &&
-          initialresults.map((section, idx) => (
+         
             <>
            {/* <VStack   key={idx} space={2}> */}
             {/* <Text onPress={()=>{getfiltereditems(String(section))}} fontSize="md" fontWeight="bold" letterSpacing={'2px'} mt={4} mb={2}>
@@ -404,7 +409,7 @@ export default function ShoppingPage({navigation}) {
               <ScrollView style={{ flex: 1, backgroundColor: "white" , paddingTop:Platform.OS==='android'?Constants.statusBarHeight:0 }}  onScroll={handleScroll}
     scrollEventThrottle={16}   >
               <HStack   width={'95%'} alignSelf={'center'} flexWrap={'wrap'}  space={3}>
-                {items.map((item, i) => (
+                {initialresults.map((item, i) => (
                   <Pressable key={i} onPress={()=>{navigation.navigate('clickitem' , {screen:'view' , params:{item}})}}>
                     <Box
                       width={140}
@@ -412,9 +417,10 @@ export default function ShoppingPage({navigation}) {
                       shadow={2}
                       borderRadius="lg"
                       overflow="hidden"
+                      bgColor={'black'}
                     >
                       <Image
-                        source={{uri:item.image}}
+                        source={{uri:`${base_url}/item_picture/${item.image}`}}
                         alt={item.name}
                         width="100%"
                         height={100}
@@ -438,7 +444,7 @@ export default function ShoppingPage({navigation}) {
             </ScrollView>
           {/* </VStack> */}
           </>
-        ))}
+        }
       </VStack>
  
   );

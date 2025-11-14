@@ -1272,7 +1272,7 @@ router.post(`/decrement_cart_item` , async function(req , res){
 
 
 
-router.get(`get_initial_results` , async function(req , res){
+router.get(`/get_initial_results` , async function(req , res){
      try{
         console.log('getting initial reesults');
          const results = await Item.aggregate([
