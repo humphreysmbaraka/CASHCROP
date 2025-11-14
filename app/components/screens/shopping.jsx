@@ -17,7 +17,6 @@ import {
 import base_url from "../constants/baseurl";
 
 
-
 export default function ShoppingPage({navigation}) {
   // const [search, setSearch] = useState("");
 
@@ -29,6 +28,7 @@ export default function ShoppingPage({navigation}) {
   const [query , setquery] = useState(null);
   const [currentquery , setcurrentquery] = useState(null);
   const [matches , setmatches] = useState(null);  //recomendations
+  const [showsuggestionbox , setshowsuggestionbox] = useState(false);
   const [results , setresults] = useState(null);  //results after searching
   const [looking, setlooking] = useState(false);
   const [searcherror , setsearcherror] = useState(null);
@@ -62,7 +62,7 @@ export default function ShoppingPage({navigation}) {
         console.log('initial results fetched' , info);
         setinitialresults(function(prev){
           if(prev){
-            return [...prev , ...info.items];
+            return info.items;
           }
           else{
             return info.items;
@@ -155,11 +155,13 @@ export default function ShoppingPage({navigation}) {
 
    const clickedrecomendation = async function(name){
     try{
+      
        setlooking(true);
        setsearcherror(null);
        setpage(0);
        setquery(name);
        setcurrentquery(name);
+       setshowsuggestionbox(false);
        const res = await fetch(`${base_url}/search/${name}/${0}`);
        if(res.ok){
         setsearcherror(false);
@@ -328,11 +330,21 @@ export default function ShoppingPage({navigation}) {
 
   
 
+
+  useEffect(function(){
+     if(!query || query.trim()==''){
+       setshowsuggestionbox(false);
+       return;
+     }
+     else{
+      setshowsuggestionbox(true);
+     }
+  } , [query])
    
 
   return (
    
-      <VStack flex={1}  bg={'white'}  paddingTop={Platform.OS==='android'?Constants.statusBarHeight:0 } pace={4} padding={4} pb={'70px'} >
+      <VStack  flex={1}  bg={'white'}  paddingTop={Platform.OS==='android'?Constants.statusBarHeight:0 } pace={4} padding={4} pb={'70px'} >
         {/* Search Bar */}
         <Input
           placeholder="Search for items..."
@@ -345,14 +357,14 @@ export default function ShoppingPage({navigation}) {
         />
 
         {/* Conditional Results */}
-        {(query?.length > 0 && matches) && (
+        {(showsuggestionbox && matches) && (
           <Box mt={'5px'} bg={'black'} width={'95%'}  maxH={'300px'} alignItems={'center'} justifyContent={'center'} borderWidth={0} borderRadius={'10px'} p={'2px'} >
             
           
           <FlatList  width={'100%'}  initialNumToRender={15} maxToRenderPerBatch={20}  windowSize={5} data={matches} keyExtractor={function(item , index){return index.toString()}}     renderItem={function({item}){
             return(
-              <Pressable   onPress={()=>{clickedrecomendation(item.trim())}}  width={'98%'} height={'35px'} mt={'5px'} mb={'5px'} borderBottomColor={'black'} borderBottomWidth={'1px'}            >
-                <Text width={'90%'} textAlign={'left'} fontSize={'sm'} fontWeight={'bold'} color={'white'} >{item.name}</Text>
+              <Pressable   onPress={()=>{clickedrecomendation(item?.name.trim())}}  width={'98%'} height={'35px'} mt={'5px'} mb={'5px'} borderBottomColor={'black'} borderBottomWidth={'1px'}            >
+                <Text width={'90%'} textAlign={'left'} fontSize={'sm'} fontWeight={'bold'} color={'white'} >{item?.name}</Text>
               </Pressable>
             )
           }}              />
@@ -377,7 +389,7 @@ export default function ShoppingPage({navigation}) {
                 overflow="hidden"
               >
                 <Image
-                  source={{uri:item.image}}
+                  source={{uri:`${base_url}/item_picture/${val.image}`}}
                   alt={item.name}
                   width="100%"
                   height={100}
@@ -406,9 +418,9 @@ export default function ShoppingPage({navigation}) {
             {/* <Text onPress={()=>{getfiltereditems(String(section))}} fontSize="md" fontWeight="bold" letterSpacing={'2px'} mt={4} mb={2}>
               {section}
             </Text> */}
-              <ScrollView style={{ flex: 1, backgroundColor: "white" , paddingTop:Platform.OS==='android'?Constants.statusBarHeight:0 }}  onScroll={handleScroll}
+              <ScrollView  style={{ height:'90%', marginTop:10 , backgroundColor: "white" , borderColor:'black' , borderWidth:1  }}   contentContainerStyle={{alignItems: 'center', justifyContent: 'center' }} onScroll={handleScroll}
     scrollEventThrottle={16}   >
-              <HStack   width={'95%'} alignSelf={'center'} flexWrap={'wrap'}  space={3}>
+              <HStack   width={'95%'} alignSelf={'center'} mr={'auto'} ml={'auto'} flexWrap={'wrap'}  alignItems={'center'} justifyContent={'center'} space={3}>
                 {initialresults.map((item, i) => (
                   <Pressable key={i} onPress={()=>{navigation.navigate('clickitem' , {screen:'view' , params:{item}})}}>
                     <Box
@@ -417,7 +429,8 @@ export default function ShoppingPage({navigation}) {
                       shadow={2}
                       borderRadius="lg"
                       overflow="hidden"
-                      bgColor={'black'}
+                      mt={'10px'}
+                      mb={'10px'}
                     >
                       <Image
                         source={{uri:`${base_url}/item_picture/${item.image}`}}
@@ -436,7 +449,7 @@ export default function ShoppingPage({navigation}) {
                 ))}
               </HStack>
               {gettinginit &&  
-               <Spinner  color={'blue.400'} size={'20x'} alignSelf={'center'} mr={'auto'}  ml={'auto'}     />
+               <Spinner  color={'blue.400'} size={'sm'} alignSelf={'center'} mr={'auto'}  ml={'auto'}     />
               }
               {initerror &&  
                 <Text color={'red.600'} alignSelf={'center'} mr={'auto'}  ml={'auto'}  >{initerror}</Text>

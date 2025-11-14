@@ -1279,6 +1279,8 @@ router.get(`/get_initial_results` , async function(req , res){
            { $sample : {size:20}}
          ])
 
+
+
          if(!results){
             console.log('no initial results found');
             return res.status(400).json({error:true , message:'no results found'});
@@ -1286,7 +1288,8 @@ router.get(`/get_initial_results` , async function(req , res){
 
          else{
             console.log('results fetched');
-            return res.status(200).json({error:false , message:'results fetched successfully', items:results})
+            const populatedItems = await Item.populate(items, { path: 'shop' });
+            return res.status(200).json({error:false , message:'results fetched successfully', items:populatedItems})
          }
      }
      catch(err){
@@ -1329,7 +1332,7 @@ router.get(`/get_suggestions/:query` , async function(req , res){
 
 router.get(`/search/:query/:page` , async function(req , res){
     try{
-       const {query , page} = req.query;
+       const {query , page} = req.params;
        const limit = 30;
 
        const results = await Item.find({
