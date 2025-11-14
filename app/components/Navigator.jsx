@@ -188,11 +188,11 @@ function Navigator() {
 
       const Editshopitem = function(){
         return(
-          
-                 <Stack5.Navigator screenOptions={{ headerShown: false }}  initialRouteName='edit' >
-                    <Stack5.Screen       name='edit'  component={AddItem}   />
+          // ABSORBES THIS NAVIGATOR INTO SHOPSTACKS
+                 <Stack5.Navigator screenOptions={{ headerShown: false }}  initialRouteName='edit' >  
+                    {/* <Stack5.Screen       name='edit'  component={AddItem}   /> */}
                     {/* should navigate to the shop screen */}
-                    <Stack5.Screen       name='done'  component={Shopstacks}   />   
+                    {/* <Stack5.Screen       name='done'  component={Shopstacks}   />    */}
                     {/* <Stack5.Screen       name=''  component={}   />
                     <Stack5.Screen       name=''  component={}   />
                     <Stack5.Screen       name=''  component={}   /> */}

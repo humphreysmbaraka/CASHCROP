@@ -10,8 +10,8 @@ export default function ViewItemPage({navigation ,route}) {
   const [quantity, setQuantity] = useState(1);
   const pricePerUnit = 120; // Example price per unit
   const [openmodal ,setopenmodal] = useState(false);
-  const item = route?.params || route?.params?.params?.item || {};
-  console.log('ROUTE PARAMS' , route.params);
+  const item = route?.params || {};
+  // console.log('ROUTE PARAMS' , route.params);
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: "white", paddingTop: Platform.OS === "android" ? Constants.statusBarHeight : 0, padding: 10 }}
@@ -32,9 +32,9 @@ export default function ViewItemPage({navigation ,route}) {
 
       {/* Description */}
       <Box mb={4}>
-        {/* <Heading size="sm" mb={2}>Description</Heading> */}
+        <Heading size="sm" mb={2}>Description</Heading>
         <Text>
-          {/* This is a sample description for the item. It gives details about the product, quality, and other important info. */}
+         item?.description
         </Text>
       </Box>
 
@@ -45,14 +45,16 @@ export default function ViewItemPage({navigation ,route}) {
         <Heading size="sm" mb={2}>Seller Info</Heading>
         <VStack space={2} alignItems="center" bg="gray.50" p={3} borderRadius="md">
           <Image
-            source={require("../../assets/gmail.jpeg")}
+            source={{uri:`${base_url}/shop_picture/${item?.shop.image}`}}
             alt="shop"
             size="lg"
             borderRadius="md"
           />
-          <Text fontWeight="bold">cerials hub</Text>
-          <Text color="gray.500">Location: Nairobi, Kenya</Text>
-          <Button mt={2} onPress={() => {navigation.navigate('seller' , {screen:'shop' , params:{client:true}})}}>View Shop</Button>
+          <Text fontWeight="bold">{item?.shop.name}</Text>
+          <Text color="gray.500">
+            {` Location : ${item?.shop.county.name} , ${item?.shop.country.countryName}`}
+          </Text>
+          <Button mt={2} onPress={() => {navigation.navigate('seller' , {screen:'shop' , params:{client:true , shop:item.shop}})}}>View Shop</Button>
         </VStack>
       </Box>
 

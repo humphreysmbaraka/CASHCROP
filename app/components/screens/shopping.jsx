@@ -34,11 +34,13 @@ export default function ShoppingPage({navigation}) {
   const [searcherror , setsearcherror] = useState(null);
   const [page , setpage] = useState(0);
   const [gettingmore , setgettingmore] = useState(false);
+  const [gettingmoreerror , setgettingmoreerror] = useState(null);
 
   // for when getting initial items to display
   const [initialresults , setinitialresults] = useState(null);
   const [gettinginit , setgettinginit] = useState(false);
   const [initerror , setiniterror] = useState(null);
+  
 
   const getInitialProducts = async function(){
     try{
@@ -230,12 +232,11 @@ export default function ShoppingPage({navigation}) {
 
 
 
-
      
    const searchmore = async function(){
     try{
-       setlooking(true);
-       setsearcherror(null);
+       setgettingmore(true);
+       setgettingmoreerror(null);
        setpage(function(prev){
         return prev + 1;
        })
@@ -243,8 +244,8 @@ export default function ShoppingPage({navigation}) {
       //  setcurrentquery(query);
        const res = await fetch(`${base_url}/search/${currentquery}/${page+1}`);
        if(res.ok){
-        setsearcherror(false);
-        setlooking(false);
+        setgettingmoreerror(false);
+        setgettingmore(false);
          const info = await res.json();
          setresults(function(prev){
           return [...prev , ...info.results];
@@ -253,24 +254,65 @@ export default function ShoppingPage({navigation}) {
        }
        else{
     
-        setlooking(false);
+        setgettingmore(false);
          const info = await res.json();
          if(String(info.status).startsWith('4')){
-        setsearcherror(info.message);
+        setgettingmoreerror(info.message);
          }
          else{
-          setsearcherror('server error');
+          setgettingmoreerror('server error');
          }
 
 
        }
     }
     catch(err){
-      console.log('error finding matches' , err);
+       setgettingmore(false);
+       setgettingmoreerror('error');
+      console.log('error finding  results for initial display' , err);
     }
    }
 
 
+   const searchmoreinit =  async function(){
+    try{
+       setgettingmore(true);
+       setgettingmoreerror(null);
+       setpage(function(prev){
+        return prev + 1;
+       })
+      //  setquery(query);
+      //  setcurrentquery(query);
+       const res = await fetch(`${base_url}/get_initial_results`);
+       if(res.ok){
+        setgettingmoreerror(false);
+        setgettingmore(false);
+         const info = await res.json();
+         setinitialresults(function(prev){
+          return [...prev , ...info.items];
+        })
+    
+       }
+       else{
+    
+        setgettingmore(false);
+         const info = await res.json();
+         if(String(info.status).startsWith('4')){
+        setgettingmoreerror(info.message);
+         }
+         else{
+          setgettingmoreerror('server error');
+         }
+
+
+       }
+    }
+    catch(err){
+       setgettingmore(false);
+       setgettingmoreerror('error');
+      console.log('error finding  results for initial display' , err);
+    }
+   }
 
   //  const getfiltereditems = async function(filter){
   //   try{
@@ -328,7 +370,24 @@ export default function ShoppingPage({navigation}) {
          }
   };
 
-  
+  const handleinitScroll = async ({ nativeEvent }) => {
+    try{
+     const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+
+     // Check if user has scrolled to the bottom
+     const isEnd =
+       layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
+ 
+     if (isEnd) {
+       console.log("Reached bottom!");
+       await searchmoreinit();
+     }
+
+    }
+    catch(err){
+    console.log('could not fetch more initial  results' , err);
+    }
+};
 
 
   useEffect(function(){
@@ -344,7 +403,7 @@ export default function ShoppingPage({navigation}) {
 
   return (
    
-      <VStack  flex={1}  bg={'white'}  paddingTop={Platform.OS==='android'?Constants.statusBarHeight:0 } pace={4} padding={4} pb={'70px'} >
+      <VStack  position={'relative'} flex={1}  bg={'white'}  paddingTop={Platform.OS==='android'?Constants.statusBarHeight:0 } pace={4} padding={4} pb={'70px'} >
         {/* Search Bar */}
         <Input
           placeholder="Search for items..."
@@ -354,17 +413,18 @@ export default function ShoppingPage({navigation}) {
           size="lg"
           bg="gray.100"
           borderRadius="full"
+          mt={'10px'}
         />
 
         {/* Conditional Results */}
         {(showsuggestionbox ) && (
-          <Box mt={'5px'} bg={'black'} width={'95%'}  maxH={'300px'} alignItems={'center'} justifyContent={'center'} borderWidth={0} borderRadius={'10px'} p={'2px'} >
+          <Box   position={'absolute'} zIndex={999} alignSelf={'center'} top={'85px'} mt={'5px'} bg={'white'} width={'98%'}  maxH={'300px'} alignItems={'center'} justifyContent={'center'} borderWidth={0} borderRadius={'10px'} p={'2px'} >
             
           
           <FlatList  width={'100%'}  initialNumToRender={15} maxToRenderPerBatch={20}  windowSize={5} data={matches} keyExtractor={function(item , index){return index.toString()}}     renderItem={function({item}){
             return(
-              <Pressable   onPress={()=>{clickedrecomendation(item?.name.trim())}}  width={'98%'} height={'35px'} mt={'5px'} mb={'5px'} borderBottomColor={'black'} borderBottomWidth={'1px'}            >
-                <Text width={'90%'} textAlign={'left'} fontSize={'sm'} fontWeight={'bold'} color={'white'} >{item?.name}</Text>
+              <Pressable   onPress={()=>{clickedrecomendation(item?.name.trim())}}  width={'98%'} height={'35px'} mt={'5px'} mb={'5px'}           >
+                <Text width={'90%'} textAlign={'left'} fontSize={'sm'} fontWeight={'bold'} color={'black'} >{item?.name}</Text>
               </Pressable>
             )
           }}              />
@@ -375,9 +435,10 @@ export default function ShoppingPage({navigation}) {
         )}
 
         {(results && results?.length !== 0)&&
-           <ScrollView style={{ flex: 1, backgroundColor: "white" , paddingTop:Platform.OS==='android'?Constants.statusBarHeight:0 }}  onScroll={handleScroll}
+            <Box height={'100%'} width={'100%'} >
+           <ScrollView style={{ marginTop:10 ,  flex:1 , backgroundColor: "white" , padding:2  }}  onScroll={handleScroll}
            scrollEventThrottle={16}   >
-        <HStack  p={'4px'} alignItems={'center'} justifyContent={'center'} flexWrap={'wrap'}  >
+        <HStack  p={'4px'} alignItems={'center'} justifyContent={'center'} flexWrap={'wrap'}  space={3} >
           {results?.map(function(val , ind){
             return(
               <Pressable key={ind} onPress={()=>{navigation.navigate('clickitem' , {screen:'view' , params:{val}})}}>
@@ -387,6 +448,8 @@ export default function ShoppingPage({navigation}) {
                 shadow={2}
                 borderRadius="lg"
                 overflow="hidden"
+                mt={'10px'}
+                mb={'10px'}
               >
                 <Image
                   source={{uri:`${base_url}/item_picture/${val.image}`}}
@@ -405,9 +468,18 @@ export default function ShoppingPage({navigation}) {
             )
           })}
 
-          {gettingmore && <Spinner         color={'blue'} width={'30px'} height={'30px'} alignSelf={'center'}        />}
+         
         </HStack>
+        
+        {gettingmore &&
+           <Spinner     mt={'10px'}    color={'blue'} width={'30px'} height={'30px'} alignSelf={'center'}        />
+           }
+
+           {gettingmoreerror &&  
+             <Text  color={'red.600'} fontWeight={'light'} alignSelf={'center'} mt={'10px'}    ></Text>
+           }
         </ScrollView>
+        </Box>
 }
 
         {/* initial results , when one opens the page before doing or searching anythig */}
@@ -418,11 +490,13 @@ export default function ShoppingPage({navigation}) {
             {/* <Text onPress={()=>{getfiltereditems(String(section))}} fontSize="md" fontWeight="bold" letterSpacing={'2px'} mt={4} mb={2}>
               {section}
             </Text> */}
-              <ScrollView  style={{ height:'90%', marginTop:10 , backgroundColor: "white" , borderColor:'black' , borderWidth:1  }}   contentContainerStyle={{alignItems: 'center', justifyContent: 'center' }}   >
+              <Box height={'100%'} width={'100%'} >
+              <ScrollView  style={{ height:'100%', marginTop:10 , backgroundColor: "white" }}   contentContainerStyle={{alignItems: 'center', justifyContent: 'center' }}   onScroll={handleinitScroll}
+           scrollEventThrottle={16}   >
           {gettinginit &&  
             <VStack>
-               <Text   color={'red.600'} alignSelf={'center'} ml={'auto'} mr={'auto'}  fontWeight={'bold'} >fetching products</Text>
-               <Spinner size={'sm'} color={'white'} ></Spinner>
+               <Text   color={'blue.600'} alignSelf={'center'} ml={'auto'} mr={'auto'}  fontWeight={'bold'} >fetching products</Text>
+               <Spinner  ml={'auto'} mr={'auto'} alignSelf={'center'} width={'30px'} height={'30px'} color={'blue'} ></Spinner>
             </VStack>
           }
 
@@ -460,14 +534,20 @@ export default function ShoppingPage({navigation}) {
               ))}
             </HStack>
 
+              
+
               }
-              {/* {gettinginit &&  
-               <Spinner  color={'blue.400'} size={'sm'} alignSelf={'center'} mr={'auto'}  ml={'auto'}     />
-              }
-              {initerror &&  
-                <Text color={'red.600'} alignSelf={'center'} mr={'auto'}  ml={'auto'}  >{initerror}</Text>
-              } */}
+               {gettingmore &&
+           <Spinner     mt={'10px'}    color={'blue'} width={'30px'} height={'30px'} alignSelf={'center'}        />
+           }
+
+           {gettingmoreerror &&  
+             <Text  color={'red.600'} fontWeight={'light'} alignSelf={'center'} mt={'10px'}    ></Text>
+           }
+             
             </ScrollView>
+              </Box>
+       
           {/* </VStack> */}
           </>
         }
