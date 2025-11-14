@@ -1289,8 +1289,23 @@ router.get(`/get_initial_results` , async function(req , res){
          else{
             console.log('results fetched');
            
-            const populatedItems = await Item.populate(results, { path: 'shop' });
-
+            // const populatedItems = await Item.populate(results, { path: 'shop' });
+            const populatedItems = await Item.populate(results, {
+                path: "shop",
+                model: "shop",
+                populate: [
+                  {
+                    path: "owner",
+                    model: "user"
+                  },
+                  {
+                    path: "items",
+                    model: "item"
+                  }
+                ]
+              });
+              
+              
             return res.status(200).json({error:false , message:'results fetched successfully', items:populatedItems})
          }
      }
@@ -1343,7 +1358,13 @@ router.get(`/search/:query/:page` , async function(req , res){
             { description: { $regex: query, $options: "i" } }, // match by desc
             { type: { $regex: query, $options: "i" } },  // match by type
           ]
-       }).populate({path:'shop' , populate:'owner'  }).limit(limit).skip(page * limit).sort({createdAt:-1});
+       }).populate({
+        path: 'shop',  // populate the shop property
+        populate: [
+          { path: 'owner', model: 'user' },   // populate shop.owner
+          { path: 'items', model: 'item' }    // populate shop.items
+        ]
+      }).limit(limit).skip(page * limit).sort({createdAt:-1});
 
        if(!results || results.length == 0){
             console.log('no results found');
