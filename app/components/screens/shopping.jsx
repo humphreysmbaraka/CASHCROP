@@ -357,7 +357,7 @@ export default function ShoppingPage({navigation}) {
         />
 
         {/* Conditional Results */}
-        {(showsuggestionbox && matches) && (
+        {(showsuggestionbox ) && (
           <Box mt={'5px'} bg={'black'} width={'95%'}  maxH={'300px'} alignItems={'center'} justifyContent={'center'} borderWidth={0} borderRadius={'10px'} p={'2px'} >
             
           
@@ -380,7 +380,7 @@ export default function ShoppingPage({navigation}) {
         <HStack  p={'4px'} alignItems={'center'} justifyContent={'center'} flexWrap={'wrap'}  >
           {results?.map(function(val , ind){
             return(
-              <Pressable key={ind} onPress={()=>{navigation.navigate('clickitem' , {screen:'view' , params:{item}})}}>
+              <Pressable key={ind} onPress={()=>{navigation.navigate('clickitem' , {screen:'view' , params:{val}})}}>
               <Box
                 width={140}
                 bg="white"
@@ -390,15 +390,15 @@ export default function ShoppingPage({navigation}) {
               >
                 <Image
                   source={{uri:`${base_url}/item_picture/${val.image}`}}
-                  alt={item.name}
+                  alt={val.name}
                   width="100%"
                   height={100}
                 />
                 <Box p={2}>
                   <Text fontSize="sm" fontWeight="bold">
-                    {item.name}
+                    {val.name}
                   </Text>
-                  <Text color="gray.500">{item.price}</Text>
+                  <Text color="gray.500">{val.price}</Text>
                 </Box>
               </Box>
             </Pressable>
@@ -411,49 +411,62 @@ export default function ShoppingPage({navigation}) {
 }
 
         {/* initial results , when one opens the page before doing or searching anythig */}
-        {((!results) && (initialresults && initialresults.length > 0)) &&
+        {((!results)) &&
          
             <>
            {/* <VStack   key={idx} space={2}> */}
             {/* <Text onPress={()=>{getfiltereditems(String(section))}} fontSize="md" fontWeight="bold" letterSpacing={'2px'} mt={4} mb={2}>
               {section}
             </Text> */}
-              <ScrollView  style={{ height:'90%', marginTop:10 , backgroundColor: "white" , borderColor:'black' , borderWidth:1  }}   contentContainerStyle={{alignItems: 'center', justifyContent: 'center' }} onScroll={handleScroll}
-    scrollEventThrottle={16}   >
+              <ScrollView  style={{ height:'90%', marginTop:10 , backgroundColor: "white" , borderColor:'black' , borderWidth:1  }}   contentContainerStyle={{alignItems: 'center', justifyContent: 'center' }}   >
+          {gettinginit &&  
+            <VStack>
+               <Text   color={'red.600'} alignSelf={'center'} ml={'auto'} mr={'auto'}  fontWeight={'bold'} >fetching products</Text>
+               <Spinner size={'sm'} color={'white'} ></Spinner>
+            </VStack>
+          }
+
+          {initerror  &&  
+               <Text  color={'red.600'} alignSelf={'center'} ml={'auto'} mr={'auto'} fontWeight={'bold'} >{initerror}</Text>
+          }
+              {(initialresults && initialresults.length > 0)  &&  
+              
               <HStack   width={'95%'} alignSelf={'center'} mr={'auto'} ml={'auto'} flexWrap={'wrap'}  alignItems={'center'} justifyContent={'center'} space={3}>
-                {initialresults.map((item, i) => (
-                  <Pressable key={i} onPress={()=>{navigation.navigate('clickitem' , {screen:'view' , params:{item}})}}>
-                    <Box
-                      width={140}
-                      bg="white"
-                      shadow={2}
-                      borderRadius="lg"
-                      overflow="hidden"
-                      mt={'10px'}
-                      mb={'10px'}
-                    >
-                      <Image
-                        source={{uri:`${base_url}/item_picture/${item.image}`}}
-                        alt={item.name}
-                        width="100%"
-                        height={100}
-                      />
-                      <Box p={2}>
-                        <Text fontSize="sm" fontWeight="bold">
-                          {item.name}
-                        </Text>
-                        <Text color="gray.500">{item.price}</Text>
-                      </Box>
+              {initialresults.map((item, i) => (
+                <Pressable key={i} onPress={()=>{navigation.navigate('clickitem' , {screen:'view' , params:{item}})}}>
+                  <Box
+                    width={140}
+                    bg="white"
+                    shadow={2}
+                    borderRadius="lg"
+                    overflow="hidden"
+                    mt={'10px'}
+                    mb={'10px'}
+                  >
+                    <Image
+                      source={{uri:`${base_url}/item_picture/${item.image}`}}
+                      alt={item.name}
+                      width="100%"
+                      height={100}
+                    />
+                    <Box p={2}>
+                      <Text fontSize="sm" fontWeight="bold">
+                        {item.name}
+                      </Text>
+                      <Text color="gray.500">{item.price}</Text>
                     </Box>
-                  </Pressable>
-                ))}
-              </HStack>
-              {gettinginit &&  
+                  </Box>
+                </Pressable>
+              ))}
+            </HStack>
+
+              }
+              {/* {gettinginit &&  
                <Spinner  color={'blue.400'} size={'sm'} alignSelf={'center'} mr={'auto'}  ml={'auto'}     />
               }
               {initerror &&  
                 <Text color={'red.600'} alignSelf={'center'} mr={'auto'}  ml={'auto'}  >{initerror}</Text>
-              }
+              } */}
             </ScrollView>
           {/* </VStack> */}
           </>
