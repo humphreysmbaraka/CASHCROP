@@ -1109,17 +1109,27 @@ router.patch(`/move_to_saved` , async function(req , res){
                 return val.item.toString() == thing._id
             })
 
-            if(!cartitem){
-                console.log('item notfoun in cart');
-                return res.status(400).json({error:true , message:'item ot foung in cart'})
-            }
-                const newcart = account.cart.filter(function(val ,ind){
-                    return val.item.toString() !== thing._id;
-                })
-                account.cart = newcart;
+            // if(!cartitem){
+            //     console.log('item not found in cart');
+            //     return res.status(400).json({error:true , message:'item not found in cart'})
+            // }
+
+            const index = account.cart.findIndex(c => c.item.toString() === thing._id.toString());
+            if(index === -1) return res.status(400).json({error:true, message:'Item not found in cart'});
+        
+            const [cartItem] = account.cart.splice(index, 1);
+        
+            // Add to saved_items
+            account.saved_items.push(cartItem);
+        
+            //   })
+            //     const newcart = account.cart.filter(function(val ,ind){
+            //         return val.item.toString() !== thing._id;
+            //     })
+            //     account.cart = newcart;
 
                 
-             account.saved_items.push(cartitem);
+            //  account.saved_items.push(cartitem);
                 
 
 
@@ -1183,23 +1193,31 @@ router.patch(`/move_to_cart` , async function(req , res){
        if(account){
           const thing = await Item.findOne({_id:new ObjectId(item)});
           if(thing){
-              const saveditem = account.saved_items.find(function(val){
-                return val.item.toString() == thing._id; 
-              })
+            //   const saveditem = account.saved_items.find(function(val){
+            //     return val.item.toString() == thing._id; 
+            //   })
 
-              if(!saveditem){
-                console.log('item not found in saved items');
-                return res.status(400).json({error:true , message:'item not found in saved items'})
-              }
+            //   if(!saveditem){
+            //     console.log('item not found in saved items');
+            //     return res.status(400).json({error:true , message:'item not found in saved items'})
+            //   }
 
-                const newsaved = account.saved_items.filter(function(val ,ind){
-                    return val.item.toString() !== thing._id;
-                })
-                account.saved_items = newsaved;
+            //     const newsaved = account.saved_items.filter(function(val ,ind){
+            //         return val.item.toString() !== thing._id;
+            //     })
+            //     account.saved_items = newsaved;
 
                 
-                account.cart.push(saveditem);
+            //     account.cart.push(saveditem);
             
+            const index = account.saved_items.findIndex(c => c.item.toString() === thing._id.toString());
+            if(index === -1) return res.status(400).json({error:true, message:'Item not found in saved items'});
+        
+            const [saveditem] = account.saved_items.splice(index, 1);
+        
+            // Add to saved_items
+            account.cart.push(saveditem);
+        
                
 
 
