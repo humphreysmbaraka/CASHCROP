@@ -10,7 +10,7 @@ export default function ViewItemPage({navigation ,route}) {
   const [quantity, setQuantity] = useState(1);
   const pricePerUnit = 120; // Example price per unit
   const [openmodal ,setopenmodal] = useState(false);
-  const {item} = route?.params || {};
+  const {item , fromshop} = route?.params || {};
   console.log('ROUTE PARAMS' , route.params);
   return (
     <ScrollView
@@ -43,23 +43,26 @@ export default function ViewItemPage({navigation ,route}) {
       <Divider mb={4} />
 
       {/* Seller Info */}
-      <Box mb={4}>
-        <Heading size="sm" mb={2}>Seller Info</Heading>
-        <VStack   width={'95%'} space={2} alignItems="center" bg="gray.50" p={3} borderRadius="md">
-          <Image
-            source={{uri:`${base_url}/shop_picture/${item?.shop?.image}`}}
-            alt="shop"
-            size="lg"
-            borderRadius="md"
-          />
-          <Text fontWeight="bold">{item?.shop?.name}</Text>
-          <Text color="gray.500">
-            {` Location : ${item?.shop?.county?.name} , ${item?.shop?.country?.countryName}`}
-          </Text>
-          <Button mt={2} onPress={() => {navigation.navigate('seller' , {screen:'shop' , params:{client:true , shop:item?.shop}})}}>View Shop</Button>
-        </VStack>
-      </Box>
-
+       {!fromshop &&  
+          <Box mb={4}>
+          <Heading size="sm" mb={2}>Seller Info</Heading>
+          <VStack   width={'95%'} space={2} alignItems="center" bg="gray.50" p={3} borderRadius="md">
+            <Image
+              source={{uri:`${base_url}/shop_picture/${item?.shop?.image}`}}
+              alt="shop"
+              size="lg"
+              borderRadius="md"
+            />
+            <Text fontWeight="bold">{item?.shop?.name}</Text>
+            <Text color="gray.500">
+              {` Location : ${item?.shop?.county?.name} , ${item?.shop?.country?.countryName}`}
+            </Text>
+            <Button mt={2} onPress={() => {navigation.navigate('seller' , {screen:'shop' , params:{client:true , shop:item?.shop}})}}>View Shop</Button>
+          </VStack>
+        </Box>
+  
+       
+       }
       {/* Action Buttons */}
       <HStack space={4} mb={20}>
         <Button flex={1} colorScheme="teal" onPress={() => {setopenmodal(true)}}>
@@ -69,7 +72,7 @@ export default function ViewItemPage({navigation ,route}) {
           Back
         </Button>
       </HStack>
-      <AddToCartModal item  viewfromcart={false}      isOpen={openmodal}     onClose={() => setopenmodal(false)}        />
+      <AddToCartModal item={item}  viewfromcart={false}      isOpen={openmodal}     onClose={() => setopenmodal(false)}        />
     </ScrollView>
   );
 }

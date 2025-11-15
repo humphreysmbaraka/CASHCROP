@@ -14,7 +14,7 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item })
   const [added , setadded] = useState(false);
   const [creasing , setcreasing] = useState(false);
   const [creaseerror , setcreaseerror]  = useState(null)
-  const {user} = useContext(authcontext);
+  const {user , setuser} = useContext(authcontext);
   const price = 120;
 //  const navigation = useNavigation();
   // const increment = () => setQuantity(q => q + 1);
@@ -173,7 +173,7 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item })
 
             {adderror  &&  
             
-              <Text color={'red'} alignSelf={'center'}   >{adderror}</Text>
+              <Text color={'red.600'} alignSelf={'center'}   >{adderror}</Text>
             }
 
 
@@ -182,10 +182,10 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item })
             <Text color={'green'} alignSelf={'center'}   >added successfully</Text>
           }
 
-            <Button w="100%" colorScheme="teal" onPress={() =>{added?onClose():addtocart}}>
-              {added?'OK':'AD TO CART'}
+            <Button w="100%" colorScheme="teal"  alignItems={'center'} justifyContent={'center'} onPress={() =>{added?onClose():addtocart()}}>
+              {added?'OK':'ADD TO CART'}
               {adding &&  
-              <Spinner  color={'white'} width={'20px'} height={'20px'}        />
+              <Spinner  ml={'auto'} mr={'auto'} color={'white'} width={'20px'} height={'20px'}        />
               }
             </Button>
 

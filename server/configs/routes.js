@@ -857,7 +857,7 @@ router.delete(`/delete_item` , async function(req , res){
 
 
 
-router.post(`/add_to_cart/:id` , async function(req , res){
+router.post(`/add_to_cart` , async function(req , res){
     try{
         
          const {user , itemid} = req.query;
