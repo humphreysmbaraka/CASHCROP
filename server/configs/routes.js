@@ -874,7 +874,9 @@ router.post(`/add_to_cart` , async function(req , res){
                     console.log('item is already in cart');
                     return res.status(400).json({error:true , message:'item is already in cart'})
                    }
-                   account.cart.push(item._id);
+                   account.cart.push({
+                     item:item._id , quantity:1
+                   });
                    await account.save();
                    console.log('item added to cart');
                    
@@ -912,7 +914,13 @@ router.post(`/save_for_later/:id` , async function(req , res){
               const item = await Item.findOne({_id:new ObjectId(itemid)});
               if(item){
                    console.log('item found');
-                   account.saved.push(item._id);
+                //    const newcart = account.cart.filter(function(val){
+                //      return val.item.toString() !== item._id;
+                //    })
+                //    account.cart = newcart;
+                   account.saved_items.push({
+                    item:item._id , quantity:1
+                   });
                    await account.save();
                    console.log('item added to saved items');
                    
@@ -973,7 +981,7 @@ router.get(`/saved_items/:id` , async function(req , res){
     try{
         const id = req.params.id;
         const user = await User.findOne({_id:new ObjectId(id)}).populate({
-            path:'saved',
+            path:'saved_items',
             populate:{
                 path:'shop'
             }
@@ -998,12 +1006,12 @@ router.get(`/saved_items/:id` , async function(req , res){
 router.patch(`/remove_from_cart` , async function(req , res){
     try{
         const {user , item} = req.query;
-       const acount = await User.findOne({_id:new ObjectId(user)});
+       const account = await User.findOne({_id:new ObjectId(user)});
        if(account){
           const thing = await Item.findOne({_id:new ObjectId(item)});
           if(thing){
                 const newcart = account.cart.filter(function(val ,ind){
-                    return val !== item;
+                    return val.item.toString() !== thing._id;
                 })
                 account.cart = newcart;
                 await account.save();
@@ -1045,14 +1053,14 @@ router.patch(`/remove_from_saved` , async function(req , res){
        if(account){
           const thing = await Item.findOne({_id:new ObjectId(item)});
           if(thing){
-                const newsaved = account.saved.filter(function(val ,ind){
-                    return val !== item._id;
+                const newsaved = account.saved_items.filter(function(val ,ind){
+                    return val.item.toString() !== thing._id;
                 })
-                account.saved = newsaved;
+                account.saved_items = newsaved;
                 await account.save();
 
                 const newacc = await account.populate({
-                    path:'saved',
+                    path:'saved_items',
                     populate:{
                         path:'shop'
                     }
@@ -1088,14 +1096,22 @@ router.patch(`/move_to_saved` , async function(req , res){
        if(account){
           const thing = await Item.findOne({_id:new ObjectId(item)});
           if(thing){
+            const cartitem = account.cart.find(function(val){
+                return val.item.toString() == thing._id
+            })
+
+            if(!cartitem){
+                console.log('item notfoun in cart');
+                return res.status(400).json({error:true , message:'item ot foung in cart'})
+            }
                 const newcart = account.cart.filter(function(val ,ind){
-                    return val !== item._id;
+                    return val.item.toString() !== thing._id;
                 })
                 account.cart = newcart;
 
                 
-                const newsaved = account.saved.push(item._id);
-                account.saved = newsaved;
+                const newsaved = account.saved_items.push(cartitem);
+                account.saved_items = newsaved;
 
 
                
@@ -1142,14 +1158,24 @@ router.patch(`/move_to_cart` , async function(req , res){
        if(account){
           const thing = await Item.findOne({_id:new ObjectId(item)});
           if(thing){
-                const newsaved = account.saved.filter(function(val ,ind){
-                    return val !== item._id;
+              const saveditem = account.saved_items.find(function(val){
+                return val.item.toString() == thing._id; 
+              })
+
+              if(!saveditem){
+                console.log('item not found in saved items');
+                return res.status(400).json({error:true , message:'item not found in saved items'})
+              }
+
+                const newsaved = account.saved_items.filter(function(val ,ind){
+                    return val.item.toString() !== thing._id;
                 })
-                account.saved = newsaved;
+                account.saved_items = newsaved;
 
                 
-                const newcart = account.cart.push(item._id);
-                account.saved = newsaved;
+                const newcart = account.cart.push(saveditem);
+                account.cart = newcart;
+               
 
 
                
@@ -1157,14 +1183,14 @@ router.patch(`/move_to_cart` , async function(req , res){
                 await account.save();
 
                 const saved = await account.populate({
-                    path:'saved',
+                    path:'saved_items',
                     populate:{
                        path:'shop' 
                     }
                 });
 
 
-                return res.status(200).json({error:false , saved:saved.saved});
+                return res.status(200).json({error:false , saved:saved.saved_items});
           }
           else{
             console.log('no such item found');
