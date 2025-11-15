@@ -1020,13 +1020,13 @@ router.patch(`/remove_from_cart` , async function(req , res){
           const thing = await Item.findOne({_id:new ObjectId(item)});
           if(thing){
                 const newcart = account.cart.filter(function(val ,ind){
-                    return val.item.toString() !== thing._id;
+                    return val.item.toString() !== thing._id.toString();
                 })
                 account.cart = newcart;
                 await account.save();
                  
                 const newacc = await account.populate({
-                    path:'cart',
+                    path:'cart.item',
                     populate:{
                         path:'shop',
                         populate:[
@@ -1067,13 +1067,13 @@ router.patch(`/remove_from_saved` , async function(req , res){
           const thing = await Item.findOne({_id:new ObjectId(item)});
           if(thing){
                 const newsaved = account.saved_items.filter(function(val ,ind){
-                    return val.item.toString() !== thing._id;
+                    return val.item.toString() !== thing._id.toString();
                 })
                 account.saved_items = newsaved;
                 await account.save();
 
                 const newacc = await account.populate({
-                    path:'saved_items',
+                    path:'saved_items.item',
                     populate:{
                         path:'shop',
                         populate:[

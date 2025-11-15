@@ -171,14 +171,14 @@ export default function CartPage() {
 initiatecartdelete = async function(val){
     Alert.alert(
       'DELETE ITEM',
-      'PROCEE !',
+      'PROCEEd !',
 
       [
         {
           style:'cancel',
           text:'DELETE',
           onPress: async function(){
-            await removefromcart();
+            await removefromcart(val);
           }
           
         },
@@ -200,14 +200,14 @@ initiatecartdelete = async function(val){
 initiatesaveddelete = async function(val){
   Alert.alert(
     'DELETE ITEM',
-    'PROCEE !',
+    'PROCEEd !',
 
     [
       {
         style:'cancel',
         text:'DELETE',
         onPress: async function(){
-          await removefromsaved();
+          await removefromsaved(val);
         }
         
       },
@@ -481,7 +481,7 @@ initiatesaveddelete = async function(val){
                   {activeTab === "cart" ? (
                     <>
                        {removeerror && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{removeerror}</Text>}
-                      <Button alignItems={'center'} justifyContent={'center'} colorScheme="red" onPress={()=>{initiatecartdelete(val)}}>DELETE  {removing && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
+                      <Button alignItems={'center'} justifyContent={'center'} colorScheme="red" onPress={()=>{initiatecartdelete(val)}}>DELETE  {removing && <Spinner  alignSelf={'center'} mr={'auto'} ml={'auto'} color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
                       {savingerror && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{savingerror}</Text>}
                       <Button colorScheme="gray"  alignItems={'center'} justifyContent={'center'} onPress={() => movetosaved(val)}>Save for later  {saving && <Spinner alignSelf={'center'} mr={'auto'} ml={'auto'} color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
                     </>
@@ -553,7 +553,7 @@ initiatesaveddelete = async function(val){
               ) : (
                 <>
                 {remerror &&  <Text color={'red'} fontSize={'xs'} alignSelf={'center'} >{remerror}</Text>}
-                  <Button colorScheme="red" onPress={() =>{initiatesaveddelete(val)}}>DELETE  {reming && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
+                  <Button colorScheme="red"  alignItems={'center'} justifyContent={'center'} onPress={() =>{initiatesaveddelete(val)}}>DELETE  {reming && <Spinner  alignSelf={'center'} mr={'auto'} ml={'auto'} color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
                   {moveerror &&  <Text color={'red'} fontSize={'xs'} alignSelf={'center'} >{moveerror}</Text>}
                   <Button justifyContent={'center'} alignItems={'center'} colorScheme="teal" onPress={() => movetocart(val)}>Move to Cart  {moving && <Spinner  alignSelf={'center'} mr={'auto'} ml={'auto'} color={'white'}  width={'20px'} height={'20px'}       />  }  </Button>
                 </>
