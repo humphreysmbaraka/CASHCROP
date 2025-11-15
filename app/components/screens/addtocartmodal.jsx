@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { Modal, Button, HStack, VStack, Text, Image, Input, Spinner, Pressable } from "native-base";
 import { useNavigation } from "@react-navigation/native";
@@ -9,6 +9,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 
 export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,setcart }) {
   // const [quantity, setQuantity] = useState(1);
+
   const [adderror , setadderror] = useState(null);
   const [adding , setadding] = useState(false);
   const [added , setadded] = useState(false);
@@ -16,6 +17,8 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,
   const [creaseerror , setcreaseerror]  = useState(null)
   const {user , setuser} = useContext(authcontext);
   const price = 120;
+
+ 
 //  const navigation = useNavigation();
   // const increment = () => setQuantity(q => q + 1);
   // const decrement = () => setQuantity(q => (q > 1 ? q - 1 : 1));
@@ -40,6 +43,9 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,
         setcreasing(false);
         setcreaseerror(null)
         const info = await response.json();
+        const  cart = info.cart;
+        setcart(cart);
+
         
       }
       else{
@@ -83,7 +89,7 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,
         const info = await response.json();
         const  cart = info.cart;
         setcart(cart);
-        
+
       }
       else{
         const info = await response.json();

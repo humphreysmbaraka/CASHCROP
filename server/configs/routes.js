@@ -1288,7 +1288,7 @@ router.post(`/decrement_cart_item` , async function(req , res){
         }
 
         const incart = account.cart.find(function(val){
-            return val.item.toString() == item;
+            return val.item.toString() == product._id;
         })
 
         if(!incart){

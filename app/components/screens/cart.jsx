@@ -140,7 +140,7 @@ export default function CartPage() {
            if(saveditems.ok){
             setsavedfetch(false);
             setsavederr(null);
-            const info = await cartitems.json();
+            const info = await saveditems.json();
             setsaveditems(info.items);
            }
            else{
@@ -470,7 +470,7 @@ export default function CartPage() {
              <VStack mt={'10px'} alignSelf={'center'} mr={'auto'} ml={'auto'} >
              {/* <Spinner color={'blue'} width={'30px'} height={'30px'} alignSelf={'center'} mr={'auto'} ml={'auto'} ></Spinner> */}
              <Text color={'red.300'} fontWeight={'light'} alignSelf={'center'} mt={'10px'} mr={'auto'} ml={'auto'} >{savederr}</Text>
-             <Button colorScheme="teal" onPress={() => Alert.alert("retry")}>Retry</Button>
+             <Button colorScheme="teal" onPress={() => getsaveditems()}>Retry</Button>
            </VStack>
     }
         
@@ -565,8 +565,10 @@ export default function CartPage() {
 
       <AddToCartModal viewfromcart={true} isOpen={modalOpen} onClose={() => setModalOpen(false)} item={selecteditem} /> */}
 
-      {setModalOpen   &&  
-            <AddToCartModal setcart={setcartitems} viewfromcart={true} isOpen={modalOpen} onClose={() => setModalOpen(false)} item={selecteditem} /> 
+      {modalOpen   &&  
+            <AddToCartModal setcart={setcartitems} viewfromcart={true} isOpen={modalOpen} onClose={() => setModalOpen(false)} item={cartitems?.find(function(val , ind){
+               return val.item._id.toString() == selecteditem?.item._id;
+            })} /> 
 
       }
     </ScrollView>
