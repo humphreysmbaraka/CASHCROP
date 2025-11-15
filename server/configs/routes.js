@@ -1119,8 +1119,8 @@ router.patch(`/move_to_saved` , async function(req , res){
                 account.cart = newcart;
 
                 
-                const newsaved = account.saved_items.push(cartitem);
-                account.saved_items = newsaved;
+             account.saved_items.push(cartitem);
+                
 
 
                
@@ -1198,8 +1198,8 @@ router.patch(`/move_to_cart` , async function(req , res){
                 account.saved_items = newsaved;
 
                 
-                const newcart = account.cart.push(saveditem);
-                account.cart = newcart;
+                account.cart.push(saveditem);
+            
                
 
 

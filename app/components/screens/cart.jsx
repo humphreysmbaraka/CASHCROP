@@ -271,7 +271,7 @@ export default function CartPage() {
       else{
         setsaving(true);
         setsavingerror(null);
-        const res = await fetch(`${base_url}/save_for_later?user=${user?._id}&item=${val?.item?._id}` , {
+        const res = await fetch(`${base_url}/move_to_saved?user=${user?._id}&item=${val?.item?._id}` , {
           method:'PATCH',
           headers:{
             'Content-Type': 'application/json'
@@ -304,7 +304,7 @@ export default function CartPage() {
   catch(err){
     setsaving(false);
     setsavingerror('error')
-    console.log('error moving to saved')
+    console.log('error moving to saved' , err);
   }
  }
 
@@ -429,7 +429,7 @@ export default function CartPage() {
                        {removeerror && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{removeerror}</Text>}
                       <Button alignItems={'center'} justifyContent={'center'} colorScheme="red" onPress={()=>{removefromcart(val)}}>DELETE  {removing && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
                       {savingerror && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{savingerror}</Text>}
-                      <Button colorScheme="gray" onPress={() => movetosaved(val)}>Save for later  {saving && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
+                      <Button colorScheme="gray"  alignItems={'center'} justifyContent={'center'} onPress={() => movetosaved(val)}>Save for later  {saving && <Spinner alignSelf={'center'} mr={'auto'} ml={'auto'} color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
                     </>
                   ) : (
                     <>
