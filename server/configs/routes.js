@@ -867,12 +867,23 @@ router.post(`/add_to_cart` , async function(req , res){
               const item = await Item.findOne({_id:new ObjectId(itemid)});
               if(item){
                    console.log('item found');
+                   
                    const alreadyincart = account.cart.some(function(val){
                     return val.item.toString() == itemid;
                    })
+
+                   const alreadyinsaved = account.saved_items.some(function(val){
+                    return val.item.toString() == itemid;
+                   })
+
                    if(alreadyincart){
                     console.log('item is already in cart');
                     return res.status(400).json({error:true , message:'item is already in cart'})
+                   }
+
+                   if(alreadyinsaved){
+                    console.log('item is already in saved items');
+                    return res.status(400).json({error:true , message:'item is already in saved items'})
                    }
                    account.cart.push({
                      item:item._id , quantity:1

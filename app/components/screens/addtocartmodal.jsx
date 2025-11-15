@@ -8,7 +8,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { setItem } from "expo-secure-store";
 
 
-export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,setcart }) {
+export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,setcart , navigation }) {
   // const [quantity, setQuantity] = useState(1);
 
   const [adderror , setadderror] = useState(null);
@@ -22,7 +22,7 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,
 
   useEffect(function(){
     if(viewfromcart){
-      setcurrentitem(currentitem);
+      setcurrentitem(item?.item);
     }
     else{
       setcurrentitem(item);
@@ -190,8 +190,13 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,
             </HStack>
 
               <VStack bg={'gray.100'} width={'90%'} space={5} alignItems={'center'} alignSelf={'center'} >
+              <Text fontWeight={'light'} >{`price : ${currentitem?.price}            quantity : ${item.quantity}`}</Text>
               <Text fontWeight={'light'} >{`TOTAL PRICE : ${currentitem?.price * item?.quantity}`}</Text>
-              <Button colorScheme={'green'}  width={'80%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >BUY</Button>
+               <HStack  width={'98%'} alignItems={'center'} justifyContent={'space-around'} >
+               <Button onPress={()=>{navigation.navigate('see' , {screen:'view' , params:{item:currentitem}})}} colorScheme={'green'}  width={'45%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >view</Button>
+
+               <Button colorScheme={'green'}  width={'45%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >BUY</Button>
+               </HStack>
               </VStack>
            </VStack>
             }

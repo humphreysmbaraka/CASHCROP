@@ -8,7 +8,7 @@ import { authcontext } from "../../contexts/authcontext";
 import base_url from "../constants/baseurl";
 
 
-export default function CartPage() {
+export default function CartPage({navigation}) {
   const [activeTab, setActiveTab] = useState("cart");
   const [modalOpen, setModalOpen] = useState(false);
   const {user} = useContext(authcontext);
@@ -477,7 +477,8 @@ initiatesaveddelete = async function(val){
                 <Image  source={{uri:`${base_url}/item_picture/${val.item.image}`}} alt="img" size="lg" borderRadius="md"/>
                 <VStack space={'4px'} width={'55%'} flex={1}>
                   <Text width={'90%'} isTruncated={true} fontWeight="bold">{val.item.name}</Text>
-                  <Text>{`Price : ${val.item.price}`}</Text>
+                  <Text>{`Price : ${val.item.price}    quntity : ${val.quantity}`}</Text>
+                  <Text>{`total : ${val.item.price * val.quantity}`}</Text>
                   {activeTab === "cart" ? (
                     <>
                        {removeerror && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{removeerror}</Text>}
@@ -625,7 +626,7 @@ initiatesaveddelete = async function(val){
       <AddToCartModal viewfromcart={true} isOpen={modalOpen} onClose={() => setModalOpen(false)} item={selecteditem} /> */}
 
       {modalOpen   &&  
-            <AddToCartModal setcart={setcartitems} viewfromcart={true} isOpen={modalOpen} onClose={() => setModalOpen(false)} item={cartitems?.find(function(val , ind){
+            <AddToCartModal setcart={setcartitems}  navigation={navigation} viewfromcart={true} isOpen={modalOpen} onClose={() => setModalOpen(false)} item={cartitems?.find(function(val , ind){
                return val.item._id.toString() == selecteditem?.item._id;
             })} /> 
 
