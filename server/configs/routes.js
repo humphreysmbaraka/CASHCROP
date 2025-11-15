@@ -1028,7 +1028,11 @@ router.patch(`/remove_from_cart` , async function(req , res){
                 const newacc = await account.populate({
                     path:'cart',
                     populate:{
-                        path:'shop'
+                        path:'shop',
+                        populate:[
+                            {path:'items'},
+                            {path:'owner'}
+                        ]
                     }
                 })
 
@@ -1071,7 +1075,11 @@ router.patch(`/remove_from_saved` , async function(req , res){
                 const newacc = await account.populate({
                     path:'saved_items',
                     populate:{
-                        path:'shop'
+                        path:'shop',
+                        populate:[
+                            {path:'owner'},
+                            {path:'items'}
+                        ]
                     }
                 })
 

@@ -168,8 +168,61 @@ export default function CartPage() {
    }
 
 
+initiatecartdelete = async function(val){
+    Alert.alert(
+      'DELETE ITEM',
+      'PROCEE !',
+
+      [
+        {
+          style:'cancel',
+          text:'DELETE',
+          onPress: async function(){
+            await removefromcart();
+          }
+          
+        },
+        {
+
+          text:'CANCEL',
+          onPress:  function(){
+          
+          },
+          style:'default'
+           
+        }
+      ]
+    )
+}
 
 
+
+initiatesaveddelete = async function(val){
+  Alert.alert(
+    'DELETE ITEM',
+    'PROCEE !',
+
+    [
+      {
+        style:'cancel',
+        text:'DELETE',
+        onPress: async function(){
+          await removefromsaved();
+        }
+        
+      },
+      {
+
+        text:'CANCEL',
+        onPress:  function(){
+        
+        },
+        style:'default'
+         
+      }
+    ]
+  )
+}
 
  const removefromcart = async function(val){
   try{
@@ -179,7 +232,7 @@ export default function CartPage() {
       else{
         setremoving(true);
         setremoveerror(null);
-        const res = await fetch(`${base_url}/remove_from_cart?user=${user?._id}&item=${val._id}` , {
+        const res = await fetch(`${base_url}/remove_from_cart?user=${user?._id}&item=${val?.item?._id}` , {
           method:'PATCH',
           headers:{
             'Content-Type': 'application/json'
@@ -210,6 +263,7 @@ export default function CartPage() {
     setremoving(false);
     setremoveerror('error')
     console.log('error removing from cart')
+    throw new Error(err);
   }
  }
 
@@ -319,7 +373,7 @@ export default function CartPage() {
       else{
         setmoving(true);
         setmoveerror(null);
-        const res = await fetch(`${base_url}/move_to_cart?user=${user?._id}&item=${val._id}` , {
+        const res = await fetch(`${base_url}/move_to_cart?user=${user?._id}&item=${val?.item?._id}` , {
           method:'PATCH',
           headers:{
             'Content-Type': 'application/json'
@@ -376,7 +430,7 @@ export default function CartPage() {
    } , [])
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10, paddingTop: Platform.OS === "android" ? Constants.statusBarHeight : 0 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10, paddingTop: Platform.OS === "android" ? Constants.statusBarHeight : 0 , marginBottom:'20px' }}>
       {/* Tabs */}
       <HStack space={4} mb={4} mt={'40px'} >
         <Button flex={1} colorScheme={activeTab === "cart" ? "teal" : "gray"} onPress={() => setActiveTab("cart")}>
@@ -387,7 +441,7 @@ export default function CartPage() {
         </Button>
       </HStack>
 
-      <VStack space={4}>
+      <VStack space={4}  pb={'10px'} >
         {/* Sample Product */}
 
       {activeTab == 'cart'  ?(
@@ -418,16 +472,16 @@ export default function CartPage() {
 
        {cartitems?.map(function(val , ind){
             return (
-              <Pressable onPress={() => select(val)} key={val._id} >
+              <Pressable onPress={() => select(val)} key={val._id} mb={'5px'} >
               <HStack space={4} alignItems="center" bg="gray.50" p={3} borderRadius="md">
                 <Image  source={{uri:`${base_url}/item_picture/${val.item.image}`}} alt="img" size="lg" borderRadius="md"/>
                 <VStack space={'4px'} width={'55%'} flex={1}>
-                  <Text width={'90%'} isTruncated={true} fontWeight="bold">val.item.name</Text>
+                  <Text width={'90%'} isTruncated={true} fontWeight="bold">{val.item.name}</Text>
                   <Text>{`Price : ${val.item.price}`}</Text>
                   {activeTab === "cart" ? (
                     <>
                        {removeerror && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{removeerror}</Text>}
-                      <Button alignItems={'center'} justifyContent={'center'} colorScheme="red" onPress={()=>{removefromcart(val)}}>DELETE  {removing && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
+                      <Button alignItems={'center'} justifyContent={'center'} colorScheme="red" onPress={()=>{initiatecartdelete(val)}}>DELETE  {removing && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
                       {savingerror && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{savingerror}</Text>}
                       <Button colorScheme="gray"  alignItems={'center'} justifyContent={'center'} onPress={() => movetosaved(val)}>Save for later  {saving && <Spinner alignSelf={'center'} mr={'auto'} ml={'auto'} color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
                     </>
@@ -487,10 +541,10 @@ export default function CartPage() {
         return(
           <Pressable onPress={() => setModalOpen(true)}>
           <HStack space={4} alignItems="center" bg="gray.50" p={3} borderRadius="md">
-            <Image source={{uri:`${base_url}/item_picture/`}} alt="product" size="lg" borderRadius="md"/>
+            <Image source={{uri:`${base_url}/item_picture/${val?.item?.image}`}} alt="product" size="lg" borderRadius="md"/>
             <VStack space={'4px'} width={'70%'} flex={1}>
-              <Text width={'90%'} isTruncated={true} fontWeight="bold">Item Name</Text>
-              <Text>Total: $120</Text>
+              <Text width={'90%'} isTruncated={true} fontWeight="bold">{val?.item?.name}</Text>
+              <Text>{`Total: ${val?.item?.price}`}</Text>
               {activeTab === "cart" ? (
                 <>
                   <Button colorScheme="red" onPress={() => Alert.alert("Remove clicked")}>DELETE</Button>
@@ -499,9 +553,9 @@ export default function CartPage() {
               ) : (
                 <>
                 {remerror &&  <Text color={'red'} fontSize={'xs'} alignSelf={'center'} >{remerror}</Text>}
-                  <Button colorScheme="red" onPress={() =>{removefromsaved(val)}}>DELETE  {reming && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
+                  <Button colorScheme="red" onPress={() =>{initiatesaveddelete(val)}}>DELETE  {reming && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
                   {moveerror &&  <Text color={'red'} fontSize={'xs'} alignSelf={'center'} >{moveerror}</Text>}
-                  <Button colorScheme="teal" onPress={() => movetocart(val)}>Move to Cart  {moving && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }  </Button>
+                  <Button justifyContent={'center'} alignItems={'center'} colorScheme="teal" onPress={() => movetocart(val)}>Move to Cart  {moving && <Spinner  alignSelf={'center'} mr={'auto'} ml={'auto'} color={'white'}  width={'20px'} height={'20px'}       />  }  </Button>
                 </>
               )}
             </VStack>
