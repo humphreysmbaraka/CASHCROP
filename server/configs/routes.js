@@ -329,7 +329,7 @@ router.get(`/item_picture/:id` , async function(req , res){
         }
         else{
             console.log('item picture not found');
-            return res.status(400).json({error:true , message:'user has no picture'});
+            return res.status(400).json({error:true , message:'item has no picture'});
         }
 
     }
@@ -1235,7 +1235,7 @@ router.post(`/increment_cart_item` , async function(req , res){
         }
 
         const incart = account.cart.find(function(val){
-            return val.item.toString() == item;
+            return val.item.toString() == product._id;
         })
 
         if(!incart){
@@ -1246,8 +1246,19 @@ router.post(`/increment_cart_item` , async function(req , res){
         incart.quantity += 1;
 
         await account.save();
+        await account.populate({
+            path:'cart.item',
+            populate:{
+                path:'shop',
+                populate:[
+                    {path:'owner'},
+                    {path:'items'}
+                ]
+            }
+        });
 
-        return res.status(200).json({error:false , message:'incremented successfully'});
+
+        return res.status(200).json({error:false , message:'incremented successfully' , cart:account.cart});
 
      }
      
@@ -1292,7 +1303,19 @@ router.post(`/decrement_cart_item` , async function(req , res){
 
         await account.save();
 
-        return res.status(200).json({error:false , message:'decremented successfully'});
+        await account.populate({
+            path:'cart.item',
+            populate:{
+                path:'shop',
+                populate:[
+                    {path:'owner'},
+                    {path:'items'}
+                ]
+            }
+        });
+
+
+        return res.status(200).json({error:false , message:'decremented successfully' , cart:account.cart});
 
      }
      

@@ -214,7 +214,7 @@ export default function CartPage() {
  }
 
 
-
+ 
 
  const removefromsaved = async function(val){
   try{
@@ -415,14 +415,14 @@ export default function CartPage() {
             return (
               <Pressable onPress={() => select(val)} key={val._id} >
               <HStack space={4} alignItems="center" bg="gray.50" p={3} borderRadius="md">
-                <Image width={'100px'} source={{uri:`${base_url}/item_picture/${val.item._id}`}} alt="product" size="lg" borderRadius="md"/>
+                <Image  source={{uri:`${base_url}/item_picture/${val.item.image}`}} alt="img" size="lg" borderRadius="md"/>
                 <VStack space={'4px'} width={'55%'} flex={1}>
                   <Text width={'90%'} isTruncated={true} fontWeight="bold">val.item.name</Text>
                   <Text>{`Price : ${val.item.price}`}</Text>
                   {activeTab === "cart" ? (
                     <>
                        {removeerror && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{removeerror}</Text>}
-                      <Button colorScheme="red" onPress={()=>{removefromcart(val)}}>DELETE  {removing && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
+                      <Button alignItems={'center'} justifyContent={'center'} colorScheme="red" onPress={()=>{removefromcart(val)}}>DELETE  {removing && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
                       {savingerror && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{savingerror}</Text>}
                       <Button colorScheme="gray" onPress={() => movetosaved(val)}>Save for later  {saving && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
                     </>
@@ -566,7 +566,7 @@ export default function CartPage() {
       <AddToCartModal viewfromcart={true} isOpen={modalOpen} onClose={() => setModalOpen(false)} item={selecteditem} /> */}
 
       {setModalOpen   &&  
-            <AddToCartModal viewfromcart={true} isOpen={modalOpen} onClose={() => setModalOpen(false)} item={selecteditem} /> 
+            <AddToCartModal setcart={setcartitems} viewfromcart={true} isOpen={modalOpen} onClose={() => setModalOpen(false)} item={selecteditem} /> 
 
       }
     </ScrollView>

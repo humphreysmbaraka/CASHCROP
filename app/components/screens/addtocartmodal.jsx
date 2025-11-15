@@ -7,7 +7,7 @@ import base_url from "../constants/baseurl";
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 
-export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item }) {
+export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,setcart }) {
   // const [quantity, setQuantity] = useState(1);
   const [adderror , setadderror] = useState(null);
   const [adding , setadding] = useState(false);
@@ -33,7 +33,7 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item })
         headers:{
           'Content-Type':'application/json'
         },
-        body:JSON.stringify({user:user._id , item:item._id})
+        body:JSON.stringify({user:user._id , item:item?.item._id})
       })
 
       if(response.ok){
@@ -74,13 +74,15 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item })
         headers:{
           'Content-Type':'application/json'
         },
-        body:JSON.stringify({user:user._id , item:item._id})
+        body:JSON.stringify({user:user._id , item:item?.item?._id})
       })
 
       if(response.ok){
         setcreasing(false);
         setcreaseerror(null)
         const info = await response.json();
+        const  cart = info.cart;
+        setcart(cart);
         
       }
       else{
@@ -151,22 +153,30 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item })
       <Modal.Content maxWidth="400px">
         <Modal.Body>
           <VStack space={4} alignItems="center">
-            <Image source={{uri:`${base_url}/item_picture/${item?.image}`}} alt="product" size="2xl" borderRadius="md"/>
-            <Text fontSize="lg" fontWeight="bold">{`Name: ${item?.name}`}</Text>
-            <Text fontSize="md" color="gray.500">{`Price: ${item?.price}`}</Text>
+            <Image source={{uri:`${base_url}/item_picture/${item?.item?.image}`}} alt="product" size="2xl" borderRadius="md"/>
+            <Text fontSize="lg" fontWeight="bold">{`Name: ${item?.item?.name}`}</Text>
+            <Text fontSize="md" color="gray.500">{`Price: ${item?.item?.price}`}</Text>
 
             {viewfromcart &&  
             
-            <VStack>
-            <HStack>
-            <Pressable onPress={decrement} ><AntDesign name="minus" size={24} color="black" /></Pressable>
-            <Text>QUANTITY</Text>
-              <Pressable onPress={increment} ><AntDesign name="plus" size={24} color="black" /></Pressable>
+            <VStack width={'98%'} >
+              {creaseerror &&  
+               <Text alignSelf={'center'} ml={'auto'} mr={'auto'} color={'red.600'} fontWeight={'light'} >{creaseerror}</Text>
+              
+              }
+            <HStack  width={'90%'} space={5} alignItems={'center'} alignSelf={'center'} justifyContent={'space-between'} >
+            <Pressable width={'50px'} height={'50px'} bg={'gray.300'} borderRadius={'5px'} justifyContent={'center'} alignItems={'center'} onPress={decrement} ><AntDesign name="minus" size={24} color="black" /></Pressable>
+             {creasing ? (
+                <Spinner  color={'blue'} width={'20px'} height={'20px'}   />
+             ):(
+              <Text>{item?.quantity}</Text>
+             )}
+              <Pressable   width={'50px'} height={'50px'} bg={'gray.300'} borderRadius={'5px'} justifyContent={'center'} alignItems={'center'} onPress={increment} ><AntDesign name="plus" size={24} color="black" /></Pressable>
             </HStack>
 
-              <VStack>
-              <Text>total price</Text>
-              <Button colorScheme={'green'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >BUY</Button>
+              <VStack bg={'gray.100'} width={'90%'} space={5} alignItems={'center'} alignSelf={'center'} >
+              <Text fontWeight={'light'} >{`TOTAL PRICE : ${item?.item?.price * item?.quantity}`}</Text>
+              <Button colorScheme={'green'}  width={'80%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >BUY</Button>
               </VStack>
            </VStack>
             }
@@ -182,12 +192,16 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item })
             <Text color={'green'} alignSelf={'center'}   >added successfully</Text>
           }
 
-            <Button w="100%" colorScheme="teal"  alignItems={'center'} justifyContent={'center'} onPress={() =>{added?onClose():addtocart()}}>
-              {added?'OK':'ADD TO CART'}
-              {adding &&  
-              <Spinner  ml={'auto'} mr={'auto'} color={'white'} width={'20px'} height={'20px'}        />
+           {!viewfromcart &&   
+           
+           <Button w="100%" colorScheme="teal"  alignItems={'center'} justifyContent={'center'} onPress={() =>{added?onClose():addtocart()}}>
+           {added?'OK':'ADD TO CART'}
+           {adding &&  
+           <Spinner  ml={'auto'} mr={'auto'} color={'white'} width={'20px'} height={'20px'}        />
+           }
+         </Button>
+              
               }
-            </Button>
 
             {/* {viewfromcart &&  
             
