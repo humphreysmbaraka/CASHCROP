@@ -75,7 +75,7 @@ export default function ViewItemPage({navigation ,route}) {
         <Button flex={1} colorScheme="teal" onPress={() => {activatemodal()}}>
           Add to Cart
         </Button>
-        <Button flex={1} variant="outline" onPress={() => Alert.alert("Back pressed")}>
+        <Button flex={1} variant="outline" onPress={() => navigation.goBack()}>
           Back
         </Button>
       </HStack>

@@ -947,17 +947,22 @@ router.post(`/save_for_later/:id` , async function(req , res){
 })
 
 
-router.get(`/cart_items/:id` , async function(req , res){
+router.get(`/get_cart_items/:id` , async function(req , res){
     try{
         const id = req.params.id;
         const user = await User.findOne({_id:new ObjectId(id)}).populate({
             path:'cart',
             populate:{
-                path:'shop'
+                path:'shop',
+                populate:[
+                    {path:'owner'},
+                    {path:'items'}
+                ]
             }
         });
         if(user){
            console.log('user found for successful cart fetching');
+           
            return res.status(200).json({error:false , items:user.cart});
         }
         else{
@@ -977,18 +982,22 @@ router.get(`/cart_items/:id` , async function(req , res){
 
 
 
-router.get(`/saved_items/:id` , async function(req , res){
+router.get(`/get_saved_items/:id` , async function(req , res){
     try{
         const id = req.params.id;
         const user = await User.findOne({_id:new ObjectId(id)}).populate({
             path:'saved_items',
             populate:{
-                path:'shop'
+                path:'shop',
+                populate:[
+                    { path:'owner'},
+                    { path:'items'}
+                ]
             }
         });
         if(user){
            console.log('user found for successful saved items fetching');
-           return res.status(200).json({error:false , items:user.saved});
+           return res.status(200).json({error:false , items:user.saved_items});
         }
         else{
             console.log('no such user found when fetching saved objects');

@@ -441,7 +441,7 @@ export default function ShoppingPage({navigation}) {
         <HStack  p={'4px'} alignItems={'center'} justifyContent={'center'} flexWrap={'wrap'}  space={3} >
           {results?.map(function(val , ind){
             return(
-              <Pressable key={ind} onPress={()=>{navigation.navigate('clickitem' , {screen:'view' , params:{val}})}}>
+              <Pressable key={ind} onPress={()=>{navigation.navigate('clickitem' , {screen:'view' , params:{item:val}})}}>
               <Box
                 width={140}
                 bg="white"

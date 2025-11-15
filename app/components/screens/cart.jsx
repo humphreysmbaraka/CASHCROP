@@ -30,6 +30,17 @@ export default function CartPage() {
 
   const [moving , setmoving] = useState(false);
   const [moveerror , setmoveerror] = useState(null);
+
+  // fethig cart items
+
+  const [cartfetch , setcartfetch] = useState(false);
+  const [carterr , setcarterr] = useState(null);
+ 
+
+  // fethig saved items
+
+  const [savedfetch , setsavedfetch] = useState(false);
+  const [savederr , setsavederr] = useState(null);
  
 
   const [buying , setbuying] = useState(false);
@@ -77,19 +88,38 @@ export default function CartPage() {
     }
   }
 
+
+
+
    const getcartitems = async function(){
-    try{
+    try{   
+      if(cartfetch){
+        return
+      }
+           setcartfetch(true);
+           setcarterr(null);
            const cartitems = await fetch(`${base_url}/get_cart_items/${user._id}`);
            if(cartitems.ok){
+            setcartfetch(false);
+            setcarterr(null);
             const info = await cartitems.json();
             setcartitems(info.items);
            }
            else{
+            setcartfetch(false);
             const info = await cartitems.json();
             setcartitems([]);
+            if(String(cartitems.status).startsWith('4')){
+              setcarterr(info.message);
+            }
+            else{
+              setcarterr('server error');
+            }
            }
     }
     catch(err){
+      setcartfetch(false);
+      setcarterr('could not fetch cart items');
       console.log('could not fetch cart items' ,err);
       setcartitems([]);
       throw new Error(err);
@@ -99,23 +129,40 @@ export default function CartPage() {
 
 
    const getsaveditems = async function(){
-    try{
-           const saveditems = await fetch(`${base_url}/saved_items/${user._id}`);
+    try{   
+         if(savedfetch){
+          return
+         }
+            setsavedfetch(true);
+            setsavederr(null);
+           const saveditems = await fetch(`${base_url}/get_saved_items/${user._id}`);
            if(saveditems.ok){
+            setsavedfetch(false);
+            setsavederr(null);
             const info = await cartitems.json();
             setsaveditems(info.items);
            }
            else{
+            setsavedfetch(false);
+           
             const info = await cartitems.json();
             setsaveditems([]);
+            if(String(saveditems.status).startsWith('4')){
+              setsavederr(info.message);
+            }
+            else{
+              setsavederr('server error');
+            }
            }
     }
     catch(err){
+       setsavedfetch(false);
+       setsavederr('could not fetch saved items')
       console.log('could not fetch saved items' , err);
       setsaveditems([]);
       throw new Error(err);
 
-      return;
+     
     }
    }
 
@@ -338,20 +385,39 @@ export default function CartPage() {
         {/* Sample Product */}
 
       {activeTab == 'cart'  ?(
+
+
 <>
+
+    {cartfetch  &&   
+      <VStack mt={'10px'} alignSelf={'center'} mr={'auto'} ml={'auto'} >
+        <Spinner color={'blue'} width={'30px'} height={'30px'} alignSelf={'center'} mr={'auto'} ml={'auto'} ></Spinner>
+        <Text color={'blue.300'} fontWeight={'light'} alignSelf={'center'} mt={'10px'} mr={'auto'} ml={'auto'} >fetching cart items....</Text>
+      </VStack>
+    
+    }
+
+    {carterr  &&   
+             <VStack mt={'10px'} alignSelf={'center'} mr={'auto'} ml={'auto'} >
+             {/* <Spinner color={'blue'} width={'30px'} height={'30px'} alignSelf={'center'} mr={'auto'} ml={'auto'} ></Spinner> */}
+             <Text color={'red.300'} fontWeight={'light'} alignSelf={'center'} mt={'10px'} mr={'auto'} ml={'auto'} >{carterr}</Text>
+             <Button colorScheme="teal" onPress={() => Alert.alert("retry")}>Retry</Button>
+           </VStack>
+    }
+
         {(!cartitems || cartitems?.length == 0  ) &&  
         
               <Text alignSelf={'center'} mt={'10px'} >no items in your cart yet</Text>
         }
 
-       {cartitems.map(function(val , ind){
+       {cartitems?.map(function(val , ind){
             return (
               <Pressable onPress={() => select(val)} key={val._id} >
               <HStack space={4} alignItems="center" bg="gray.50" p={3} borderRadius="md">
-                <Image source={{uri:`${base_url}/item_picture/${val._id}`}} alt="product" size="lg" borderRadius="md"/>
+                <Image source={{uri:`${base_url}/item_picture/${val.item._id}`}} alt="product" size="lg" borderRadius="md"/>
                 <VStack space={'4px'} width={'70%'} flex={1}>
-                  <Text width={'90%'} isTruncated={true} fontWeight="bold">val.name</Text>
-                  <Text>{`Price : ${val.price}`}</Text>
+                  <Text width={'90%'} isTruncated={true} fontWeight="bold">val.item.name</Text>
+                  <Text>{`Price : ${val.item.price}`}</Text>
                   {activeTab === "cart" ? (
                     <>
                        {removeerror && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{removeerror}</Text>}
@@ -389,46 +455,69 @@ export default function CartPage() {
       ):(
 
 <>
+
+
+{savedfetch  &&   
+      <VStack mt={'10px'} alignSelf={'center'} mr={'auto'} ml={'auto'} >
+        <Spinner color={'blue'} width={'30px'} height={'30px'} alignSelf={'center'} mr={'auto'} ml={'auto'} ></Spinner>
+        <Text color={'blue.300'} fontWeight={'light'} alignSelf={'center'} mt={'10px'} mr={'auto'} ml={'auto'} >fetching saved items....</Text>
+      </VStack>
+    
+    }
+
+    {savederr  &&   
+             <VStack mt={'10px'} alignSelf={'center'} mr={'auto'} ml={'auto'} >
+             {/* <Spinner color={'blue'} width={'30px'} height={'30px'} alignSelf={'center'} mr={'auto'} ml={'auto'} ></Spinner> */}
+             <Text color={'red.300'} fontWeight={'light'} alignSelf={'center'} mt={'10px'} mr={'auto'} ml={'auto'} >{savederr}</Text>
+             <Button colorScheme="teal" onPress={() => Alert.alert("retry")}>Retry</Button>
+           </VStack>
+    }
+        
         {(!saveditems || saveditems?.length == 0 ) &&  
         
               <Text alignSelf={'center'} mt={'10px'} >you do not have saved items yet</Text>
         }
+     { saveditems?.map(function(val , ind){
+        return(
+          <Pressable onPress={() => setModalOpen(true)}>
+          <HStack space={4} alignItems="center" bg="gray.50" p={3} borderRadius="md">
+            <Image source={{uri:`${base_url}/item_picture/`}} alt="product" size="lg" borderRadius="md"/>
+            <VStack space={'4px'} width={'70%'} flex={1}>
+              <Text width={'90%'} isTruncated={true} fontWeight="bold">Item Name</Text>
+              <Text>Total: $120</Text>
+              {activeTab === "cart" ? (
+                <>
+                  <Button colorScheme="red" onPress={() => Alert.alert("Remove clicked")}>DELETE</Button>
+                  <Button colorScheme="gray" onPress={() => Alert.alert("Save for later")}>Save for later</Button>
+                </>
+              ) : (
+                <>
+                {remerror &&  <Text color={'red'} fontSize={'xs'} alignSelf={'center'} >{remerror}</Text>}
+                  <Button colorScheme="red" onPress={() =>{removefromsaved(val)}}>DELETE  {reming && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
+                  {moveerror &&  <Text color={'red'} fontSize={'xs'} alignSelf={'center'} >{moveerror}</Text>}
+                  <Button colorScheme="teal" onPress={() => movetocart(val)}>Move to Cart  {moving && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }  </Button>
+                </>
+              )}
+            </VStack>
+            {/* <HStack space={2}>
+              {activeTab === "cart" ? (
+                <>
+                  <Button colorScheme="red" onPress={() => Alert.alert("Remove clicked")}>Remove</Button>
+                  <Button colorScheme="gray" onPress={() => Alert.alert("Save for later")}>Save</Button>
+                </>
+              ) : (
+                <>
+                  <Button colorScheme="red" onPress={() => Alert.alert("Remove clicked")}>Remove</Button>
+                  <Button colorScheme="teal" onPress={() => Alert.alert("Move to cart")}>Move to Cart</Button>
+                </>
+              )}
+            </HStack> */}
+          </HStack>
+          </Pressable>
+        )
+     })
+    }
 
-        <Pressable onPress={() => setModalOpen(true)}>
-<HStack space={4} alignItems="center" bg="gray.50" p={3} borderRadius="md">
-  <Image source={require("../../assets/gmail.jpeg")} alt="product" size="lg" borderRadius="md"/>
-  <VStack space={'4px'} width={'70%'} flex={1}>
-    <Text width={'90%'} isTruncated={true} fontWeight="bold">Item Name</Text>
-    <Text>Total: $120</Text>
-    {activeTab === "cart" ? (
-      <>
-        <Button colorScheme="red" onPress={() => Alert.alert("Remove clicked")}>DELETE</Button>
-        <Button colorScheme="gray" onPress={() => Alert.alert("Save for later")}>Save for later</Button>
-      </>
-    ) : (
-      <>
-      {remerror &&  <Text color={'red'} fontSize={'xs'} alignSelf={'center'} >{remerror}</Text>}
-        <Button colorScheme="red" onPress={() =>{removefromsaved(val)}}>DELETE  {reming && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
-        {moveerror &&  <Text color={'red'} fontSize={'xs'} alignSelf={'center'} >{moveerror}</Text>}
-        <Button colorScheme="teal" onPress={() => movetocart(val)}>Move to Cart  {moving && <Spinner  color={'white'}  width={'20px'} height={'20px'}       />  }  </Button>
-      </>
-    )}
-  </VStack>
-  {/* <HStack space={2}>
-    {activeTab === "cart" ? (
-      <>
-        <Button colorScheme="red" onPress={() => Alert.alert("Remove clicked")}>Remove</Button>
-        <Button colorScheme="gray" onPress={() => Alert.alert("Save for later")}>Save</Button>
-      </>
-    ) : (
-      <>
-        <Button colorScheme="red" onPress={() => Alert.alert("Remove clicked")}>Remove</Button>
-        <Button colorScheme="teal" onPress={() => Alert.alert("Move to cart")}>Move to Cart</Button>
-      </>
-    )}
-  </HStack> */}
-</HStack>
-</Pressable>
 </>
 
       )}
