@@ -271,7 +271,7 @@ export default function CartPage() {
       else{
         setsaving(true);
         setsavingerror(null);
-        const res = await fetch(`${base_url}/save_for_later?user=${user?._id}&item=${val._id}` , {
+        const res = await fetch(`${base_url}/save_for_later?user=${user?._id}&item=${val?.item?._id}` , {
           method:'PATCH',
           headers:{
             'Content-Type': 'application/json'
@@ -283,7 +283,10 @@ export default function CartPage() {
          setsavingerror(null);
          const info = await res.json();
          const newcart = info.cart;
+         const newsavedlist = info.saveditems;
          setcartitems(newcart);
+         setsaveditems(newsavedlist);
+        
         }
         else{
           const info = await res.json();
@@ -328,7 +331,9 @@ export default function CartPage() {
          setmoveerror(null);
          const info = await res.json();
          const newsaved = info.saved;
+         const newcartlist = info.cart;
          setsaveditems(newsaved);
+         setcartitems(newcartlist);
         }
         else{
           const info = await res.json();

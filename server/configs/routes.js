@@ -1101,7 +1101,7 @@ router.patch(`/remove_from_saved` , async function(req , res){
 router.patch(`/move_to_saved` , async function(req , res){
     try{
         const {user , item} = req.query;
-       const acount = await User.findOne({_id:new ObjectId(user)});
+       const account = await User.findOne({_id:new ObjectId(user)});
        if(account){
           const thing = await Item.findOne({_id:new ObjectId(item)});
           if(thing){
@@ -1127,15 +1127,31 @@ router.patch(`/move_to_saved` , async function(req , res){
 
                 await account.save();
 
-                const saved = await account.populate({
-                    path:'cart',
+                const saved = await account.populate([
+                    {
+                    path:'cart.item',
                     populate:{
-                       path:'shop' 
+                       path:'shop' ,
+                       populate:[
+                        {path:'items'},
+                        {path:'owner'}
+                       ]
                     }
-                });
+                },
+                {
+                    path:'saved_items.item',
+                    populate:{
+                       path:'shop' ,
+                       populate:[
+                        {path:'items'},
+                        {path:'owner'}
+                       ]
+                    }
+                }
+                ]);
 
 
-                return res.status(200).json({error:false , cart:saved.cart});
+                return res.status(200).json({error:false , cart:saved.cart , saveditems:saved.saved_items});
           }
           else{
             console.log('no such item found');
@@ -1163,7 +1179,7 @@ router.patch(`/move_to_saved` , async function(req , res){
 router.patch(`/move_to_cart` , async function(req , res){
     try{
         const {user , item} = req.query;
-       const acount = await User.findOne({_id:new ObjectId(user)});
+       const account = await User.findOne({_id:new ObjectId(user)});
        if(account){
           const thing = await Item.findOne({_id:new ObjectId(item)});
           if(thing){
@@ -1191,15 +1207,31 @@ router.patch(`/move_to_cart` , async function(req , res){
 
                 await account.save();
 
-                const saved = await account.populate({
-                    path:'saved_items',
+                    const saved = await account.populate([
+                    {
+                    path:'cart.item',
                     populate:{
-                       path:'shop' 
+                       path:'shop' ,
+                       populate:[
+                        {path:'items'},
+                        {path:'owner'}
+                       ]
                     }
-                });
+                },
+                {
+                    path:'saved_items.item',
+                    populate:{
+                       path:'shop' ,
+                       populate:[
+                        {path:'items'},
+                        {path:'owner'}
+                       ]
+                    }
+                }
+                ]);
 
 
-                return res.status(200).json({error:false , saved:saved.saved_items});
+                return res.status(200).json({error:false , saved:saved.saved_items , cart:saved.cart});
           }
           else{
             console.log('no such item found');
