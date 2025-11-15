@@ -1062,7 +1062,7 @@ router.patch(`/remove_from_cart` , async function(req , res){
 router.patch(`/remove_from_saved` , async function(req , res){
     try{
         const {user , item} = req.query;
-       const acount = await User.findOne({_id:new ObjectId(user)});
+       const account = await User.findOne({_id:new ObjectId(user)});
        if(account){
           const thing = await Item.findOne({_id:new ObjectId(item)});
           if(thing){
