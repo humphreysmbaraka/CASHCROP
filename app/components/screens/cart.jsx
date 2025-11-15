@@ -278,7 +278,7 @@ initiatesaveddelete = async function(val){
       else{
         setreming(true);
         setremerror(null);
-        const res = await fetch(`${base_url}/remove_from_saved?user=${user?._id}&item=${val._id}` , {
+        const res = await fetch(`${base_url}/remove_from_saved?user=${user?._id}&item=${val?.item?._id}` , {
           method:'PATCH',
           headers:{
             'Content-Type': 'application/json'
@@ -308,7 +308,7 @@ initiatesaveddelete = async function(val){
   catch(err){
     setreming(false);
     setremerror('error')
-    console.log('error removing from saved')
+    console.log('error removing from saved' , err)
   }
  }
 
@@ -539,7 +539,7 @@ initiatesaveddelete = async function(val){
         }
      { saveditems?.map(function(val , ind){
         return(
-          <Pressable onPress={() => setModalOpen(true)}>
+          <Pressable onPress={() => select(val)}>
           <HStack space={4} alignItems="center" bg="gray.50" p={3} borderRadius="md">
             <Image source={{uri:`${base_url}/item_picture/${val?.item?.image}`}} alt="product" size="lg" borderRadius="md"/>
             <VStack space={'4px'} width={'70%'} flex={1}>

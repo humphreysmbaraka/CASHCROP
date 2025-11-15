@@ -1084,7 +1084,7 @@ router.patch(`/remove_from_saved` , async function(req , res){
                 })
 
 
-                return res.status(200).json({error:false , saved:newacc.saved});
+                return res.status(200).json({error:false , saved:newacc.saved_items});
           }
           else{
             console.log('no such item found');
