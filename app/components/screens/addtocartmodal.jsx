@@ -5,6 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { authcontext } from "../../contexts/authcontext";
 import base_url from "../constants/baseurl";
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { setItem } from "expo-secure-store";
 
 
 export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,setcart }) {
@@ -17,8 +18,16 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,
   const [creaseerror , setcreaseerror]  = useState(null)
   const {user , setuser} = useContext(authcontext);
   const price = 120;
+  const [currentitem , setcurrentitem]= useState(null);
 
- 
+  useEffect(function(){
+    if(viewfromcart){
+      setcurrentitem(currentitem);
+    }
+    else{
+      setcurrentitem(item);
+    }
+  } , [item])
 //  const navigation = useNavigation();
   // const increment = () => setQuantity(q => q + 1);
   // const decrement = () => setQuantity(q => (q > 1 ? q - 1 : 1));
@@ -36,7 +45,7 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,
         headers:{
           'Content-Type':'application/json'
         },
-        body:JSON.stringify({user:user._id , item:item?.item._id})
+        body:JSON.stringify({user:user._id , item:currentitem?._id})
       })
 
       if(response.ok){
@@ -80,7 +89,7 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,
         headers:{
           'Content-Type':'application/json'
         },
-        body:JSON.stringify({user:user._id , item:item?.item?._id})
+        body:JSON.stringify({user:user._id , item:currentitem?._id})
       })
 
       if(response.ok){
@@ -117,7 +126,7 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,
        else{
         setadderror(null);
         setadding(true);
-        const res = await fetch(`${base_url}/add_to_cart?user=${user._id}&itemid=${item._id}` , {
+        const res = await fetch(`${base_url}/add_to_cart?user=${user._id}&itemid=${currentitem?._id}` , {
           method:'POST',
           headers:{
             'Content-Type':'application/json'
@@ -159,9 +168,9 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,
       <Modal.Content maxWidth="400px">
         <Modal.Body>
           <VStack space={4} alignItems="center">
-            <Image source={{uri:`${base_url}/item_picture/${item?.item?.image}`}} alt="product" size="2xl" borderRadius="md"/>
-            <Text fontSize="lg" fontWeight="bold">{`Name: ${item?.item?.name}`}</Text>
-            <Text fontSize="md" color="gray.500">{`Price: ${item?.item?.price}`}</Text>
+            <Image source={{uri:`${base_url}/item_picture/${currentitem?.image}`}} alt="product" size="2xl" borderRadius="md"/>
+            <Text fontSize="lg" fontWeight="bold">{`Name: ${currentitem?.name}`}</Text>
+            <Text fontSize="md" color="gray.500">{`Price: ${currentitem?.price}`}</Text>
 
             {viewfromcart &&  
             
@@ -181,7 +190,7 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,
             </HStack>
 
               <VStack bg={'gray.100'} width={'90%'} space={5} alignItems={'center'} alignSelf={'center'} >
-              <Text fontWeight={'light'} >{`TOTAL PRICE : ${item?.item?.price * item?.quantity}`}</Text>
+              <Text fontWeight={'light'} >{`TOTAL PRICE : ${currentitem?.price * item?.quantity}`}</Text>
               <Button colorScheme={'green'}  width={'80%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >BUY</Button>
               </VStack>
            </VStack>
