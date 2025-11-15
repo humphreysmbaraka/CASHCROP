@@ -103,6 +103,7 @@ export default function CartPage() {
             setcartfetch(false);
             setcarterr(null);
             const info = await cartitems.json();
+            console.log('CART ITEMS...' ,info.items)
             setcartitems(info.items);
            }
            else{
@@ -401,7 +402,7 @@ export default function CartPage() {
              <VStack mt={'10px'} alignSelf={'center'} mr={'auto'} ml={'auto'} >
              {/* <Spinner color={'blue'} width={'30px'} height={'30px'} alignSelf={'center'} mr={'auto'} ml={'auto'} ></Spinner> */}
              <Text color={'red.300'} fontWeight={'light'} alignSelf={'center'} mt={'10px'} mr={'auto'} ml={'auto'} >{carterr}</Text>
-             <Button colorScheme="teal" onPress={() => Alert.alert("retry")}>Retry</Button>
+             <Button colorScheme="teal" onPress={() => getcartitems()}>Retry</Button>
            </VStack>
     }
 
@@ -414,8 +415,8 @@ export default function CartPage() {
             return (
               <Pressable onPress={() => select(val)} key={val._id} >
               <HStack space={4} alignItems="center" bg="gray.50" p={3} borderRadius="md">
-                <Image source={{uri:`${base_url}/item_picture/${val.item._id}`}} alt="product" size="lg" borderRadius="md"/>
-                <VStack space={'4px'} width={'70%'} flex={1}>
+                <Image width={'100px'} source={{uri:`${base_url}/item_picture/${val.item._id}`}} alt="product" size="lg" borderRadius="md"/>
+                <VStack space={'4px'} width={'55%'} flex={1}>
                   <Text width={'90%'} isTruncated={true} fontWeight="bold">val.item.name</Text>
                   <Text>{`Price : ${val.item.price}`}</Text>
                   {activeTab === "cart" ? (
@@ -432,7 +433,7 @@ export default function CartPage() {
                     </>
                   )}
                 </VStack>
-                <Button colorScheme={'green'} color={'white'} alignSelf={'center'} justifyContent={'center'} alignItems={'center'} >BUY</Button>
+                {/* <Button colorScheme={'green'} color={'white'} alignSelf={'center'} justifyContent={'center'} alignItems={'center'} >BUY</Button> */}
                 {/* <HStack space={2}>
                   {activeTab === "cart" ? (
                     <>

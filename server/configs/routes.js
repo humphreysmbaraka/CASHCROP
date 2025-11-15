@@ -951,7 +951,7 @@ router.get(`/get_cart_items/:id` , async function(req , res){
     try{
         const id = req.params.id;
         const user = await User.findOne({_id:new ObjectId(id)}).populate({
-            path:'cart',
+            path:'cart.item',
             populate:{
                 path:'shop',
                 populate:[
@@ -986,7 +986,7 @@ router.get(`/get_saved_items/:id` , async function(req , res){
     try{
         const id = req.params.id;
         const user = await User.findOne({_id:new ObjectId(id)}).populate({
-            path:'saved_items',
+            path:'saved_items.item',
             populate:{
                 path:'shop',
                 populate:[
