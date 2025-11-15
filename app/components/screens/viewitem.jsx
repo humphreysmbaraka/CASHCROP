@@ -10,8 +10,15 @@ export default function ViewItemPage({navigation ,route}) {
   const [quantity, setQuantity] = useState(1);
   const pricePerUnit = 120; // Example price per unit
   const [openmodal ,setopenmodal] = useState(false);
+  const [modalkey , setmodalkey] = useState(null);
   const {item , fromshop} = route?.params || {};
   console.log('ROUTE PARAMS' , route.params);
+
+
+  const activatemodal = function(){
+     setmodalkey(Date.now());
+     setopenmodal(true);
+  }
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: "white", paddingTop: Platform.OS === "android" ? Constants.statusBarHeight : 0, padding: 10 }}
@@ -65,14 +72,17 @@ export default function ViewItemPage({navigation ,route}) {
        }
       {/* Action Buttons */}
       <HStack space={4} mb={20}>
-        <Button flex={1} colorScheme="teal" onPress={() => {setopenmodal(true)}}>
+        <Button flex={1} colorScheme="teal" onPress={() => {activatemodal()}}>
           Add to Cart
         </Button>
         <Button flex={1} variant="outline" onPress={() => Alert.alert("Back pressed")}>
           Back
         </Button>
       </HStack>
-      <AddToCartModal item={item}  viewfromcart={false}      isOpen={openmodal}     onClose={() => setopenmodal(false)}        />
+      <AddToCartModal item={item}  viewfromcart={false}      isOpen={openmodal} key={modalkey}    onClose={function(){
+         setmodalkey(null);
+         setopenmodal(false)
+      }}        />
     </ScrollView>
   );
 }
