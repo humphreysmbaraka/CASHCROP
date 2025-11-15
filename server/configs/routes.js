@@ -864,7 +864,7 @@ router.post(`/add_to_cart` , async function(req , res){
          const account = await User.findOne({_id:new ObjectId(user)});
          if(account){
               console.log('user found');
-              const item = await Item.findOne({_id:new ObjectId(id)});
+              const item = await Item.findOne({_id:new ObjectId(itemid)});
               if(item){
                    console.log('item found');
                    const alreadyincart = account.cart.some(function(val){
@@ -909,7 +909,7 @@ router.post(`/save_for_later/:id` , async function(req , res){
          const account = await User.findOne({_id:new ObjectId(user)});
          if(account){
               console.log('user found');
-              const item = await Item.findOne({_id:new ObjectId(id)});
+              const item = await Item.findOne({_id:new ObjectId(itemid)});
               if(item){
                    console.log('item found');
                    account.saved.push(item._id);
