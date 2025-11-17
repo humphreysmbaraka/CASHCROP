@@ -13,6 +13,7 @@ const Shop = require('./schemas/shop');
 const Item = require('./schemas/item');
 const {Readable} = require('stream');
 const {Expo}= require('expo-server-sdk');   // FOR SENDING EXPO PUSH NOTIFICATIONS
+const Order = require('./schemas/order');
 
 
   // SETUP FOR EXPO PUSH NOTIFICATIONS
@@ -1518,178 +1519,85 @@ router.get(`/search/:query/:page` , async function(req , res){
 
 
 
-router.post(`make_an_stk_push` , async function(req , res){
+
+router.get(`/call_checkout_page` , async function(req , res){
     try{
-       
-       const {userid , item , quantity} = req.body;
-     let {number} = req.body;
-       // NUMBER CONVERSIONS , NORMALIZATION AND VERIFICATION
-       let cleanednumber = number.replace(/\D/g, '');
-       if(!cleanednumber.startsWith('254')){
-          if(cleanednumber.startsWith('0')){
-            cleanednumber = '254' + cleanednumber.slice(1);
-          }
-          else if(cleanednumber.startsWith('+254')){
-            cleanednumber = '254' + cleanednumber.slice(4);
-          }
-          else{
-            cleanednumber = 'invalid'
-          }
-        
-       }
-  
-       const prefixes = ['25470','25471','25472','25474','254757','254758','254759','25479'];
-       const correctformat = prefixes.some(function(val , ind){
-         return  cleanednumber.startsWith(val);
-       })
-       if(cleanednumber =='invalid' || cleanednumber.length !== 12  || !correctformat){
-        console.log('provided number is not is valid format');
-        return res.status(400).json({error:true , message:'invalid number format'});
-       }
-
-
-
-
-       const user = await User.findOne({_id:new ObjectId(userid)});
-       if(!user){
+      const {item , user , quantity} = req.body;
+      const account = await User.findOne({_id: new ObjectId(user)});
+      const product = await Item.findOne({_id: new ObjectId(item)});
+      
+      if(!account){
         console.log('no such user found');
-        return res.status(400).json({error:true , message:'no such user found'});
-       }
-       else{
-
-        const product = await Item.findOne({_id:item});
-        if(!product){
-         console.log('product not found');
-         return res.status(400).json({error:true , message:'product not found' });
-        }
- 
-        if(product.out_of_stock){
-         console.log('product out of stock');
-         return res.status(400).json({error:true , message:'product out of stock' });
-        }
- 
-        if(quantity > product.quantity_remaining){
-         console.log('demand exceeds available stock');
-         return res.status(400).json({error:true , message:'demand exceeds stock' });
-        }
-
-        const total_price = (quantity * product.price);
-
-        // USE THIS IF DOING A CHECK OUT ON CARTS WHERE THE USER PAYS FOR ALL PRODUCTS AT ONCE
-    //     const products = user.cart.map(function(val , ind){
-    //         return Item.findOne({_id:new ObjectId(val.item)}).exec();
-    //     })
-
-    //    const products_list = await Promise.all(products);
-
-    //   products_list.forEach(function(val){
-    //      const cart_match = user.cart.filter(function(cartitem){
-    //         return cartitem.item == val._id;
-    //      })
-    //      if(cart_match.length ==0){
-    //         console.log('product not found in the cart');
-    //         throw new Error('product not found in cart');
-    //      }
-    //      else{
-    //         total_price +=  (val.price * cart_match[0].quantity);
-    //      }
-    //   })
-
-
-      // SENDING THE STK PUSH
-
-
-      const consumerkey = process.env.CONSUMER_KEY.trim();
-      const consumersecret = process.env.CONSUMER_SECRET.trim();
-      const shortcode = process.env.SHORTCODE;
-      const passkey = process.env.PASSKEY.trim();
-      const callbackurl = process.env.CALLBACK_URL.trim();
-      const timestamp = new Date().toISOString().replace(/[^0-9]/g , '').slice(0,14);
-      const authkey = new Buffer.from(`${consumerkey}:${consumersecret}`).toString('base64');
-      const password = new Buffer.from(`${shortcode}${passkey}${timestamp}`).toString('base64');
-
-      console.log('fetching auth token');
-      const authtoken = await fetch(`${process.env.LIVE_AUTH_URL}` , {
-       headers: {
-         'Authorization' : `Basic ${authkey}`,
-         'Content-Type' : 'application/json'
-       },
-       method:'GET'
-      })
-
-      if(authtoken.ok){
-       const tokeninfo = await authtoken.json();
-       const token = tokeninfo.access_token;
-       console.log('auth token successfully retrieved' , tokeninfo , token);
-
-       
-
-       const stkpayload = {
-         BusinessShortCode:shortcode,
-         Password:password,
-         Timestamp:timestamp,
-         TransactionType : 'CustomerPayBillOnline',
-         Amount :total_price,
-         PartyA:number,
-         PartyB:shortcode,
-         PhoneNumber:number,
-         CallBackURL:callbackurl,
-         AccountReference :process.env.ACCOUNT_REF,
-         TransactionDesc:'joinin'
-
-       }
-
-       const response = await fetch(process.env.LIVE_LNM_URL.trim() , {
-         headers:{
-           'Authorization' : `Bearer ${token}`,
-           'Content-Type': 'application/json'
-         },
-         
-         method:'POST',
-         body:JSON.stringify(stkpayload)
-       });
-
-       console.log('sending payload' , JSON.stringify(stkpayload));
-     
-       if(response.ok){
-         console.log('stk pushed successfully');
-         const responseinfo = await response.json();
-         console.log('TOKEN PUSH INFO' , responseinfo);
-           return res.status(200).json({error:false , message:'stk pushed successfully' , info:responseinfo});
-       }
-       else{
-         console.log('failed to  push stk');
-         const responseinfo = await response.json();
-         console.log(response , responseinfo);
-         return res.status(500).json({error:true , message:'error pushing stk' })
-       }
-       
+        return res.status(400).json({error:true , message:'user not found'});
       }
-      else{
-       console.log('error getting auth token (from auth URL)');
-       return res.status(500).json({error:true , message:'server error getting auth token'});
+
+      if(!product){
+        console.log('no such item found');
+        return res.status(400).json({error:true , message:'item not found'});
       }
 
 
+     const amount = product.price * Number(quantity);
+
+     const transaction = new Transaction({
+        total:amount 
+     })
+
+     await transaction.save();
+
+    const paymentmetadata =  {
+         transaction_id:transaction._id,
+         user:account._id,
+         item:product._id,
+         quantity:quantity
+      }
+
+   const payload = {
+    "public_key":process.env.INSTAPAY_PUBLIC_API_KEY,
+    "amount": amount,
+    "currency": "KES",
+    "api_ref": transaction._id.toString(),
+    "metadata":JSON.stringify(paymentmetadata),
+    "redirect_url": "myapp://payment-success",
+    "fail_redirect_url": "myapp://payment-failure",
+    "callback_url": "https://yourbackend.com/webhook/intasend"
+  }
 
 
 
-       }
+  const response = await fetch(process.env.INSTASEND_CHECKOUT_URL.trim(), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await response.json();
+   if(response.ok){
+    console.log('successfully called pay page')
+
+    if (data.checkout_url) {
+        // Return checkout URL to frontend
+        return res.status(200).json({error:false ,  url: data.checkout_url });
+      } else {
+        res.status(500).json({ error:true , message:"Could not generate checkout URL", problem: data });
+      }
+   }
+   else{
+    console.log('error occured while requesting for pay page');
+    res.status(500).json({ error:true , message:"error occured in instapay servers , when requesting for pay page", problem: data });
+
+   }
+  
+  
+
+
+
     }
     catch(err){
-        console.log('error pushing an STK push' , err);
-        return res.status(500).json({error:true , message:'server error' , problem:err})
-    }
-})
-
-
-
-router.get(`make_token` , async function(req , res){
-    try{
-
-    }
-    catch(err){
-        console.log('error making token' , err);
+        console.log('calling check out page' , err);
+        return res.status(500).json({error:true  , message:'server error' , problem:err})
     }
 })
 

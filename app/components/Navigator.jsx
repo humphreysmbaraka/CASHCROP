@@ -21,6 +21,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import CreateShop from './screens/createshop';
 import Login from './laning pages/login';
 import Landing from './laning pages/landing';
+import PayPage from './screens/paypage';
 
 
 function Navigator() {
@@ -270,6 +271,8 @@ const Itemstacks = function(){
             <Stack7.Navigator  screenOptions={{ headerShown: false }}  >
                 <Stack7.Screen    name='cart'   component={CartPage}      />
                 <Stack7.Screen    name='see'   component={Itemstacks}      />
+                <Stack7.Screen    name='purchase'   component={PayPage}      />
+
                 {/* <Stack7.Screen    name=''   component={}      /> */}
                 {/* <Stack7.Screen    name=''   component={}      /> */}
                 {/* <Stack7.Screen    name=''   component={}      /> */}

@@ -163,6 +163,96 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,
     }
   }
 
+
+
+
+
+
+
+  const initiatepurchase = async function(){
+    try{
+    setbuying(true);
+    setbuyingerror(null);
+
+    const response = await fetch(`${base_url}/pay_for_item` , {
+      method:'POST',
+      body: JSON.stringify({userid:user._id , item:currentitem?._id ,quantity:item?.quantity })
+    })
+
+    if(response.ok){
+      setbuying(false);
+      setbuyingerror(null);
+      const info = await response.json();
+    }
+    else{
+      const info = await response.json();
+      setbuying(false);
+      if(String(response.status).startsWith('4')){
+           setbuyingerror(info.message);
+      }
+      else{
+          setbuyingerror('server error');
+      }
+    }
+    }
+    catch(err){
+      console.log('could not initiae payment');
+      setbuying(false);
+      setbuyingerror('error');
+    }
+  }
+
+const [calling , setcalling] = useState(false);
+const [callerror , setcallerror] = sueState(null);
+
+ 
+
+  const callpaypage = async function(){
+    try{
+      if(calling){
+        return;
+      }
+      else{
+        setcalling(true);
+        setcallerror(null);
+
+        const response = await fetch(`${base_url}/call_checkout_page` , {
+          method:'POST',
+          headers:{
+            'Contett-Type' : 'application/json'
+          },
+          body:JSON.stringify({item:currentitem._id , user:user._id ,quantity:item.quantity})
+        })
+
+        if(response.ok){
+          setcalling(false);
+          setcallerror(null);
+          const info = await response.json();
+          // returned info
+          const url = info.url;
+          navigation.navigate('purchase' , {url})
+
+        }
+        else{
+          setcalling(false);
+          const info = await response.json();
+          if(String(response.ststus).startsWith('4')){
+            setcallerror(info.message);
+          }
+          else{
+            setcallerror('server error');
+          }
+        }
+      }
+    }
+    catch(err){
+      setcalling(false);
+      setcallerror('error');
+      console.log('could not call pay page' , err);
+    }
+  }
+
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <Modal.Content maxWidth="400px">
@@ -195,7 +285,7 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,
                <HStack  width={'98%'} alignItems={'center'} justifyContent={'space-around'} >
                <Button onPress={()=>{navigation.navigate('see' , {screen:'view' , params:{item:currentitem}})}} colorScheme={'green'}  width={'45%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >view</Button>
 
-               <Button colorScheme={'green'}  width={'45%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >BUY</Button>
+               <Button onPress={()=>{callpaypage()}} colorScheme={'green'}  width={'45%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >BUY</Button>
                </HStack>
               </VStack>
            </VStack>

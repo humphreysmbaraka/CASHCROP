@@ -4,7 +4,7 @@ const dotenv = require('dotenv').config();
 
 const orderschema = new mongoose.Schema({
     buyer:{type:mongoose.Schema.Types.ObjectId , required:true ,  ref:'user' },
-    seller:{type:mongoose.Schema.Types.ObjectId , required:true ,  ref:'shop' },
+    // seller:{type:mongoose.Schema.Types.ObjectId , required:true ,  ref:'shop' },
     item:{type:mongoose.Schema.Types.ObjectId , required:true ,  ref:'item' },
     quantity:{type:Number , required:true},
     total:{type:Number , required:true},

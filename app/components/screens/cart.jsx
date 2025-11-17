@@ -45,38 +45,9 @@ export default function CartPage({navigation}) {
 
   const [buying , setbuying] = useState(false);
   const [buyingerror , setbuyingerror] = useState(null);
-  const initiatepurchase = async function(){
-    try{
-    setbuying(true);
-    setbuyingerror(null);
 
-    const response = await fetch(`${base_url}/make_stk_pusk` , {
-      method:'POST',
-      body: JSON.stringify({userid:user._id , item:selecteditem._id ,quantity })
-    })
 
-    if(response.ok){
-      setbuying(false);
-      setbuyingerror(null);
-      const info = await response.json();
-    }
-    else{
-      const info = await response.json();
-      setbuying(false);
-      if(String(response.status).startsWith('4')){
-           setbuyingerror(info.message);
-      }
-      else{
-          setbuyingerror('server error');
-      }
-    }
-    }
-    catch(err){
-      console.log('could not initiae payment');
-      setbuying(false);
-      setbuyingerror('error');
-    }
-  }
+
 
   const select = async function(item){
     try{

@@ -16,6 +16,8 @@ const userschema = new mongoose.Schema({
    saerch_querries:[{type:String , required:false , default:[]}],
    shops:[{type:mongoose.Schema.Types.ObjectId , required:false ,ref:'shop'}],
    orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],
+   transactions:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'transaction'}],
+
    cart:[{
      item:{type:mongoose.Schema.Types.ObjectId , required:false , ref:'item'},
      quantity:{type : Number , required:false , default:1}
