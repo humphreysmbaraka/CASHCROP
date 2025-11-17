@@ -1577,6 +1577,7 @@ router.post(`/call_checkout_page` , async function(req , res){
 
   console.log('response' , response);
   const data = await response.json();
+  console.log("INTASEND ERROR BODY:", data);
    if(response.ok){
     console.log('successfully called pay page')
 
