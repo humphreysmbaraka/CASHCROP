@@ -1558,7 +1558,7 @@ router.post(`/call_checkout_page` , async function(req , res){
     "amount": amount,
     "currency": "KES",
     "api_ref": transaction._id.toString(),
-    "metadata":JSON.stringify(paymentmetadata),
+    "metadata":paymentmetadata,
     "redirect_url": "myapp://payment-success",
     "fail_redirect_url": "myapp://payment-failure",
     "callback_url": "https://yourbackend.com/webhook/intasend"
