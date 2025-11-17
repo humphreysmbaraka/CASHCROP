@@ -1574,6 +1574,8 @@ router.post(`/call_checkout_page` , async function(req , res){
     body: JSON.stringify(payload)
   });
 
+
+  console.log('response' , response);
   const data = await response.json();
    if(response.ok){
     console.log('successfully called pay page')

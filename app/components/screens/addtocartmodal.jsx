@@ -230,7 +230,7 @@ const [callerror , setcallerror] = useState(null);
           const info = await response.json();
           // returned info
           const url = info.url;
-          navigation.navigate('purchase' , {url})
+          // navigation.navigate('purchase' , {url})
 
         }
         else{
@@ -252,6 +252,18 @@ const [callerror , setcallerror] = useState(null);
     }
   }
 
+
+
+  // FOR TESTING CHECKOUT PAGE
+
+  const metadataJSON = JSON.stringify({
+    transaction_id: "64f5d2b8c1e4f2a1",
+    user: "123456",
+    item: "98765",
+    quantity: 2
+  });
+  
+  const metadataEncoded = encodeURIComponent(metadataJSON);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxH={'900px'} overflow={'auto'} >
@@ -285,7 +297,8 @@ const [callerror , setcallerror] = useState(null);
                <HStack  width={'98%'} alignItems={'center'} justifyContent={'space-around'} >
                <Button onPress={()=>{navigation.navigate('see' , {screen:'view' , params:{item:currentitem}})}} colorScheme={'green'}  width={'45%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >view</Button>
                 
-               <Button  onPress={()=>{callpaypage()}} colorScheme={'green'}  width={'45%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >BUY 
+               <Button  onPress={()=>{  navigation.navigate('purchase' , {url:`https://api.intasend.com/v1/checkout?public_key=ISPubKey_live_f6fdffe2-6a6f-43a4-b483-7aee0e86a044&amount=1000&currency=KES&metadata=${metadataEncoded}&redirect_url=myapp://payment-success&fail_redirect_url=myapp://payment-failure
+`})}} colorScheme={'green'}  width={'45%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >BUY 
                {calling &&  <Spinner width={'15px'} height={'15px'} color={'white'} mr={'auto'} ml={'auto'} />} </Button>
                </HStack>
               </VStack>

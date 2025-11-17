@@ -5,10 +5,10 @@ import { WebView } from "react-native-webview";
 import { useNavigation } from "@react-navigation/native";
 
 const PayPage = ({ route }) => {
-  c
+  
 
-  const { url } = route.params;
-
+//   const { url } = route.params;
+  const url = 'https://humverse.dev';
 
 
   return (
