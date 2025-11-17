@@ -1577,13 +1577,13 @@ router.post(`/call_checkout_page` , async function(req , res){
 
   console.log('response' , response);
   const data = await response.json();
-  console.log("INTASEND ERROR BODY:", data);
+  console.log("INTASEND JSON BODY:", data);
    if(response.ok){
     console.log('successfully called pay page')
 
-    if (data.checkout_url) {
+    if (data.url) {
         // Return checkout URL to frontend
-        return res.status(200).json({error:false ,  url: data.checkout_url });
+        return res.status(200).json({error:false ,  url: data.url });
       } else {
         res.status(500).json({ error:true , message:"Could not generate checkout URL", problem: data });
       }
