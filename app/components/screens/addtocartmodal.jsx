@@ -203,7 +203,7 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,
   }
 
 const [calling , setcalling] = useState(false);
-const [callerror , setcallerror] = sueState(null);
+const [callerror , setcallerror] = useState(null);
 
  
 
