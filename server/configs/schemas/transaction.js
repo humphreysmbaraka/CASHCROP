@@ -13,4 +13,4 @@ const transactionschema = new mongoose.Schema({
 
 const Transaction = mongoose.model('transaction' , transactionschema);
 
-module.exports = Order;
+module.exports = Transaction;

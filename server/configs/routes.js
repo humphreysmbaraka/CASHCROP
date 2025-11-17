@@ -14,6 +14,7 @@ const Item = require('./schemas/item');
 const {Readable} = require('stream');
 const {Expo}= require('expo-server-sdk');   // FOR SENDING EXPO PUSH NOTIFICATIONS
 const Order = require('./schemas/order');
+const Transaction = require('./schemas/transaction');
 
 
   // SETUP FOR EXPO PUSH NOTIFICATIONS
@@ -1596,7 +1597,7 @@ router.post(`/call_checkout_page` , async function(req , res){
 
     }
     catch(err){
-        console.log('calling check out page' , err);
+        console.log('error calling check out page' , err);
         return res.status(500).json({error:true  , message:'server error' , problem:err})
     }
 })

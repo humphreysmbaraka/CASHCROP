@@ -219,7 +219,7 @@ const [callerror , setcallerror] = useState(null);
         const response = await fetch(`${base_url}/call_checkout_page` , {
           method:'POST',
           headers:{
-            'Contett-Type' : 'application/json'
+            'Content-Type' : 'application/json'
           },
           body:JSON.stringify({item:currentitem._id , user:user._id ,quantity:item.quantity})
         })
@@ -254,7 +254,7 @@ const [callerror , setcallerror] = useState(null);
 
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} maxH={'900px'} overflow={'auto'} >
       <Modal.Content maxWidth="400px">
         <Modal.Body>
           <VStack space={4} alignItems="center">
@@ -284,11 +284,17 @@ const [callerror , setcallerror] = useState(null);
               <Text fontWeight={'light'} >{`TOTAL PRICE : ${currentitem?.price * item?.quantity}`}</Text>
                <HStack  width={'98%'} alignItems={'center'} justifyContent={'space-around'} >
                <Button onPress={()=>{navigation.navigate('see' , {screen:'view' , params:{item:currentitem}})}} colorScheme={'green'}  width={'45%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >view</Button>
-
-               <Button onPress={()=>{callpaypage()}} colorScheme={'green'}  width={'45%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >BUY</Button>
+                
+               <Button  onPress={()=>{callpaypage()}} colorScheme={'green'}  width={'45%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >BUY 
+               {calling &&  <Spinner width={'15px'} height={'15px'} color={'white'} mr={'auto'} ml={'auto'} />} </Button>
                </HStack>
               </VStack>
+               {callerror &&  
+                 <Text  alignSelf={'center'} mt={'5px'} color={'red.600'} fontWeight={'light'}  >{callerror}</Text>
+               }
            </VStack>
+
+           
             }
 
             {adderror  &&  
