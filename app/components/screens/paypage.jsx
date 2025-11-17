@@ -7,8 +7,8 @@ import { useNavigation } from "@react-navigation/native";
 const PayPage = ({ route }) => {
   
 
-//   const { url } = route.params;
-  const url = 'https://humverse.dev';
+  const { url } = route.params;
+//   const url = 'https://humverse.dev';
 
 
   return (
