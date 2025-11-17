@@ -1566,7 +1566,7 @@ router.post(`/call_checkout_page` , async function(req , res){
 
 
 
-  const response = await fetch(`/${process.env.INSTASEND_CHECKOUT_URL.trim()}`, {
+  const response = await fetch(`${process.env.INSTASEND_CHECKOUT_URL.trim()}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
