@@ -62,7 +62,10 @@ export default function CartPage({navigation}) {
   }
 
 
-
+useEffect(function(){
+  console.log('CART ITEMS' , cartitems);
+  console.log('SAVED ITEMS' , saveditems);
+} , [cartitems , saveditems])
 
    const getcartitems = async function(){
     try{   
