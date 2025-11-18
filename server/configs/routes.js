@@ -977,7 +977,7 @@ router.get(`/get_cart_items/:id` , async function(req , res){
                 path:'shop',
                 populate:[
                     {path:'owner'},
-                    // {path:'items'}
+                    {path:'items'}
                 ]
             }
         });
@@ -1012,7 +1012,7 @@ router.get(`/get_saved_items/:id` , async function(req , res){
                 path:'shop',
                 populate:[
                     { path:'owner'},
-                    // { path:'items'}
+                    { path:'items'}
                 ]
             }
         });
@@ -1052,7 +1052,7 @@ router.patch(`/remove_from_cart` , async function(req , res){
                         path:'shop',
                         populate:[
                             {path:'items'},
-                            // {path:'owner'}
+                            {path:'owner'}
                         ]
                     }
                 })
