@@ -11,6 +11,22 @@ const shopschema = new mongoose.Schema({
    visits:{type:Number , required:false},
    likes:{type:Number , required:false},
    description:{type:String , required:true},
+   payment_method: {
+      type: {
+        method: { type: String, required: true },
+        payment_account_number: { type: String, required: true }
+      },
+      required: true
+    },
+    disbursement_method: {
+      type: {
+        method: { type: String, required: true },
+        payment_account_number: { type: String, required: true }
+      },
+      required: true
+    },
+    
+    
    // role:{type:String , required:true},
    country:{type:Object , required:true},
    county:{type:Object , required:true},

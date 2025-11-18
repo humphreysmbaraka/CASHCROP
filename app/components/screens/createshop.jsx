@@ -28,6 +28,13 @@ export default function CreateShop({navigation}) {
   const [area , setarea] = useState(null);
   const [showmodal ,setshowmodal] = useState(false);
   const [modaltype  ,setmodaltype] = useState(null);
+  // PAYMENT AND SISBURSEMENT METHODS AND ACCOUNTS
+  const [paymentmethod , setpaymentmethod] = useState(null);
+  const [payaccount1 , setpayaccount1] = useState(null);
+  const [payaccount2 , setpayaccount2] = useState(null);
+  const [disbursementmethod , setdisbursementmethod] = useState(null);
+  const [disburseaccount1 , setdisburseaccount1] = useState(null);
+  const [disburseaccount2 , setdisburseaccount2] = useState(null);
   // const [creating , setcreating] = useState(false);
   // const [createerror , setcreateerror] = useState[null]
   const {user} = useContext(authcontext);
@@ -77,8 +84,8 @@ export default function CreateShop({navigation}) {
   
   const createshop = async function(){
     try{
-       if(!name || name.trim() == '' || !type || type.trim() == ''  || !description|| description.trim() == '' ||  !imageuri|| imageuri.trim() == '' ||  !country || !county|| !area){
-        setsubmiterror('either some fields have not been filled or are in the wrong format , recheck your data');
+       if(!name || name.trim() == '' || !type || type.trim() == ''  || !description|| description.trim() == '' ||  !imageuri|| imageuri.trim() == '' ||  !country || !county|| !area || !paymentmethod || paymentmethod.trim()=='' || !disbursementmethod || disbursementmethod.trim()=='' || !payaccount1 || payaccount1.trim()==''  || !disburseaccount1 || disburseaccount1.trim()=='' || payaccount1 !== payaccount2 || disburseaccount1 !== disburseaccount2  ){
+        setsubmiterror('either some fields have not been filled or are in the wrong format , recheck your data and also confirm thea account nubers match');
         return;
        }
        else{
@@ -95,6 +102,10 @@ export default function CreateShop({navigation}) {
         data.append('customtype' , customType );
         data.append('description' , description );
         data.append('owner' , user?._id);
+        data.append('payment_method' , paymentmethod);
+        data.append('disbursement_method' , disbursementmethod);
+        data.append('payment_account' , payaccount1);
+        data.append('disbursement_account' , disburseaccount1);
         const filename = imageuri.split('/').pop();
         const match = /\.(\w+)$/.exec(filename);
         const fileType = match ? `image/${match[1]}` : 'image';
@@ -267,6 +278,88 @@ export default function CreateShop({navigation}) {
         <CustomModal    isOpen={showmodal}  onClose={()=>{setshowmodal(false)}}  title={modaltype}  items={(modaltype == 'COUNTRIES')?countries:(modaltype == 'COUNTIES')?counties:(modaltype == 'LOCAL AREAS')?areas:[]}  setselectedcountry={setcountry} setselectedcounty={setcounty} setselectedarea={setarea}     />
 
      }
+     <Text>select payment method(how will you be paying for this shop)</Text>
+     
+     <Radio.Group
+          name="paymentMethod"
+          value={paymentmethod}
+          onChange={(val) => {
+            setpaymentmethod(val);
+          }}
+        >
+          <Radio value="mpesa" my={1}>
+            M-Pesa
+          </Radio>
+
+          <Radio value="card" my={1}>
+            Bank Card
+          </Radio>
+
+         
+        </Radio.Group>
+
+        {paymentmethod &&  
+        
+        <>
+            <Input
+        placeholder={(paymentmethod == 'mpesa')?'enter mpesa number':'enter bank account number'}
+        value={payaccount1}
+        onChangeText={(val) => setpayaccount1(val)}
+        
+      />
+
+      <Input
+        placeholder='confirm number'
+        value={payaccount2}
+        onChangeText={(val) => setpayaccount2(val)}
+        
+      /> 
+        </>
+        
+        }
+
+
+        <Text>select disbursement method(how will you be receiving payment in this shop this shop)</Text>
+     
+     <Radio.Group
+          name="disbursemethod"
+          value={disbursementmethod}
+          onChange={(val) => {
+            setdisbursementmethod(val);
+          }}
+        >
+          <Radio value="mpesa" my={1}>
+            M-Pesa
+          </Radio>
+
+          <Radio value="card" my={1}>
+            Bank Card
+          </Radio>
+
+         
+        </Radio.Group>
+
+        
+        {paymentmethod &&  
+        
+        <>
+            <Input
+        placeholder={(disbursementmethod == 'mpesa')?'enter mpesa number':'enter bank account number'}
+        value={disburseaccount1}
+        onChangeText={(val) => setdisburseaccount1(val)}
+        
+      />
+
+      <Input
+        placeholder='confirm number'
+        value={disburseaccount2}
+        onChangeText={(val) => setdisburseaccount2(val)}
+        
+      /> 
+        </>
+        
+        }
+
         </VStack>
       ) : (
         <Box bg="gray.50" p={4} borderRadius="lg" shadow={1}>

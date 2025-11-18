@@ -15,7 +15,7 @@ const PayPage = ({ route }) => {
     <Box flex={1}>
       <WebView
         source={{ uri: url }}
-        style={{ flex: 1 }}
+        style={{ height:'100%' , overflow:'auto' }}
         startInLoadingState
        
        

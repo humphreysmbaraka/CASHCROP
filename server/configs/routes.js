@@ -547,7 +547,7 @@ router.get(`/get_shops/:id` , async function(req , res){
 
 router.post(`/create_shop` , memuploader.single('image') ,  async function(req , res){
     try{
-        const {name , type , customtype ,  description , county , country , area , owner } = req.body;
+        const {name , type , customtype ,  description , county , country , area , owner , payment_method , disbursement_method , payment_account , disbursement_account } = req.body;
         const upload = req.file;
       const user = await User.findOne({_id: new ObjectId(owner)});
         if(!user){
@@ -584,7 +584,15 @@ router.post(`/create_shop` , memuploader.single('image') ,  async function(req ,
            const image = await fileupload;
            console.log('IMAGE UPLOADED');
            const newshop = new Shop({
-             owner , image , name ,type , customtype , description , country:JSON.parse(country) , county:JSON.parse(county) , area:JSON.parse(area)
+             owner , image , name ,type , customtype , description , country:JSON.parse(country) , county:JSON.parse(county) , area:JSON.parse(area)  ,
+             payment_method: {
+                method: payment_method,              // <-- correct
+                payment_account_number: payment_account
+              },
+              disbursement_method: {
+                method: disbursement_method,
+                payment_account_number: disbursement_account
+              }
            })
    
            await newshop.save();

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
-import { Modal, Button, HStack, VStack, Text, Image, Input, Spinner, Pressable } from "native-base";
+import { Modal, Button, HStack, VStack, Text, Image, Input, Spinner, Pressable, Select, Radio } from "native-base";
 import { useNavigation } from "@react-navigation/native";
 import { authcontext } from "../../contexts/authcontext";
 import base_url from "../constants/baseurl";
@@ -8,7 +8,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { setItem } from "expo-secure-store";
 
 
-export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,setcart , navigation }) {
+export default function AddToCartModal({ showpaymodal , isOpen, onClose ,viewfromcart , item  ,setcart , navigation }) {
   // const [quantity, setQuantity] = useState(1);
 
   const [adderror , setadderror] = useState(null);
@@ -28,9 +28,6 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,
       setcurrentitem(item);
     }
   } , [item])
-//  const navigation = useNavigation();
-  // const increment = () => setQuantity(q => q + 1);
-  // const decrement = () => setQuantity(q => (q > 1 ? q - 1 : 1));
 
   const decrement = async function(){
     try{
@@ -169,101 +166,9 @@ export default function AddToCartModal({ isOpen, onClose ,viewfromcart , item  ,
 
 
 
-  const initiatepurchase = async function(){
-    try{
-    setbuying(true);
-    setbuyingerror(null);
-
-    const response = await fetch(`${base_url}/pay_for_item` , {
-      method:'POST',
-      body: JSON.stringify({userid:user._id , item:currentitem?._id ,quantity:item?.quantity })
-    })
-
-    if(response.ok){
-      setbuying(false);
-      setbuyingerror(null);
-      const info = await response.json();
-    }
-    else{
-      const info = await response.json();
-      setbuying(false);
-      if(String(response.status).startsWith('4')){
-           setbuyingerror(info.message);
-      }
-      else{
-          setbuyingerror('server error');
-      }
-    }
-    }
-    catch(err){
-      console.log('could not initiae payment');
-      setbuying(false);
-      setbuyingerror('error');
-    }
-  }
-
-const [calling , setcalling] = useState(false);
-const [callerror , setcallerror] = useState(null);
-
- 
-
-  const callpaypage = async function(){
-    try{
-      if(calling){
-        return;
-      }
-      else{
-        setcalling(true);
-        setcallerror(null);
-
-        const response = await fetch(`${base_url}/call_checkout_page` , {
-          method:'POST',
-          headers:{
-            'Content-Type' : 'application/json'
-          },
-          body:JSON.stringify({item:currentitem._id , user:user._id ,quantity:item.quantity})
-        })
-
-        if(response.ok){
-          setcalling(false);
-          setcallerror(null);
-          const info = await response.json();
-          // returned info
-          const url = info.url;
-          navigation.navigate('purchase' , {url})
-
-        }
-        else{
-          setcalling(false);
-          const info = await response.json();
-          if(String(response.ststus).startsWith('4')){
-            setcallerror(info.message);
-          }
-          else{
-            setcallerror('server error');
-          }
-        }
-      }
-    }
-    catch(err){
-      setcalling(false);
-      setcallerror('error');
-      console.log('could not call pay page' , err);
-    }
-  }
 
 
 
-  // FOR TESTING CHECKOUT PAGE
-
-  const metadataJSON = JSON.stringify({
-    transaction_id: "64f5d2b8c1e4f2a1",
-    user: "123456",
-    item: "98765",
-    quantity: 2
-  });
-  
-  const metadataEncoded = encodeURIComponent(metadataJSON);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxH={'900px'} overflow={'auto'} >
@@ -297,13 +202,48 @@ const [callerror , setcallerror] = useState(null);
                <HStack  width={'98%'} alignItems={'center'} justifyContent={'space-around'} >
                <Button onPress={()=>{navigation.navigate('see' , {screen:'view' , params:{item:currentitem}})}} colorScheme={'green'}  width={'45%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >view</Button>
                 
-               <Button  onPress={()=>{ callpaypage()}} colorScheme={'green'}  width={'45%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >BUY 
-               {calling &&  <Spinner width={'15px'} height={'15px'} color={'white'} mr={'auto'} ml={'auto'} />} </Button>
+               <Button  onPress={()=>{
+                onClose();
+                showpaymodal(true);
+                }} colorScheme={'green'}  width={'45%'} color={'white'} alignSelf={'center'} justifyContent={'center'}  alignItems={'center'} >BUY 
+                </Button>
                </HStack>
               </VStack>
-               {callerror &&  
+
+              {/* SELECT DELIVERY STATION */}
+
+              {/* <VStack bg={'gray.100'} width={'90%'} space={5} alignItems={'center'} alignSelf={'center'} >
+              <Text fontWeight={'light'} >select delivery destination</Text>
+              
+               <HStack  width={'98%'} alignItems={'center'} justifyContent={'space-around'} >
+                  <Select>
+                    <Select.Item></Select.Item>
+                  </Select>
+               </HStack>
+               <Text>no need for transport , will pick it myself</Text>
+               <Radio               />
+              </VStack> */}
+
+              {/*  OTHER CHARGES */}
+              {/* <VStack bg={'gray.100'} width={'90%'} space={5} alignItems={'center'} alignSelf={'center'} >
+              <Text fontWeight={'light'} >other charges</Text>
+              <Text fontWeight={'light'} >{`DELIVERY : ${currentitem?.price * item?.quantity}`}</Text>
+              <Text fontWeight={'light'} >{`TRANSACTION COSTS`}</Text>
+              <Text fontWeight={'light'} >{`Mpesa patment`}</Text>
+              <Text fontWeight={'light'} >{`local card payment`}</Text>
+              <Text fontWeight={'light'} >{`international card payment`}</Text>
+              <Text fontWeight={'light'} >{`disbursement : mpesa:   bank:  international card:`}</Text>
+
+
+
+
+
+
+              
+              </VStack> */}
+               {/* {callerror &&  
                  <Text  alignSelf={'center'} mt={'5px'} color={'red.600'} fontWeight={'light'}  >{callerror}</Text>
-               }
+               } */}
            </VStack>
 
            

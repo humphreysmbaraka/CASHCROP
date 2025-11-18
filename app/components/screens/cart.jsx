@@ -6,6 +6,7 @@ import { Platform } from "react-native";
 import AddToCartModal from "./addtocartmodal";
 import { authcontext } from "../../contexts/authcontext";
 import base_url from "../constants/baseurl";
+import Paymodal from "../modals/paymodal";
 
 
 export default function CartPage({navigation}) {
@@ -15,6 +16,7 @@ export default function CartPage({navigation}) {
   const [cartitems , setcartitems] = useState([]);
   const [saveditems , setsaveditems] = useState([]);
   const [selecteditem , setselecteditem] = useState(null);
+  const [showpaymodal , setshowpaymodal] = useState(false);
   // removing from cart
   const [removing , setremoving] = useState(false);
   const [removeerror , setremoveerror] = useState(null);
@@ -597,9 +599,16 @@ initiatesaveddelete = async function(val){
       <AddToCartModal viewfromcart={true} isOpen={modalOpen} onClose={() => setModalOpen(false)} item={selecteditem} /> */}
 
       {modalOpen   &&  
-            <AddToCartModal setcart={setcartitems}  navigation={navigation} viewfromcart={true} isOpen={modalOpen} onClose={() => setModalOpen(false)} item={cartitems?.find(function(val , ind){
+            <AddToCartModal setcart={setcartitems} showpaymodal={setshowpaymodal}  navigation={navigation} viewfromcart={true} isOpen={modalOpen} onClose={() => setModalOpen(false)} item={cartitems?.find(function(val , ind){
                return val.item._id.toString() == selecteditem?.item._id;
             })} /> 
+
+      }
+
+{showpaymodal  &&  
+          <Paymodal     navigation={navigation}    isOpen={showpaymodal} onClose={function(){setshowpaymodal(false)}}           item={cartitems?.find(function(val , ind){
+            return val.item._id.toString() == selecteditem?.item._id;
+         })}                                  />
 
       }
     </ScrollView>
