@@ -1615,7 +1615,7 @@ router.post(`/call_checkout_page` , async function(req , res){
 
 
 
-router.post(`${process.env.INSTASEND_CALLBACK.trim()}` , async function(req , res){
+router.post(`/collection_callback` , async function(req , res){
     try{
          console.log('running collection callback' , req.body);
          const info = req.body;
