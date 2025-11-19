@@ -544,10 +544,37 @@ router.get(`/get_shops/:id` , async function(req , res){
 
 
 
+router.get('/banks', async (req, res) => {
+    try {
+      const response = await fetch('https://api.instasend.co/v1/banks', {
+        headers: {
+          'Authorization': 'Bearer ' + process.env.INSTASEND_SECRET,
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      const data = await response.json();
+
+     if(!response.ok){
+        console.log('response from banks API is not ok' , data);
+        return res.status(500).json({error:true , message:'server error' , problem:data})
+     }
+      res.status(200).json({
+        success: true,
+        banks: data  // depending on their response format
+      });
+  
+    } catch (err) {
+      console.log('Error fetching banks', err);
+      res.status(500).json({error:true , problem:err , success: false, message: 'Server error' });
+    }
+  });
+  
+
 
 router.post(`/create_shop` , memuploader.single('image') ,  async function(req , res){
     try{
-        const {name , type , customtype ,  description , county , country , area , owner , payment_method , disbursement_method , payment_account , disbursement_account } = req.body;
+        const  {bank , name , type , customtype ,  description , county , country , area , owner , payment_method , disbursement_method , payment_account , disbursement_account } = req.body;
         const upload = req.file;
       const user = await User.findOne({_id: new ObjectId(owner)});
         if(!user){
@@ -584,7 +611,7 @@ router.post(`/create_shop` , memuploader.single('image') ,  async function(req ,
            const image = await fileupload;
            console.log('IMAGE UPLOADED');
            const newshop = new Shop({
-             owner , image , name ,type , customtype , description , country:JSON.parse(country) , county:JSON.parse(county) , area:JSON.parse(area)  ,
+           bank:bank ,   owner , image , name ,type , customtype , description , country:JSON.parse(country) , county:JSON.parse(county) , area:JSON.parse(area)  ,
              payment_method: {
                 method: payment_method,              // <-- correct
                 payment_account_number: payment_account
@@ -1554,6 +1581,12 @@ router.post(`/call_checkout_page` , async function(req , res){
 
      await transaction.save();
 
+     const order = new Order({
+        buyer:account._id , item:product._id , total:amount , transaction:transaction._id , status:'pending' 
+     })
+
+     await order.save();
+
     const paymentmetadata =  {
          transaction_id:transaction._id,
          user:account._id,
@@ -1565,10 +1598,10 @@ router.post(`/call_checkout_page` , async function(req , res){
     "public_key":process.env.INSTAPAY_PUBLIC_API_KEY,
     "amount": amount,
     "currency": "KES",
-    "api_ref": transaction._id.toString(),
+    "api_ref": order._id.toString(),
     "metadata":paymentmetadata,
-    "redirect_url": "https://example.com/success",
-    "fail_redirect_url": "https://example.com/failure",
+    "redirect_url": "https://cashcrop.onrender.com/payment_success_page",
+    "fail_redirect_url": "https://cashcrop.onrender.com/payment_failed_page",
     "callback_url": `https://cashcrop.onrender.com/collection_callback`
   }
 
@@ -1614,11 +1647,122 @@ router.post(`/call_checkout_page` , async function(req , res){
 })
 
 
+router.get(`/payment_success_page` , async function(req , res){
+    try{
+       res.send('PAYMENT WAS SUCCESSFUL')
+    }
+    catch(err){
+        console.log('error happened in error success page route' , err);
+        return res.status(500).json({error:true , problem:err ,  message:'server error'})
+    }
+})
+
+router.get(`/payment_failed_page` , async function(req , res){
+    try{
+       res.send('PAYMENT WAS NOT SUCCESSFUL')
+    }
+    catch(err){
+        console.log('error happened in error failed page route' , err);
+        return res.status(500).json({error:true , problem:err ,  message:'server error'})
+    }
+})
+
+
 
 router.post(`/collection_callback` , async function(req , res){
     try{
          console.log('running collection callback' , req.body);
          const info = req.body;
+
+       
+
+         if(info.status === 'COMPLETE'){
+
+            const order = await Order.findOne({_id: new ObjectId(info.api_ref)}).populate([
+                {path:'item' , populate:[{path:'shop' , populate:[{path:'items'} , {path:'owner'}]}]},
+                {path:'buyer'},
+                
+             ]);
+             if(!order){
+                console.log('order not found');
+                return;
+             }
+    
+             const cart = order.item.shop.owner.cart;
+             const items = order.item.shop.items;
+
+             const item = items.find(function(val){
+               return  val._id.toString() == order.item._id.toString();
+             })
+             if(!item){
+                console.log('item was not found in the seller items list');
+                return;
+             }
+    
+            const cartindex = cart.findIndex(function(val){
+                val.item.toString() == order.item._id.toString();
+            })
+
+            cart.splice(cartindex, 1);
+
+             item.quantity_remaining -= Number(order.quantity);
+             order.transaction.status = 'completed';
+             order.status = 'PAID_PENDING';
+
+             await order.item.shop.save();
+             await order.item.save();
+             await order.save();
+             await order.transaction.save();
+
+             // add order to the buyer and seller accounts
+
+             const buyer = order.buyer;
+             const  seller = order.item.shop.owner;
+             buyer.orders.push(order._id);
+             seller. sales_orders.push(order._id);
+
+             await buyer.save();
+             await seller.save();
+
+
+             
+       
+    
+         }
+         else{
+            if((['FAILED','DECLINED','EXPIRED'].includes(info.status))){
+                const stat = info.status;
+          console.log('transaction failed or was declined');
+
+          const order = await Order.findOne({_id: new ObjectId(info.api_ref)}).populate([
+            {path:'item' , populate:[{path:'shop' , populate:{path:'items'}}]}
+         ]);
+         if(!order){
+            console.log('order not found');
+            return;
+         }
+
+    
+         order.transaction.status = stat;
+         order.status = 'FAILED';
+
+        
+         await order.transaction.save();
+         await order.save();
+         
+
+           
+            }
+            else{
+                return;
+            }
+           
+         }
+
+
+         res.status(200).json({received: true});
+
+
     }
     catch(err){
         console.log('error occured in collection callack' , err);
@@ -1628,12 +1772,51 @@ router.post(`/collection_callback` , async function(req , res){
 
 
 
-router.get(`make_token` , async function(req , res){
+
+
+
+
+
+router.post(`/initiate _payouts` , async function(req , res){
     try{
+        const {initiator} = req.body;
+        const account = await User.findOne({_id:new ObjectId(initiator)});
+        if(!account){
+            console.log('no such user found');
+            return res.status(400).json({error:true , message:'no such user found'});
+
+        }
+        if(!account.isadmin){
+            console.log('initiator is not an admin');
+            return res.status(400).json({error:true , message:'initiatro is not an admin'});
+
+        }
+
+        const completedorders = await Order.find({status:'COMPLETE'}).populate([
+            {path : 'item' , 
+            populate:[
+                {path:'shop'},
+                {path:'owner'}
+            ]
+        } 
+        , 
+        {path : 'transaction'}
+        ]);
+
+        if(!completedorders || completedorders.length == 0){
+            console.log('there are no completed orders at the moment');
+            return res.status(400).json({error:true , message:'there are no completed orders'});
+
+        }
+
+
+
+
 
     }
     catch(err){
-        console.log('error making token' , err);
+        console.log('error occuder in initiate payouts route' , err);
+        return res.status(500).json({error:true , message:'server error' , problem:err})
     }
 })
 

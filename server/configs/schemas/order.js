@@ -9,7 +9,7 @@ const orderschema = new mongoose.Schema({
     quantity:{type:Number , required:true},
     total:{type:Number , required:true},
     transaction:{type:mongoose.Schema.Types.ObjectId , required:false ,  ref:'transaction' },
-    status:{type:String , required:false , default:'pending' },
+    status:{type:String , required:false , default:'PENDING' },  // STARTS WITH PENDING , CAN GET CANCELLED , AFTER BEING DELIVERED AND NO REFUND IS INITIATED IN 2 DAYS , THEN IT BECOMES COMPLETED values =>[PENDING , CANCELLED , CONFIRMED , TRANSPORTING , DELIVERED , COMPLETED , FAILED]
    
 //     image:{type:mongoose.Schema.Types.ObjectId , required:false},
 //    name:{type:String , required:true},

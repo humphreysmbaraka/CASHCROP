@@ -4,6 +4,7 @@ const dotenv = require('dotenv').config();
 
 const userschema = new mongoose.Schema({
    image:{type:mongoose.Schema.Types.ObjectId , required:false},
+   isadmin:{type:Boolean , required:false , default:false},
    email:{type:String , required:true , unique:true},
    password:{type:String , required:true},
    username:{type:String , required:true},
@@ -15,7 +16,11 @@ const userschema = new mongoose.Schema({
    area:{type:Object , required:true},
    saerch_querries:[{type:String , required:false , default:[]}],
    shops:[{type:mongoose.Schema.Types.ObjectId , required:false ,ref:'shop'}],
-   orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],
+   orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // ORDERS YOU HAVE PLACED
+   sales_orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // ORDERS PLACED FOR YOUR PRODUCTS
+   pending_payments:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // PAYMENTS YOU ARE YET TO RECEIVE
+   
+   
    transactions:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'transaction'}],
 
    cart:[{

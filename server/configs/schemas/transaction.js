@@ -6,7 +6,7 @@ const transactionschema = new mongoose.Schema({
     
     // order:{type:mongoose.Schema.Types.ObjectId , required:true ,  ref:'order' }, //ORDER IS CREATED AFTER TRANSACTION
     total:{type:Number , required:true},
-    status:{type:String , required:false , default:'pending' },
+    status:{type:String , required:false , default:'PENDING' }, //[PENDING , FAILED , CANCELLED , COMPLETE]
     // merchantid:{type:String , required:true },
     // checkoutid:{type:String , required:true }
 } , {timestamps:true});

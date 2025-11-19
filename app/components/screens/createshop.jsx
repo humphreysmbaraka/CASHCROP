@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { ScrollView, Platform, Alert, Keyboard } from "react-native";
 import { 
-  Box, VStack, Input, Select, CheckIcon, Button, Text, Avatar, Heading, TextArea, Spinner, Pressable 
+  Box, VStack, Input, Select, CheckIcon, Button, Text, Avatar, Heading, TextArea, Spinner, Pressable, FlatList 
 } from "native-base";
 import Constants from "expo-constants";
 import base_url from "../constants/baseurl";
@@ -10,6 +10,7 @@ import CustomModal from "../custommodal";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import useMediaFunctions from "../functions/mediafunctions";
 import { authcontext } from "../../contexts/authcontext";
+import Banksmodal from "../modals/banksmodal";
 
 export default function CreateShop({navigation}) {
   const [name, setName] = useState(null);
@@ -35,6 +36,11 @@ export default function CreateShop({navigation}) {
   const [disbursementmethod , setdisbursementmethod] = useState(null);
   const [disburseaccount1 , setdisburseaccount1] = useState(null);
   const [disburseaccount2 , setdisburseaccount2] = useState(null);
+  const [showbanksmodal , setshowbanksmodal] = useState(false);
+  const [gettingbanks , setgettingbanks] = useSatr(false);
+  const [bankserror , setbankserror] = useSatr(null);
+  const [banks , setbanks] = useSatr(null);
+  const [bank , setbank] = useSatr(null);
   // const [creating , setcreating] = useState(false);
   // const [createerror , setcreateerror] = useState[null]
   const {user} = useContext(authcontext);
@@ -49,6 +55,66 @@ export default function CreateShop({navigation}) {
    }
   } , [confirmCard])
        
+
+  const getbanks = async function(){
+ try{
+  if(gettingbanks){
+    return
+  }
+  setgettingbanks(true);
+  setbankserror(null);
+   const banks = await fetch(`${base_url}/get_banks` , {
+    method:'GET',
+    headers:{
+      'Content-Type':'application/json'
+    }
+   });
+   if(banks.ok){
+    setgettingbanks(false);
+    setbankserror(null);
+    const info = await banks.json()
+  console.log('anks fetched successfully' ,info );
+   setbanks(info.banks.data);
+
+   }
+   else{
+    const info = await banks.json()
+
+    setgettingbanks(false);
+     if(String(banks.status).startsWith('4')){
+      setbankserror(info.message);
+     }
+     else{
+      setbankserror('server error');
+
+     }
+    console.log('could not get banks');
+    setbanks([])
+
+   }
+ }
+ catch(err){
+  setgettingbanks(false);
+  setbankserror('error');
+   console.log('could not fetch banks' , err);
+   setbanks([]);
+   throw new Error(err)
+ }
+  }
+
+  useEffect(function(){
+    (async function(){
+   try{
+  await getbanks();
+   }
+   catch(err){
+    console.log('coul not get banks list' , err)
+   }
+    })()
+
+  } , [])
+
+
 
   const fetchcountries = async function(){
     const countrieslist = await getcountries();
@@ -106,6 +172,7 @@ export default function CreateShop({navigation}) {
         data.append('disbursement_method' , disbursementmethod);
         data.append('payment_account' , payaccount1);
         data.append('disbursement_account' , disburseaccount1);
+        data.append('bank' , bank);
         const filename = imageuri.split('/').pop();
         const match = /\.(\w+)$/.exec(filename);
         const fileType = match ? `image/${match[1]}` : 'image';
@@ -301,6 +368,23 @@ export default function CreateShop({navigation}) {
         {paymentmethod &&  
         
         <>
+     {(paymentmethod == 'card') &&  
+        
+      <>
+          <Input
+            placeholder="select bank "
+            value={bank}
+            isReadOnly={true}
+            onFocus={() => {
+              setshowbanksmodal(true);
+              Keyboard.dismiss(); // hide keyboard
+            }}
+          />
+      
+      </>
+     
+     }
+
             <Input
         placeholder={(paymentmethod == 'mpesa')?'enter mpesa number':'enter bank account number'}
         value={payaccount1}
@@ -394,6 +478,9 @@ export default function CreateShop({navigation}) {
           </Button>
         </Box>
       )}
+      {showbanksmodal &&  
+       <Banksmodal    data={banks} getbanks={getbanks} gettingbanks={gettingbanks} bankserror={bankserror}  setbank={setbank}   isOpen={showbanksmodal} onClose={function(){setshowbanksmodal(false)}}                          />
+      }
     </ScrollView>
   );
 }
