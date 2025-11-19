@@ -1569,7 +1569,7 @@ router.post(`/call_checkout_page` , async function(req , res){
     "metadata":paymentmetadata,
     "redirect_url": "https://example.com/success",
     "fail_redirect_url": "https://example.com/failure",
-    "callback_url": `${process.env.INSTASEND_CALLBACK.trim()}`
+    "callback_url": `https://cashcrop.onrender.com/collection_callback`
   }
 
 
