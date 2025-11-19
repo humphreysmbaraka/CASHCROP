@@ -51,7 +51,7 @@ export default function Paymodal({ isOpen, onClose, item, navigation }) {
       const response = await fetch(`${base_url}/call_checkout_page`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ item: currentitem._id, user: user._id, quantity: item.quantity }),
+        body: JSON.stringify({ item: currentitem?.item?._id, user: user._id, quantity: item.quantity }),
       });
 
       if (response.ok) {

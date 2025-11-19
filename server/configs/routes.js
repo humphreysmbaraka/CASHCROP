@@ -1569,7 +1569,7 @@ router.post(`/call_checkout_page` , async function(req , res){
     "metadata":paymentmetadata,
     "redirect_url": "https://example.com/success",
     "fail_redirect_url": "https://example.com/failure",
-    "callback_url": "https://yourbackend.com/webhook/intasend"
+    "callback_url": `${process.env.INSTASEND_CALLBACK.trim()}`
   }
 
 
@@ -1615,12 +1615,14 @@ router.post(`/call_checkout_page` , async function(req , res){
 
 
 
-router.get(`make_token` , async function(req , res){
+router.post(`${process.env.INSTASEND_CALLBACK.trim()}` , async function(req , res){
     try{
-
+         console.log('running collection callback' , req.body);
+         const info = req.body;
     }
     catch(err){
-        console.log('error making token' , err);
+        console.log('error occured in collection callack' , err);
+        return res.status(500).json({error:true ,message:'server error' , problem:err})
     }
 })
 
