@@ -8,9 +8,32 @@ export default function Paymodal({ isOpen, onClose, item, navigation }) {
   const [currentitem, setcurrentitem] = useState(null);
   const [selfpick , setselfpick] = useState(undefined);
 
+  const [mpesatransactionfee , setmpesatransactionfee] = useState(null);
+  const [cardtransactionfee , setcardtransactionfee] = useState(null);
+  const [mpesadisbursementfee , setmpesadisbursementfee] = useState(null);
+  const [carddisbursementfee , setcarddisbursementfee] = useState(null);
+  const [productprice , setproductprice] = useState(null)
+
   useEffect(() => {
-    if (item) setcurrentitem(item);
+    if (item){
+        setcurrentitem(item)
+       
+    }
+
   }, [item]);
+
+  useEffect(() => {
+    if (currentitem){
+        setmpesatransactionfee((Number(currentitem?.item?.price)* Number(currentitem?.quantity)) * (1/100) );
+        setcardtransactionfee((Number(currentitem?.item?.price)* Number(currentitem?.quantity)) * (3.5/100) );
+        setmpesadisbursementfee(100);
+        setcarddisbursementfee(1300);
+        setproductprice(Number(currentitem?.item?.price) * Number(currentitem?.quantity))
+
+       
+    }
+
+  }, [currentitem]);
 
   console.log('ITEM' , item);
   console.log('CURRENTITEM' , currentitem);
@@ -112,13 +135,19 @@ export default function Paymodal({ isOpen, onClose, item, navigation }) {
               alignItems="flex-start"
             >
               <Text fontWeight="bold">Other Charges:</Text>
-              <Text>{`PRODUCT: ${Number(currentitem?.item?.price) * Number(currentitem?.quantity)}`}</Text>
-              <Text>{currentitem.item.shop.name}</Text>
+              <Text>{`PRODUCT PRICE: ${productprice} `}</Text>
+              <Text>{currentitem?.item?.shop?.name}</Text>
               <Text>TRANSACTION COSTS</Text>
               <Text>Mpesa Payment</Text>
+              <Text>{mpesatransactionfee }</Text>
               <Text>Local Card Payment</Text>
+              <Text>{cardtransactionfee}</Text>
               <Text>International Card Payment</Text>
-              <Text>Disbursement: Mpesa | Bank | International Card</Text>
+              <Text>{(Number(currentitem?.item?.price)* Number(currentitem?.quantity)) * (4.5/100) + 'not necessarily applicable' }</Text>
+              <Text>Disbursement: Mpesa</Text>
+              <Text>{`KSH ${mpesadisbursementfee}`}</Text>
+              <Text>Disbursement: | Bank</Text>
+              <Text>{`KSH : ${carddisbursementfee}`}</Text>
             </VStack>
 
             {/* Total Price Section */}
@@ -127,7 +156,7 @@ export default function Paymodal({ isOpen, onClose, item, navigation }) {
                 Price: {currentitem?.price} | Quantity: {item.quantity}
               </Text>
               <Text fontSize="lg" fontWeight="bold">
-                TOTAL PRICE: {currentitem?.price * item?.quantity}
+                TOTAL PRICE: {productprice + mpesatransactionfee + mpesadisbursementfee + (selfpick?500:0) }
               </Text>
             </VStack>
 
