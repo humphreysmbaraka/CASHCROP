@@ -555,6 +555,7 @@ router.get('/banks', async (req, res) => {
         }
       });
   
+      console.log(response);
       const data = await response.json();
 
      if(!response.ok){
