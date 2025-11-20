@@ -42,10 +42,15 @@ export default function CreateShop({navigation}) {
   const [banks , setbanks] = useSatr(null);
   const [bank , setbank] = useSatr(null); // FPR PAYING SHOP RENT
   const [disbursebank , setdisbursebank] = useState(null);
-
   const [disburementbankselect ,setdisburementbankselect] = useState(false);
   // const [creating , setcreating] = useState(false);
   // const [createerror , setcreateerror] = useState[null]
+  const [bankaccountname1 , setbankaccountname1] = useState(null);
+  const [bankaccountname2 , setbankaccountname2] = useState(null);
+  
+  const [disburseaccountname1 , setdisburseaccountname1] = useState(null);
+  const [disburseaccountname2 , setdisburseaccountname2] = useState(null);
+  
   const {user} = useContext(authcontext);
   
  const {launchimagepicker} = useMediaFunctions();
@@ -153,7 +158,7 @@ export default function CreateShop({navigation}) {
   
   const createshop = async function(){
     try{
-       if(!bank ||  !disbursebank || !name || name.trim() == '' || !type || type.trim() == ''  || !description|| description.trim() == '' ||  !imageuri|| imageuri.trim() == '' ||  !country || !county|| !area || !paymentmethod || paymentmethod.trim()=='' || !disbursementmethod || disbursementmethod.trim()=='' || !payaccount1 || payaccount1.trim()==''  || !disburseaccount1 || disburseaccount1.trim()=='' || payaccount1 !== payaccount2 || disburseaccount1 !== disburseaccount2  ){
+       if(!bank ||  !disbursebank || !bankaccountname1 || bankaccountname1.trim()=='' || ! bankaccountname2  || bankaccountname2.trim()=='' || (bankaccountname1 !== bankaccountname2) || ! disburseaccountname1 || disburseaccountname1.trim()=='' || ! disburseaccountname2 || disburseaccountname2.trim()=='' || (disburseaccountname1 !== disburseaccountname2) || !name || name.trim() == '' || !type || type.trim() == ''  || !description|| description.trim() == '' ||  !imageuri|| imageuri.trim() == '' ||  !country || !county|| !area || !paymentmethod || paymentmethod.trim()=='' || !disbursementmethod || disbursementmethod.trim()=='' || !payaccount1 || payaccount1.trim()==''  || !disburseaccount1 || disburseaccount1.trim()=='' || payaccount1 !== payaccount2 || disburseaccount1 !== disburseaccount2    ){
         setsubmiterror('either some fields have not been filled or are in the wrong format , recheck your data and also confirm thea account nubers match');
         return;
        }
@@ -177,6 +182,9 @@ export default function CreateShop({navigation}) {
         data.append('disbursement_account' , disburseaccount1);
         data.append('bank' , bank);
         data.append('disbursebank' , disbursebank);
+        data.append('disbursebankaccountname' , disburseaccountname1);
+        data.append('bankaccountname' , bankaccountname1);
+
         const filename = imageuri.split('/').pop();
         const match = /\.(\w+)$/.exec(filename);
         const fileType = match ? `image/${match[1]}` : 'image';
@@ -385,6 +393,28 @@ export default function CreateShop({navigation}) {
               Keyboard.dismiss(); // hide keyboard
             }}
           />
+
+
+
+       {bank &&  
+       
+      <>
+      
+      < Input
+       placeholder={'enter bank account name'}
+       value={bankaccountname1}
+       onChangeText={(val) => setbankaccountname1(val)}
+       
+     />
+
+     <Input
+       placeholder='confirm account name'
+       value={bankaccountname2}
+       onChangeText={(val) => setbankaccountname2(val)}
+       
+     />
+      </>
+       }
       
       </>
      
@@ -449,6 +479,27 @@ export default function CreateShop({navigation}) {
               }}
             />
         
+
+        {disbursebank &&  
+       
+       <>
+       
+       < Input
+        placeholder={'enter bank account name'}
+        value={disburseaccountname1}
+        onChangeText={(val) => setdisburseaccountname1(val)}
+        
+      />
+ 
+      <Input
+        placeholder='confirm account name'
+        value={disburseaccountname2}
+        onChangeText={(val) =>setdisburseaccountname2(val)}
+        
+      />
+       </>
+        }
+
         </>
        
        }

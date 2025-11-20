@@ -575,7 +575,7 @@ router.get('/banks', async (req, res) => {
 
 router.post(`/create_shop` , memuploader.single('image') ,  async function(req , res){
     try{
-        const  {bank , disbursebank , name , type , customtype ,  description , county , country , area , owner , payment_method , disbursement_method , payment_account , disbursement_account } = req.body;
+        const  {disbursebankaccountname , bankaccountname ,  bank , disbursebank , name , type , customtype ,  description , county , country , area , owner , payment_method , disbursement_method , payment_account , disbursement_account } = req.body;
         const upload = req.file;
       const user = await User.findOne({_id: new ObjectId(owner)});
         if(!user){
@@ -612,7 +612,7 @@ router.post(`/create_shop` , memuploader.single('image') ,  async function(req ,
            const image = await fileupload;
            console.log('IMAGE UPLOADED');
            const newshop = new Shop({
-           bank:bank , disburse_bank:disbursebank ,   owner , image , name ,type , customtype , description , country:JSON.parse(country) , county:JSON.parse(county) , area:JSON.parse(area)  ,
+           bank:bank , disburse_bank:disbursebank ,   owner , image , name ,type , customtype , description , country:JSON.parse(country) , county:JSON.parse(county) , area:JSON.parse(area)  ,  bank_account_name:bankaccountname , disburse_account_name:disbursebankaccountname ,
              payment_method: {
                 method: payment_method,              // <-- correct
                 payment_account_number: payment_account
