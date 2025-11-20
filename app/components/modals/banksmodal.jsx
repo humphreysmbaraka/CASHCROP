@@ -1,71 +1,117 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Modal, Button, HStack, VStack, Text, Spinner, Select, Radio, Checkbox, FlatList } from "native-base";
+import React, { useContext } from "react";
+import {
+  Modal,
+  Button,
+  VStack,
+  Text,
+  Spinner,
+  FlatList,
+  Pressable,
+  HStack,
+} from "native-base";
 import { authcontext } from "../../contexts/authcontext";
-import base_url from "../constants/baseurl";
 
-export default function Banksmodal({ disbursementbankselect , setdisbursebank ,  isOpen, onClose, data , getbanks , gettingbanks , bankserror , setbank }) {
+export default function Banksmodal({
+  disbursementbankselect,
+  setdisbursebank,
+  isOpen,
+  onClose,
+  data,
+  getbanks,
+  gettingbanks,
+  bankserror,
+  setbank
+}) {
   const { user } = useContext(authcontext);
-
-
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} justifyContent="center" alignItems="center">
-      <Modal.Content  width={'350px'} height={'900px'} overflow={'auto'} borderRadius="15px"  alignSelf="center">
-        <Modal.Body  width={'100%'} >
-         
-          <VStack>
-           {gettingbanks &&  
-           <>
-            <Spinner mr={'auto'} ml={'auto'}     alignSelf={'center'} color={'blue.600'} width={'20px'} height={'sopx'}        />
-            <Text mr={'auto'} ml={'auto'}     alignSelf={'center'} color={'blue.600'} width={'20px'} height={'sopx'}  >Getting banks...</Text>
-           </>
-           }
+      <Modal.Content
+        width="90%"
+        maxHeight="85%"
+        borderRadius="20px"
+        bg="white"
+        shadow={4}
+      >
+        <Modal.CloseButton />
+        <Modal.Header bg="blue.600" borderTopRadius="20px">
+          <Text color="white" fontSize="lg" fontWeight="bold">
+            Select Bank
+          </Text>
+        </Modal.Header>
 
-           {bankserror  &&  
-           <>
-                       <Text mr={'auto'} ml={'auto'}     alignSelf={'center'} color={'red.600'} width={'20px'} height={'sopx'}  >{bankserror}</Text>
+        <Modal.Body bg="gray.50" p="15px">
+          <VStack space={4} width="100%">
 
-            <Button onPress={()=>{getbanks()}} size={'md'} alignItems={'center'} justifyContent={'center'} alignSelf={'center'} colorScheme={'blue'} color={'white'} >
-            <Text mr={'auto'} ml={'auto'}     alignSelf={'center'} color={'white'} width={'20px'} height={'sopx'}  >Retry?</Text>
-              {gettingbanks  &&  
-                          <Spinner mr={'auto'} ml={'auto'}     alignSelf={'center'} color={'white'} width={'20px'} height={'sopx'}        />
+            {/* Loading Section */}
+            {gettingbanks && (
+              <VStack space={2} alignItems="center" py="20px">
+                <Spinner color="blue.600" size="lg" />
+                <Text color="blue.600">Fetching bank list...</Text>
+              </VStack>
+            )}
 
-              }
-            </Button>
-           </>
-           }
-           {banks?.length == 0 &&
-                         <Text mr={'auto'} ml={'auto'}     alignSelf={'center'} color={'blue.600'} width={'20px'} height={'sopx'}  >no banks found</Text>
+            {/* Error Section */}
+            {bankserror && (
+              <VStack space={3} alignItems="center" py="10px">
+                <Text color="red.500" fontWeight="bold">
+                  {bankserror}
+                </Text>
 
-           }
+                <Button
+                  onPress={() => getbanks()}
+                  colorScheme="blue"
+                  width="120px"
+                >
+                  Retry
+                  {gettingbanks && <Spinner ml="5px" color="white" size="sm" />}
+                </Button>
+              </VStack>
+            )}
 
-           {(banks && banks.length > 0) &&  
-                  <FlatList 
-                  data={data}
-                  keyExtractor={function(item , index){return index.toString()}}
-                  renderItem={function({item , ind}){
-   
-                   return (
-                     <Pressable onPress={()=>{
-                        if(disbursementbankselect){
-                             setdisbursebank(item);
-                        }
-                        else{
-                            setbank(item)
-                        }
-                       
-                       onClose();
-   
-                     }} width={'98%'}  height={'40px'} bg={'white'} borderBottomColor={'black'} borderBottomWidth={'1px'} mt={'5px'} mb={'1px'} >
-                      <Text color={'black'}>{`${ind}. ${item.bank_name}`}</Text>
-                     </Pressable>
-                   )
-                  }}
-                  
-                  />
-           }
+            {/* No banks found */}
+            {data?.length === 0 && !gettingbanks && (
+              <Text textAlign="center" color="gray.500">
+                No banks found
+              </Text>
+            )}
+
+            {/* Banks List */}
+            {data && data.length > 0 && !gettingbanks && (
+              <FlatList
+                data={data}
+                width="100%"
+                keyExtractor={(item, index) => index.toString()}
+                contentContainerStyle={{ paddingBottom: 20 }}
+                renderItem={({ item, index }) => (
+                  <Pressable
+                    onPress={() => {
+                      if (disbursementbankselect) setdisbursebank(item);
+                      else setbank(item);
+                      onClose();
+                    }}
+                  >
+                    {({ isPressed }) => (
+                      <HStack
+                        bg={isPressed ? "blue.100" : "white"}
+                        px="15px"
+                        py="12px"
+                        borderRadius="10px"
+                        mb="8px"
+                        borderWidth="1px"
+                        borderColor="gray.200"
+                        alignItems="center"
+                      >
+                        <Text fontSize="md" color="black">
+                          {index + 1}. {item.bank_name}
+                        </Text>
+                      </HStack>
+                    )}
+                  </Pressable>
+                )}
+              />
+            )}
           </VStack>
-
         </Modal.Body>
       </Modal.Content>
     </Modal>

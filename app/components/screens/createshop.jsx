@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { ScrollView, Platform, Alert, Keyboard } from "react-native";
 import { 
-  Box, VStack, Input, Select, CheckIcon, Button, Text, Avatar, Heading, TextArea, Spinner, Pressable, FlatList 
+  Box, VStack, Input, Select, CheckIcon, Button, Text, Avatar, Heading, TextArea, Spinner, Pressable, FlatList, Radio 
 } from "native-base";
 import Constants from "expo-constants";
 import base_url from "../constants/baseurl";
@@ -37,10 +37,10 @@ export default function CreateShop({navigation}) {
   const [disburseaccount1 , setdisburseaccount1] = useState(null);
   const [disburseaccount2 , setdisburseaccount2] = useState(null);
   const [showbanksmodal , setshowbanksmodal] = useState(false);
-  const [gettingbanks , setgettingbanks] = useSatr(false);
-  const [bankserror , setbankserror] = useSatr(null);
-  const [banks , setbanks] = useSatr(null);
-  const [bank , setbank] = useSatr(null); // FPR PAYING SHOP RENT
+  const [gettingbanks , setgettingbanks] = useState(false);
+  const [bankserror , setbankserror] = useState(null);
+  const [banks , setbanks] = useState(null);
+  const [bank , setbank] = useState(null); // FPR PAYING SHOP RENT
   const [disbursebank , setdisbursebank] = useState(null);
   const [disburementbankselect ,setdisburementbankselect] = useState(false);
   // const [creating , setcreating] = useState(false);
@@ -71,7 +71,7 @@ export default function CreateShop({navigation}) {
   }
   setgettingbanks(true);
   setbankserror(null);
-   const banks = await fetch(`${base_url}/get_banks` , {
+   const banks = await fetch(`${base_url}/banks` , {
     method:'GET',
     headers:{
       'Content-Type':'application/json'
@@ -349,21 +349,19 @@ export default function CreateShop({navigation}) {
             _focus={{ borderColor: "teal.600" }}
           />
 
-          <Button mb={'60px'} onPress={() => setConfirmCard(true)}>Create</Button>
-          <Button mb={'60px'}  onPress={() => navigation.goBack()}>BACK</Button>
-
-          {showmodal &&   
-        // <CustomModal    isOpen={showmodal}  onClose={()=>{setshowmodal(false)}}  title={!country?'COUNTRIES':(country && !county)?'COUNTIES':(country && county)?'LOCAL AREAS':''}  items={!country?{countries}:(country && !county)?{counties}:(country && county)?{areas}:''}  setselectedcountry={setcountry} setselectedcounty={setcounty} setselectedarea={setarea}     />
-        <CustomModal    isOpen={showmodal}  onClose={()=>{setshowmodal(false)}}  title={modaltype}  items={(modaltype == 'COUNTRIES')?countries:(modaltype == 'COUNTIES')?counties:(modaltype == 'LOCAL AREAS')?areas:[]}  setselectedcountry={setcountry} setselectedcounty={setcounty} setselectedarea={setarea}     />
-
-     }
-     <Text>select payment method(how will you be paying for this shop)</Text>
+<Text>select payment method(how will you be paying for this shop)</Text>
      
      <Radio.Group
           name="paymentMethod"
           value={paymentmethod}
           onChange={(val) => {
-            setpaymentmethod(val);
+            if(val == paymentmethod){
+              setpaymentmethod(null);
+            }
+            else{
+              setpaymentmethod(val);
+            }
+           
           }}
         >
           <Radio value="mpesa" my={1}>
@@ -386,8 +384,8 @@ export default function CreateShop({navigation}) {
           <Input
             placeholder="select bank "
             value={bank}
-            isReadOnly={true}
-            onFocus={() => {
+            // isReadOnly={true}
+            onPress={() => {
               setdisburementbankselect(false);
               setshowbanksmodal(true);
               Keyboard.dismiss(); // hide keyboard
@@ -444,7 +442,12 @@ export default function CreateShop({navigation}) {
           name="disbursemethod"
           value={disbursementmethod}
           onChange={(val) => {
-            setdisbursementmethod(val);
+             if(val == disbursementmethod){
+              setdisbursementmethod(null)
+             }else{
+              setdisbursementmethod(val);
+             }
+          
           }}
         >
           <Radio value="mpesa" my={1}>
@@ -524,6 +527,16 @@ export default function CreateShop({navigation}) {
         </>
         
         }
+
+          <Button mb={'60px'} onPress={() => setConfirmCard(true)}>Create</Button>
+          <Button mb={'60px'}  onPress={() => navigation.goBack()}>BACK</Button>
+
+          {showmodal &&   
+        // <CustomModal    isOpen={showmodal}  onClose={()=>{setshowmodal(false)}}  title={!country?'COUNTRIES':(country && !county)?'COUNTIES':(country && county)?'LOCAL AREAS':''}  items={!country?{countries}:(country && !county)?{counties}:(country && county)?{areas}:''}  setselectedcountry={setcountry} setselectedcounty={setcounty} setselectedarea={setarea}     />
+        <CustomModal    isOpen={showmodal}  onClose={()=>{setshowmodal(false)}}  title={modaltype}  items={(modaltype == 'COUNTRIES')?countries:(modaltype == 'COUNTIES')?counties:(modaltype == 'LOCAL AREAS')?areas:[]}  setselectedcountry={setcountry} setselectedcounty={setcounty} setselectedarea={setarea}     />
+
+     }
+     
 
         </VStack>
       ) : (

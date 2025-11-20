@@ -547,7 +547,8 @@ router.get(`/get_shops/:id` , async function(req , res){
 
 router.get('/banks', async (req, res) => {
     try {
-      const response = await fetch('https://api.instasend.co/v1/banks', {
+      const response = await fetch('https://api.intasend.com/v1/banks', {
+       
         headers: {
           'Authorization': 'Bearer ' + process.env.INSTASEND_SECRET,
           'Content-Type': 'application/json'
