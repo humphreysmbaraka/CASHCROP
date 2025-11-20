@@ -3,7 +3,7 @@ import { Modal, Button, HStack, VStack, Text, Spinner, Select, Radio, Checkbox, 
 import { authcontext } from "../../contexts/authcontext";
 import base_url from "../constants/baseurl";
 
-export default function Banksmodal({ isOpen, onClose, data , getbanks , gettingbanks , bankserror , setbank }) {
+export default function Banksmodal({ disbursementbankselect , setdisbursebank ,  isOpen, onClose, data , getbanks , gettingbanks , bankserror , setbank }) {
   const { user } = useContext(authcontext);
 
 
@@ -47,7 +47,13 @@ export default function Banksmodal({ isOpen, onClose, data , getbanks , gettingb
    
                    return (
                      <Pressable onPress={()=>{
-                       setbank(item)
+                        if(disbursementbankselect){
+                             setdisbursebank(item);
+                        }
+                        else{
+                            setbank(item)
+                        }
+                       
                        onClose();
    
                      }} width={'98%'}  height={'40px'} bg={'white'} borderBottomColor={'black'} borderBottomWidth={'1px'} mt={'5px'} mb={'1px'} >

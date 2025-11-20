@@ -40,7 +40,10 @@ export default function CreateShop({navigation}) {
   const [gettingbanks , setgettingbanks] = useSatr(false);
   const [bankserror , setbankserror] = useSatr(null);
   const [banks , setbanks] = useSatr(null);
-  const [bank , setbank] = useSatr(null);
+  const [bank , setbank] = useSatr(null); // FPR PAYING SHOP RENT
+  const [disbursebank , setdisbursebank] = useState(null);
+
+  const [disburementbankselect ,setdisburementbankselect] = useState(false);
   // const [creating , setcreating] = useState(false);
   // const [createerror , setcreateerror] = useState[null]
   const {user} = useContext(authcontext);
@@ -150,7 +153,7 @@ export default function CreateShop({navigation}) {
   
   const createshop = async function(){
     try{
-       if(!name || name.trim() == '' || !type || type.trim() == ''  || !description|| description.trim() == '' ||  !imageuri|| imageuri.trim() == '' ||  !country || !county|| !area || !paymentmethod || paymentmethod.trim()=='' || !disbursementmethod || disbursementmethod.trim()=='' || !payaccount1 || payaccount1.trim()==''  || !disburseaccount1 || disburseaccount1.trim()=='' || payaccount1 !== payaccount2 || disburseaccount1 !== disburseaccount2  ){
+       if(!bank ||  !disbursebank || !name || name.trim() == '' || !type || type.trim() == ''  || !description|| description.trim() == '' ||  !imageuri|| imageuri.trim() == '' ||  !country || !county|| !area || !paymentmethod || paymentmethod.trim()=='' || !disbursementmethod || disbursementmethod.trim()=='' || !payaccount1 || payaccount1.trim()==''  || !disburseaccount1 || disburseaccount1.trim()=='' || payaccount1 !== payaccount2 || disburseaccount1 !== disburseaccount2  ){
         setsubmiterror('either some fields have not been filled or are in the wrong format , recheck your data and also confirm thea account nubers match');
         return;
        }
@@ -173,6 +176,7 @@ export default function CreateShop({navigation}) {
         data.append('payment_account' , payaccount1);
         data.append('disbursement_account' , disburseaccount1);
         data.append('bank' , bank);
+        data.append('disbursebank' , disbursebank);
         const filename = imageuri.split('/').pop();
         const match = /\.(\w+)$/.exec(filename);
         const fileType = match ? `image/${match[1]}` : 'image';
@@ -376,6 +380,7 @@ export default function CreateShop({navigation}) {
             value={bank}
             isReadOnly={true}
             onFocus={() => {
+              setdisburementbankselect(false);
               setshowbanksmodal(true);
               Keyboard.dismiss(); // hide keyboard
             }}
@@ -424,9 +429,31 @@ export default function CreateShop({navigation}) {
         </Radio.Group>
 
         
-        {paymentmethod &&  
+        {disbursementmethod &&  
+
+        
         
         <>
+
+{(disbursementmethod == 'card') &&  
+        
+        <>
+            <Input
+              placeholder="select bank "
+              value={bank}
+              isReadOnly={true}
+              onFocus={() => {
+                setdisburementbankselect(true);
+                setshowbanksmodal(true);
+                Keyboard.dismiss(); // hide keyboard
+              }}
+            />
+        
+        </>
+       
+       }
+
+
             <Input
         placeholder={(disbursementmethod == 'mpesa')?'enter mpesa number':'enter bank account number'}
         value={disburseaccount1}
@@ -440,6 +467,9 @@ export default function CreateShop({navigation}) {
         onChangeText={(val) => setdisburseaccount2(val)}
         
       /> 
+
+
+      
         </>
         
         }
@@ -479,7 +509,12 @@ export default function CreateShop({navigation}) {
         </Box>
       )}
       {showbanksmodal &&  
-       <Banksmodal    data={banks} getbanks={getbanks} gettingbanks={gettingbanks} bankserror={bankserror}  setbank={setbank}   isOpen={showbanksmodal} onClose={function(){setshowbanksmodal(false)}}                          />
+       <Banksmodal disbursementbankselect={disburementbankselect}  setdisbursebank={setdisbursebank}  data={banks} getbanks={getbanks} gettingbanks={gettingbanks} bankserror={bankserror}  setbank={setbank}   isOpen={showbanksmodal} onClose={function(){
+        if(disburementbankselect){
+          setdisburementbankselect(false);
+        }
+        setshowbanksmodal(false);
+      }}                          />
       }
     </ScrollView>
   );

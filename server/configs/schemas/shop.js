@@ -13,14 +13,14 @@ const shopschema = new mongoose.Schema({
    description:{type:String , required:true},
    payment_method: {
       type: {
-        method: { type: String, required: true },
+        method: { type: String, required: true }, // [mpesa , card]
         payment_account_number: { type: String, required: true }
       },
       required: true
     },
     disbursement_method: {
       type: {
-        method: { type: String, required: true },
+        method: { type: String, required: true }, // [mpesa , card]
         payment_account_number: { type: String, required: true }
       },
       required: true
@@ -32,10 +32,11 @@ const shopschema = new mongoose.Schema({
    county:{type:Object , required:true},
    area:{type:Object , required:true},
    bank:{type:Object , required:true},
+   disburse_bank:{type:Object , required:true},
    owner:{type:mongoose.Schema.Types.ObjectId , required:false ,ref:'user'},
    items:[{type:mongoose.Schema.Types.ObjectId , required:false ,ref:'item'}],
    orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],
-   fans:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'user'}]// those who liked the shop
+   // fans:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'user'}]// those who liked the shop
 } , {timestamps:true});
 
 const Shop = mongoose.model('shop' , shopschema);

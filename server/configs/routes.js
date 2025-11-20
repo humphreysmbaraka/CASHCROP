@@ -15,6 +15,7 @@ const {Readable} = require('stream');
 const {Expo}= require('expo-server-sdk');   // FOR SENDING EXPO PUSH NOTIFICATIONS
 const Order = require('./schemas/order');
 const Transaction = require('./schemas/transaction');
+const Payout = require('./schemas/payout');
 
 
   // SETUP FOR EXPO PUSH NOTIFICATIONS
@@ -574,7 +575,7 @@ router.get('/banks', async (req, res) => {
 
 router.post(`/create_shop` , memuploader.single('image') ,  async function(req , res){
     try{
-        const  {bank , name , type , customtype ,  description , county , country , area , owner , payment_method , disbursement_method , payment_account , disbursement_account } = req.body;
+        const  {bank , disbursebank , name , type , customtype ,  description , county , country , area , owner , payment_method , disbursement_method , payment_account , disbursement_account } = req.body;
         const upload = req.file;
       const user = await User.findOne({_id: new ObjectId(owner)});
         if(!user){
@@ -611,7 +612,7 @@ router.post(`/create_shop` , memuploader.single('image') ,  async function(req ,
            const image = await fileupload;
            console.log('IMAGE UPLOADED');
            const newshop = new Shop({
-           bank:bank ,   owner , image , name ,type , customtype , description , country:JSON.parse(country) , county:JSON.parse(county) , area:JSON.parse(area)  ,
+           bank:bank , disburse_bank:disbursebank ,   owner , image , name ,type , customtype , description , country:JSON.parse(country) , county:JSON.parse(county) , area:JSON.parse(area)  ,
              payment_method: {
                 method: payment_method,              // <-- correct
                 payment_account_number: payment_account
@@ -1595,7 +1596,7 @@ router.post(`/call_checkout_page` , async function(req , res){
       }
 
    const payload = {
-    "public_key":process.env.INSTAPAY_PUBLIC_API_KEY,
+    "public_key":process.env.ISNTASEND_PUBLIC_API_KEY,
     "amount": amount,
     "currency": "KES",
     "api_ref": order._id.toString(),
@@ -1631,7 +1632,7 @@ router.post(`/call_checkout_page` , async function(req , res){
    }
    else{
     console.log('error occured while requesting for pay page');
-    res.status(500).json({ error:true , message:"error occured in instapay servers , when requesting for pay page", problem: data });
+    res.status(500).json({ error:true , message:"error occured in ISNTASEND servers , when requesting for pay page", problem: data });
 
    }
   
@@ -1708,6 +1709,7 @@ router.post(`/collection_callback` , async function(req , res){
              item.quantity_remaining -= Number(order.quantity);
              order.transaction.status = 'completed';
              order.status = 'PAID_PENDING';
+             order.item.shop.orders.push(order._id);
 
              await order.item.shop.save();
              await order.item.save();
@@ -1719,7 +1721,8 @@ router.post(`/collection_callback` , async function(req , res){
              const buyer = order.buyer;
              const  seller = order.item.shop.owner;
              buyer.orders.push(order._id);
-             seller. sales_orders.push(order._id);
+             seller.sales_orders.push(order._id);
+             seller. pending_payments.push(order._id)
 
              await buyer.save();
              await seller.save();
@@ -1777,9 +1780,9 @@ router.post(`/collection_callback` , async function(req , res){
 
 
 
-router.post(`/initiate _payouts` , async function(req , res){
+router.post(`/initiate_payout` , async function(req , res){
     try{
-        const {initiator} = req.body;
+        const {initiator , orderid} = req.body;
         const account = await User.findOne({_id:new ObjectId(initiator)});
         if(!account){
             console.log('no such user found');
@@ -1788,46 +1791,228 @@ router.post(`/initiate _payouts` , async function(req , res){
         }
         if(!account.isadmin){
             console.log('initiator is not an admin');
-            return res.status(400).json({error:true , message:'initiatro is not an admin'});
+            return res.status(400).json({error:true , message:'initiator is not an admin'});
 
         }
 
-        const completedorders = await Order.find({status:'COMPLETE'}).populate([
-            {path : 'item' , 
-            populate:[
-                {path:'shop'},
-                {path:'owner'}
-            ]
-        } 
-        , 
-        {path : 'transaction'}
-        ]);
+      const order = await Order.findOne({_id: new ObjectId(orderid)}).populate([
+        {path:'buyer'},
+        {path:'item' , populate:[
+            {path:'shop' , populate:[
+                     {path:'owner'},
+                     {path:'items'}
+            ]},
 
-        if(!completedorders || completedorders.length == 0){
-            console.log('there are no completed orders at the moment');
-            return res.status(400).json({error:true , message:'there are no completed orders'});
+        ]},
+        {path:'transaction'}
+      ])
+
+
+       if(!order){
+        console.log('order not found');
+        return res.status(400).json({error:true , message:'order not found'})
+       }
+
+       if(order.status == 'DONE'){
+        console.log('order was already settled');
+        return res.status(400).json({error:true , message:'order is already settled'})
+       }
+
+       if(order.status !== 'COMPLETED'){
+        console.log('order not yet completed');
+        return res.status(400).json({error:true , message:'order not completed'})
+       }
+
+     const buyer = order.buyer;
+     const seller = order.item.shop.owner;
+     const sellingshop = order.item.shop;
+     const amount = order.total;
+
+     // check seller's mode of receiving payments ,  pay seller ,  (update seller's pending payments , update seller's settled payments)  , update buyer's order status (remove from pending to completed orders) , 
+
+     // 1 . check seller's mode of receiving payments
+
+      const receivemethod = sellingshop.disbursement_method;
+      let accnumber; // account number for card if receiving via bank or phone number if receiving via mpesa
+      let bankcode;  // for bank code if receiving via card
+      let url = 'https://payment.intasend.com/api/v1/payouts/'
+      ;  
+      let payload;
+      if(receivemethod.method == 'card'){
+           accnumber = receivemethod.payment_account_number;
+           bankcode = sellingshop.disburse_bank.bank_code;
+
+           payload = {
+            public_key: process.env.INSTASEND_PUBLIC_API_KEY.trim(),
+            provider: "BANK",
+            amount: amount,
+            currency: "KES",
+            account_name: "John Doe",    // WILL ADD A BANK ACCOUNT NAME FIELD IN CREATE SHOP
+            account_number:accnumber,
+            bank_code: bankcode,     // Equity
+            // branch_code: "000",  // Sometimes required
+            api_ref: order._id,
+            callback_url: "https://cashcrop.onrender.com/payout_callback"
+           }
+      } else if(receivemethod.method == 'mpesa'){
+        accnumber = receivemethod.payment_account_number;
+        // bankcode = sellingshop.disburse_bank.bank_code;
+         payload = {
+            public_key: process.env.INSTASEND_PUBLIC_API_KEY.trim(),
+            provider: "M-PESA",
+            amount: amount,
+            currency: "KES",
+            phone_number: receivemethod.payment_account_number,
+            api_ref:order._id,
+            callback_url: "https://cashcrop.onrender.com/payout_callback"
+         }
+      }
+
+      const payoutresponse = await fetch("https://api.intasend.com/api/v1/send-money/initiate/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${process.env.INSTASEND_SECRET_API_KEY.trim()}`
+                },
+                body: JSON.stringify(payload)
+});
+
+     const info = await payoutresponse.json();
+     if(!payoutresponse.ok){
+        console.log('response from payout url is not OK');
+        console.log(payoutresponse);
+        return res.status(400).json({error:true , message:'payout url call unsuccessful'});
+
+     }
+     else{
+        console.log('payout api call successful');
+        if(info.status !== 'success'){
+            return res.status(400).json({error:true , message:'payout initiation failed'});
 
         }
+        else{
 
+            const payout = new Payout({
+                total:amount , status:'PENDING' , order:order._id , instasend_id:info.data.id
+            });
+            await payout.save();
+            // return res.status(200).json({error:true , message:'payout initiated'});
 
+        }
+        
+     }
+     
 
-
-
+    
     }
     catch(err){
-        console.log('error occuder in initiate payouts route' , err);
+        console.log('error occuder in initiate payout route' , err);
         return res.status(500).json({error:true , message:'server error' , problem:err})
     }
 })
 
 
 
-router.get(`make_token` , async function(req , res){
+router.post(`/payout_callback` , async function(req , res){
     try{
+      console.log('running payout callback' , req.body);
+      const data =req.body;
+      const info = data.data;
+      if(data.status !== 'success'){
+        console.log('payout was unsuccessful');
+        // failure logic
+        const order = await Order.findOne({_id: new ObjectId(info.api_ref)}).populate([
+            {path:'buyer'},
+            {path:'item' , populate:[
+                {path:'shop' , populate:[
+                         {path:'owner'},
+                         {path:'items'}
+                ]},
+    
+            ]},
+            {path:'transaction'}
+          ])
 
+          if(!order){
+            console.log('order not found');
+          }
+
+          const payout = await Payout.findOne({instasend_id:data.id});
+          if(!payout){
+            console.log('payout was not found');
+          }
+
+
+        //   const buyer = order.buyer;
+        //   const seller = order.item.shop.owner;
+        //   const sellingshop = order.item.shop;
+        //   const amount = order.total;
+         
+          payout.status = 'FAILED';
+
+          await payout.save();
+
+      }
+      else{
+       
+        const order = await Order.findOne({_id: new ObjectId(info.api_ref)}).populate([
+            {path:'buyer'},
+            {path:'item' , populate:[
+                {path:'shop' , populate:[
+                         {path:'owner'},
+                         {path:'items'}
+                ]},
+    
+            ]},
+            {path:'transaction'}
+          ])
+
+          if(!order){
+            console.log('order not found');
+          }
+
+          const payout = await Payout.findOne({instasend_id:data.id});
+          if(!payout){
+            console.log('payout was not found');
+          }
+          payout.status = 'SUCCESS';
+
+          const buyer = order.buyer;
+          const seller = order.item.shop.owner;
+          const sellingshop = order.item.shop;
+          const amount = order.total;
+         
+
+           // ACTUALLY THIS SHOULD BE IN THE CALLBACK ROUTE , AFTER THE PAYOUT IS WELL DETERMINED TO BE SUCCESSFUL (WILL MOVE THE FOLLOWING DATABASE OPERATIONS TO THE CALLBACK ROUTE)
+    // 2 . // updating seller's schema
+         const pendingpayment = seller.pending_payments.findIndex(function(val){
+            return val.toString() ==  order._id.toString();
+         })
+
+         if(pendingpayment == -1){
+            console.log('seller has no such pending payment');
+            // return res.status(400).json({error:true , message:'seller has no such pending payment'})
+         }
+
+         seller.pending_payments.splice(pendingpayment , 1);
+         seller.settled_orders.push(order._id);
+
+          // 3. updating buyer's schema  // NO NEED , SINCE BUYER CAN JUST SEE A LIST OF ALL ORDERS THEY MADE WITH THEIR RESPECTIVE STATUS
+
+          order.status = 'DONE';
+          await payout.save()
+          await buyer.save();
+          await seller.save();
+          await order.save();
+       
+       
+      }
+
+      res.status(200).json({error:false , received:true});
     }
     catch(err){
-        console.log('error making token' , err);
+        console.log('error occured in payout callback' , err);
+        return res.status(500).json({error:true , message:'server error' , problem:err})
     }
 })
 

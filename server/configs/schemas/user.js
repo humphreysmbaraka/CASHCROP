@@ -19,7 +19,8 @@ const userschema = new mongoose.Schema({
    orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // ORDERS YOU HAVE PLACED
    sales_orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // ORDERS PLACED FOR YOUR PRODUCTS
    pending_payments:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // PAYMENTS YOU ARE YET TO RECEIVE
-   
+   settled_orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // ORDERS YOU HAVE ALREADY RECEIVED PAYMENT FOR
+
    
    transactions:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'transaction'}],
 
