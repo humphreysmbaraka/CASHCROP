@@ -8,6 +8,7 @@ const payoutschema = new mongoose.Schema({
     total:{type:Number , required:true},
     status:{type:String , required:true , default:'PENDING' }, //[PENDING , FAILED , SUCCESS]
     instasend_id:{type:String , required:true}, 
+    type:{type:String , required:true}, 
 
     order:{type:mongoose.Schema.Types.ObjectId , required:false ,  ref:'order' },
 

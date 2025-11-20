@@ -1706,10 +1706,34 @@ router.post(`/collection_callback` , async function(req , res){
 
             cart.splice(cartindex, 1);
 
+            // PAYMENT METHODS AND INFO
+             const paymentmethod = info.payment_method; // CARD , M-PESA  , BANK
+             const accountnumber = info.account_number; // PHONE NUMBER OR BANK ACCOUNT NUMBER
+             const account_name = info.account_name; // bank account name
+             const bank_code = info.bank_code // bank_code
+             const phonenumber = info.phone_number; // mpesa phone number
+
              item.quantity_remaining -= Number(order.quantity);
              order.transaction.status = 'completed';
              order.status = 'PAID_PENDING';
              order.item.shop.orders.push(order._id);
+
+             const payinfo = order.payment_method;
+             if(paymentmethod == 'M-PESA'){
+                  payinfo.method = 'M-PESA';
+                  payinfo.account_number = phonenumber;
+                  payinfo.account_name = null;
+                  payinfo.bank_code = null;
+                  payinfo.phone_number = phonenumber;
+             }
+
+             if(paymentmethod == 'CARD'){
+                payinfo.method = 'CARD';
+                payinfo.account_number = accountnumber;
+                payinfo.account_name = account_name;
+                payinfo.bank_code = bank_code;
+                payinfo.phone_number = null;
+             }
 
              await order.item.shop.save();
              await order.item.save();
@@ -1893,7 +1917,7 @@ router.post(`/initiate_payout` , async function(req , res){
         else{
 
             const payout = new Payout({
-                total:amount , status:'PENDING' , order:order._id , instasend_id:info.data.id
+                total:amount , status:'PENDING' , order:order._id , instasend_id:info.data.id , type:'payment'
             });
             await payout.save();
             // return res.status(200).json({error:true , message:'payout initiated'});
@@ -1913,12 +1937,143 @@ router.post(`/initiate_payout` , async function(req , res){
 
 
 
-router.post(`/payout_callback` , async function(req , res){
+router.post(`/initiate_refund` , async function(req , res){
+    try{
+        const {initiator , orderid} = req.body;
+        const account = await User.findOne({_id:new ObjectId(initiator)});
+        if(!account){
+            console.log('no such user found');
+            return res.status(400).json({error:true , message:'no such user found'});
+
+        }
+        if(!account.isadmin){
+            console.log('initiator is not an admin');
+            return res.status(400).json({error:true , message:'initiator is not an admin'});
+
+        }
+
+      const order = await Order.findOne({_id: new ObjectId(orderid)}).populate([
+        {path:'buyer'},
+        {path:'item' , populate:[
+            {path:'shop' , populate:[
+                     {path:'owner'},
+                     {path:'items'}
+            ]},
+
+        ]},
+        {path:'transaction'}
+      ])
+
+
+       if(!order){
+        console.log('order not found');
+        return res.status(400).json({error:true , message:'order not found'})
+       }
+
+       if(order.status == 'REFUNDED'){
+        console.log('order was already refunded');
+        return res.status(400).json({error:true , message:'order is already refunded'})
+       }
+
+       if(order.status !== 'CANCELLED'){
+        console.log('order is not cancelled , no refund request');
+        return res.status(400).json({error:true , message:'order not cancelled , no refund request'})
+       }
+
+     const buyer = order.buyer;
+     const seller = order.item.shop.owner;
+     const sellingshop = order.item.shop;
+     const amount = order.total;
+
+     // check seller's mode of receiving payments ,  pay seller ,  (update seller's pending payments , update seller's settled payments)  , update buyer's order status (remove from pending to completed orders) , 
+
+     // 1 . check buyer's mode of pay to refund by
+
+       const paymentinfo = order.payment_method;
+   
+      let payload;
+      if(paymentinfo.method == 'CARD'){
+          let accnumber = paymentinfo.account_number;
+          let  bankcode = paymentinfo.bank_code;
+          let  accname = paymentinfo.account_name;
+
+           payload = {
+            public_key: process.env.INSTASEND_PUBLIC_API_KEY.trim(),
+            provider: "BANK",
+            amount: amount,
+            currency: "KES",
+            account_name:accname,    // WILL ADD A BANK ACCOUNT NAME FIELD IN CREATE SHOP
+            account_number:accnumber,
+            bank_code: bankcode,     // Equity
+            // branch_code: "000",  // Sometimes required
+            api_ref: order._id,
+            callback_url: "https://cashcrop.onrender.com/refund_callback"
+           }
+      } else if(paymentinfo.method == 'M-PESA'){
+        let accnumber = paymentinfo.phone_number;
+       
+         payload = {
+            public_key: process.env.INSTASEND_PUBLIC_API_KEY.trim(),
+            provider: "M-PESA",
+            amount: amount,
+            currency: "KES",
+            phone_number:accnumber,
+            api_ref:order._id,
+            callback_url: "https://cashcrop.onrender.com/refund_callback"
+         }
+      }
+
+      const payoutresponse = await fetch("https://api.intasend.com/api/v1/send-money/initiate/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${process.env.INSTASEND_SECRET_API_KEY.trim()}`
+                },
+                body: JSON.stringify(payload)
+});
+
+     const info = await payoutresponse.json();
+     if(!payoutresponse.ok){
+        console.log('response from payout url is not OK');
+        console.log(payoutresponse);
+        return res.status(400).json({error:true , message:'payout url call unsuccessful'});
+
+     }
+     else{
+        console.log('payout api call successful');
+        if(info.status !== 'success'){
+            return res.status(400).json({error:true , message:'payout initiation failed'});
+
+        }
+        else{
+
+            const payout = new Payout({
+                total:amount , status:'PENDING' , order:order._id , instasend_id:info.data.id , type:'refund'
+            });
+            await payout.save();
+            // return res.status(200).json({error:true , message:'payout initiated'});
+
+        }
+        
+     }
+     
+
+    
+    }
+    catch(err){
+        console.log('error occuder in initiate refund route' , err);
+        return res.status(500).json({error:true , message:'server error' , problem:err})
+    }
+})
+
+
+
+router.post(`/payout_callback` , async function(req , res){  // THIS WORKS FOR PAYMENTS 
     try{
       console.log('running payout callback' , req.body);
       const data =req.body;
       const info = data.data;
-      if(data.status !== 'success'){
+      if(info.payout_status !== 'COMPLETED'){
         console.log('payout was unsuccessful');
         // failure logic
         const order = await Order.findOne({_id: new ObjectId(info.api_ref)}).populate([
@@ -2016,6 +2171,110 @@ router.post(`/payout_callback` , async function(req , res){
     }
 })
 
+
+
+router.post(`/refund_callback` , async function(req , res){  // THIS WORKS FOR REFUNDS
+    try{
+      console.log('running refund callback' , req.body);
+      const data =req.body;
+      const info = data.data;
+      if(info.payout_status !== 'COMPLETED'){
+        console.log('refund was unsuccessful');
+        // failure logic
+        const order = await Order.findOne({_id: new ObjectId(info.api_ref)}).populate([
+            {path:'buyer'},
+            {path:'item' , populate:[
+                {path:'shop' , populate:[
+                         {path:'owner'},
+                         {path:'items'}
+                ]},
+    
+            ]},
+            {path:'transaction'}
+          ])
+
+          if(!order){
+            console.log('order not found');
+          }
+
+          const payout = await Payout.findOne({instasend_id:data.id});
+          if(!payout){
+            console.log('payout was not found');
+          }
+
+
+        //   const buyer = order.buyer;
+        //   const seller = order.item.shop.owner;
+        //   const sellingshop = order.item.shop;
+        //   const amount = order.total;
+         
+          payout.status = 'FAILED';
+
+          await payout.save();
+
+      }
+      else{
+       
+        const order = await Order.findOne({_id: new ObjectId(info.api_ref)}).populate([
+            {path:'buyer'},
+            {path:'item' , populate:[
+                {path:'shop' , populate:[
+                         {path:'owner'},
+                         {path:'items'}
+                ]},
+    
+            ]},
+            {path:'transaction'}
+          ])
+
+          if(!order){
+            console.log('order not found');
+          }
+
+          const payout = await Payout.findOne({instasend_id:data.id});
+          if(!payout){
+            console.log('payout was not found');
+          }
+          payout.status = 'SUCCESS';
+
+          const buyer = order.buyer;
+          const seller = order.item.shop.owner;
+          const sellingshop = order.item.shop;
+          const amount = order.total;
+         
+
+           // ACTUALLY THIS SHOULD BE IN THE CALLBACK ROUTE , AFTER THE PAYOUT IS WELL DETERMINED TO BE SUCCESSFUL (WILL MOVE THE FOLLOWING DATABASE OPERATIONS TO THE CALLBACK ROUTE)
+    // 2 . // updating seller's schema
+         const pendingpayment = seller.pending_payments.findIndex(function(val){
+            return val.toString() ==  order._id.toString();
+         })
+
+         if(pendingpayment == -1){
+            console.log('seller has no such pending payment');
+            // return res.status(400).json({error:true , message:'seller has no such pending payment'})
+         }
+
+         seller.pending_payments.splice(pendingpayment , 1);
+        //  seller.settled_orders.push(order._id);
+
+          // 3. updating buyer's schema  // NO NEED , SINCE BUYER CAN JUST SEE A LIST OF ALL ORDERS THEY MADE WITH THEIR RESPECTIVE STATUS
+
+          order.status = 'DONE';
+          await payout.save()
+          await buyer.save();
+          await seller.save();
+          await order.save();
+       
+       
+      }
+
+      res.status(200).json({error:false , received:true});
+    }
+    catch(err){
+        console.log('error occured in refund callback' , err);
+        return res.status(500).json({error:true , message:'server error' , problem:err})
+    }
+})
 
 router.get(`make_token` , async function(req , res){
     try{
