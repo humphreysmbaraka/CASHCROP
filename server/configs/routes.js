@@ -1706,9 +1706,11 @@ router.post(`/collection_callback` , async function(req , res){
                 return;
              }
     
-             const cart = order.item.shop.owner.cart;
+             const cart = order.buyer.cart;  // BUYER'S CART
              const items = order.item.shop.items;
 
+
+             // LOOK FOR THE ITEM IN THE SHOP
              const item = items.find(function(val){
                return  val._id.toString() == order.item._id.toString();
              })
@@ -1716,6 +1718,8 @@ router.post(`/collection_callback` , async function(req , res){
                 console.log('item was not found in the seller items list');
                 return;
              }
+
+             // LOOK FOR THE ITEM IN TE BUYER'S CART
     
             const cartindex = cart.findIndex(function(val){
                 return val.item.toString() == order.item._id.toString();
