@@ -1561,6 +1561,7 @@ router.get(`/search/:query/:page` , async function(req , res){
 
 router.post(`/call_checkout_page` , async function(req , res){
     try{
+        console.log('calling pay page' , req.body);
       const {item , user , quantity} = req.body;
       const account = await User.findOne({_id: new ObjectId(user)});
       const product = await Item.findOne({_id: new ObjectId(item)});
@@ -2289,6 +2290,7 @@ router.post(`/refund_callback` , async function(req , res){  // THIS WORKS FOR R
 
 router.get(`/get_seller_orders/:id` , async function(req , res){
     try{
+        
      const id = req.params;
      const account = await User.findOne({_id: new ObjectId(id)}).populate([
         {path:'orders' , populate:[

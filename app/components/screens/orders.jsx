@@ -35,20 +35,27 @@ export default function OrdersPage(navigation) {
 
   const getsellerorders = async function(){  // FOR SELLERS  , SALES ORDERS , PENDING PAYMENTS , PURCHASES , settled orders
     try{
+      
       if(gettingorders){
         return
       }
       setgettingorders(true);
       setgeterror(null);
      const orders = await fetch(`${base_url}/get_seller_orders/${user._id}`);
+     
      if(orders.ok){
       setgettingorders(false);
       setgeterror(null);
       const info = await orders.json(); // will have purchases , sales orders , pending payments , settle orders
       const purchases = info.purchases;
       const sales = info.sales;
-      const pendingpays = indo.pendingpays;
+      const pendingpays = info.pendingpays;
       const settled = info.settled;
+
+      setpurchases(purchases);
+      setsales(sales);
+      setpendingpays(pendingpays);
+      setsettled(settled);
 
      
 
