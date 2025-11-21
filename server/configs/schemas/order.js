@@ -11,13 +11,13 @@ const orderschema = new mongoose.Schema({
     status:{type:String , required:false , default:'NEW' },  // STARTS WITH NEW , THEN WHEN CONFIRMED IT BECOMES PENDING , CAN GET CANCELLED , REFUNDED ,  AFTER BEING DELIVERED AND NO REFUND IS INITIATED IN 2 DAYS , THEN IT BECOMES COMPLETED values =>[NEW , PENDING(WHEN CONFIRMED BU SELLER) , CANCELLED(CANCELLED BY BUYER)  , DELIVERED(DELIVERED) , COMPLETED(PAID) , REVERSED(BUYER DECIDES TO RETURN) WAITING FOR REFUND , REFUNDED  ]
     payment_method:{
         type:{
-             method:{type:String , required:true}, // M-PESA OR BANK
-             account_number:{type:String , required:true},  // PHONE NUMBER OR BANK ACCOUNT NUMBER
+             method:{type:String , required:false}, // M-PESA OR BANK
+             account_number:{type:String , required:false},  // PHONE NUMBER OR BANK ACCOUNT NUMBER
              account_name:{type:String , required:false}, // NULL FOR MPESA OR BANK ACCOUNT NUMBER
              bank_code:{type:String , required:false} ,// FOR BANK AND NULL FOR MPESA
-             phone_number:{type:String , required:true} // NULL FOR BANK
+             phone_number:{type:String , required:false} // NULL FOR BANK
         },
-        required:true
+        required:false
     }
 } , {timestamps:true});
 
