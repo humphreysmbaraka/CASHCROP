@@ -52,6 +52,8 @@ export default function OrdersPage(navigation) {
       const pendingpays = info.pendingpays;
       const settled = info.settled;
 
+      console.log('orders fetched' , info);
+
       setpurchases(purchases);
       setsales(sales);
       setpendingpays(pendingpays);

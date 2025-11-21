@@ -1560,6 +1560,8 @@ router.get(`/search/:query/:page` , async function(req , res){
 
 
 router.post(`/call_checkout_page` , async function(req , res){
+    let createdorderid;
+    let transactionid;
     try{
         console.log('calling pay page' , req.body);
       const {item , user , quantity} = req.body;
@@ -1584,12 +1586,15 @@ router.post(`/call_checkout_page` , async function(req , res){
      })
 
      await transaction.save();
+     transactionid = transaction._id;
 
      const order = new Order({
         buyer:account._id , item:product._id , total:amount , transaction:transaction._id , status:'NEW' , quantity:Number(quantity)
      })
 
      await order.save();
+     createdorderid = order._id;
+
 
     const paymentmetadata =  {
          transaction_id:transaction._id,
@@ -1645,6 +1650,14 @@ router.post(`/call_checkout_page` , async function(req , res){
 
     }
     catch(err){
+      
+        if (createdorderid) {
+            await Order.findByIdAndDelete(createdorderid);
+        }
+    
+        if (transactionid) {
+            await Transaction.findByIdAndDelete(transactionid);
+        }
         console.log('error calling check out page' , err);
         return res.status(500).json({error:true  , message:'server error' , problem:err})
     }
@@ -1705,7 +1718,7 @@ router.post(`/collection_callback` , async function(req , res){
              }
     
             const cartindex = cart.findIndex(function(val){
-                val.item.toString() == order.item._id.toString();
+                return val.item.toString() == order.item._id.toString();
             })
 
             if(cartindex == -1){
