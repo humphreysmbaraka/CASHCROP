@@ -1586,7 +1586,7 @@ router.post(`/call_checkout_page` , async function(req , res){
      await transaction.save();
 
      const order = new Order({
-        buyer:account._id , item:product._id , total:amount , transaction:transaction._id , status:'NEW' 
+        buyer:account._id , item:product._id , total:amount , transaction:transaction._id , status:'NEW' , quantity:Number(quantity)
      })
 
      await order.save();
