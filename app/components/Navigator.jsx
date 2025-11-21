@@ -22,6 +22,7 @@ import CreateShop from './screens/createshop';
 import Login from './laning pages/login';
 import Landing from './laning pages/landing';
 import PayPage from './screens/paypage';
+import ViewOrder from './screens/vieworder';
 
 
 function Navigator() {
@@ -35,6 +36,7 @@ function Navigator() {
     const Stack7 = createStackNavigator();
     const Stack8 = createStackNavigator();
     const Stack9 = createStackNavigator();
+    const Stack10 = createStackNavigator();
     const Bottom = createBottomTabNavigator();
     const Top = createMaterialTopTabNavigator();
 
@@ -106,7 +108,7 @@ function Navigator() {
             />
             <Bottom.Screen
               name="orders"
-              component={OrdersPage}
+              component={Orderstacks}
               options={{
                 tabBarIcon: ({ color, size }) => (
                   <FontAwesome5 name="clipboard-list" size={size} color={color} />
@@ -167,6 +169,27 @@ function Navigator() {
 
 
       // when user clicks on shops
+
+      const Orderstacks = function(){
+     return(
+      <Stack10.Navigator    screenOptions={{ headerShown: false }}  initialRouteName='orderspage'   >
+        <Stack10.Screen      name='orderspage'  component={OrdersPage}                 />
+        <Stack10.Screen      name='vieworder'  component={ViewOrder}                 />
+        {/* <Stack10.Screen      name=''  component={}                 /> */}
+        {/* <Stack10.Screen      name=''  component={}                 /> */}
+        {/* <Stack10.Screen      name=''  component={}                 /> */}
+        {/* <Stack10.Screen      name=''  component={}                 /> */}
+        {/* <Stack10.Screen      name=''  component={}                 /> */}
+        {/* <Stack10.Screen      name=''  component={}                 /> */}
+        {/* <Stack10.Screen      name=''  component={}                 /> */}
+        {/* <Stack10.Screen      name=''  component={}                 /> */}
+      </Stack10.Navigator>
+     )
+      }
+
+
+
+
       const Shopstacks = function(){
         return(
         

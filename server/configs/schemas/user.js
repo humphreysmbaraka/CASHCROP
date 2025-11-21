@@ -10,15 +10,15 @@ const userschema = new mongoose.Schema({
    username:{type:String , required:true},
    number:{type:String , required:true},
    OTP:{type:String , required:false , default:null},
-   role:{type:String , required:true},
+   role:{type:String , required:true}, //[seller , buyer]
    country:{type:Object , required:true},
    county:{type:Object , required:true},
    area:{type:Object , required:true},
    saerch_querries:[{type:String , required:false , default:[]}],
    shops:[{type:mongoose.Schema.Types.ObjectId , required:false ,ref:'shop'}],
    orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // ORDERS YOU HAVE PLACED
-   sales_orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // ORDERS PLACED FOR YOUR PRODUCTS
-   pending_payments:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // PAYMENTS YOU ARE YET TO RECEIVE
+   sales_orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // ORDERS PLACED FOR YOUR PRODUCTS   (IF SELLER)
+   pending_payments:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // PAYMENTS YOU ARE YET TO RECEIVE (IF SELLER)
    settled_orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // ORDERS YOU HAVE ALREADY RECEIVED PAYMENT FOR
 
    

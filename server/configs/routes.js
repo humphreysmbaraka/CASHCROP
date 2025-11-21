@@ -1585,7 +1585,7 @@ router.post(`/call_checkout_page` , async function(req , res){
      await transaction.save();
 
      const order = new Order({
-        buyer:account._id , item:product._id , total:amount , transaction:transaction._id , status:'pending' 
+        buyer:account._id , item:product._id , total:amount , transaction:transaction._id , status:'NEW' 
      })
 
      await order.save();
@@ -1684,6 +1684,7 @@ router.post(`/collection_callback` , async function(req , res){
             const order = await Order.findOne({_id: new ObjectId(info.api_ref)}).populate([
                 {path:'item' , populate:[{path:'shop' , populate:[{path:'items'} , {path:'owner'}]}]},
                 {path:'buyer'},
+                {path:'transaction'}
                 
              ]);
              if(!order){
@@ -1706,7 +1707,12 @@ router.post(`/collection_callback` , async function(req , res){
                 val.item.toString() == order.item._id.toString();
             })
 
-            cart.splice(cartindex, 1);
+            if(cartindex == -1){
+                console.log('item was not found in the cart of the buyer');
+                return;
+            }
+
+            cart.splice(cartindex, 1);   //REMOVE THE ITEM FROM BUYER'S CART
 
             // PAYMENT METHODS AND INFO
              const paymentmethod = info.payment_method; // CARD , M-PESA  , BANK
@@ -1715,9 +1721,10 @@ router.post(`/collection_callback` , async function(req , res){
              const bank_code = info.bank_code // bank_code
              const phonenumber = info.phone_number; // mpesa phone number
 
-             item.quantity_remaining -= Number(order.quantity);
-             order.transaction.status = 'completed';
-             order.status = 'PAID_PENDING';
+
+             item.quantity_remaining -= Number(order.quantity); // REDUCE THE ITEM'S REMAINING STOCK BU THE ORDER'S QUANTITY
+             order.transaction.status = 'COMPLETED';
+             order.status = 'NEW';
              order.item.shop.orders.push(order._id);
 
              const payinfo = order.payment_method;
@@ -1746,9 +1753,9 @@ router.post(`/collection_callback` , async function(req , res){
 
              const buyer = order.buyer;
              const  seller = order.item.shop.owner;
-             buyer.orders.push(order._id);
-             seller.sales_orders.push(order._id);
-             seller. pending_payments.push(order._id)
+             buyer.orders.push(order._id); // ADD OREDER TO THE BUYER'S ORDERS LIST
+             seller.sales_orders.push(order._id); // ADD ORDER TO SELLER'S SALES LIST
+            //  seller. pending_payments.push(order._id) // ADD ORDER TO THE SELLER'S PENDIG PAYMENTS LIST (REMOVE FROM HERE , WILL BE ADDED WHEN SELLER CONFIRMS ORDER)
 
              await buyer.save();
              await seller.save();
@@ -1764,7 +1771,8 @@ router.post(`/collection_callback` , async function(req , res){
           console.log('transaction failed or was declined');
 
           const order = await Order.findOne({_id: new ObjectId(info.api_ref)}).populate([
-            {path:'item' , populate:[{path:'shop' , populate:{path:'items'}}]}
+            {path:'item' , populate:[{path:'shop' , populate:{path:'items'}}]},
+            {path:'transaction'}
          ]);
          if(!order){
             console.log('order not found');
@@ -1772,7 +1780,7 @@ router.post(`/collection_callback` , async function(req , res){
          }
 
     
-         order.transaction.status = stat;
+         order.transaction.status = 'FAILED';
          order.status = 'FAILED';
 
         
@@ -1839,14 +1847,14 @@ router.post(`/initiate_payout` , async function(req , res){
         return res.status(400).json({error:true , message:'order not found'})
        }
 
-       if(order.status == 'DONE'){
+       if(order.status == 'COMPLETED'){
         console.log('order was already settled');
         return res.status(400).json({error:true , message:'order is already settled'})
        }
 
-       if(order.status !== 'COMPLETED'){
-        console.log('order not yet completed');
-        return res.status(400).json({error:true , message:'order not completed'})
+       if(order.status !== 'DELIVERED'){
+        console.log('order not yet delivered');
+        return res.status(400).json({error:true , message:'order not yet delivered'})
        }
 
      const buyer = order.buyer;
@@ -1977,9 +1985,10 @@ router.post(`/initiate_refund` , async function(req , res){
         return res.status(400).json({error:true , message:'order is already refunded'})
        }
 
-       if(order.status !== 'CANCELLED'){
-        console.log('order is not cancelled , no refund request');
-        return res.status(400).json({error:true , message:'order not cancelled , no refund request'})
+       
+       if(!['CANCELLED', 'REVERSED'].includes(order.status)){
+        console.log('order is not cancelled , or no refund request');
+        return res.status(400).json({error:true , message:'order not cancelled or no refund request'})
        }
 
      const buyer = order.buyer;
@@ -2151,17 +2160,17 @@ router.post(`/payout_callback` , async function(req , res){  // THIS WORKS FOR P
             // return res.status(400).json({error:true , message:'seller has no such pending payment'})
          }
 
-         seller.pending_payments.splice(pendingpayment , 1);
-         seller.settled_orders.push(order._id);
+         seller.pending_payments.splice(pendingpayment , 1); //REMOVE ORDER FORM LIST OF PENDING PAYMENTS
+         seller.settled_orders.push(order._id);  //ADD ORER TO LIST OF SETTLED PAYMENTS
 
           // 3. updating buyer's schema  // NO NEED , SINCE BUYER CAN JUST SEE A LIST OF ALL ORDERS THEY MADE WITH THEIR RESPECTIVE STATUS
 
-          order.status = 'DONE';
+          order.status = 'COMPLETED';
           await payout.save()
           await buyer.save();
           await seller.save();
           await order.save();
-       
+          
        
       }
 
@@ -2278,12 +2287,60 @@ router.post(`/refund_callback` , async function(req , res){  // THIS WORKS FOR R
     }
 })
 
-router.get(`make_token` , async function(req , res){
+router.get(`/get_seller_orders/:id` , async function(req , res){
     try{
+     const id = req.params;
+     const account = await User.findOne({_id: new ObjectId(id)}).populate([
+        {path:'orders' , populate:[
+            {path:'item' , populate:[
+                {path:'shop'},
+                {path:'owner'}
+            ]},
+            {path:'buyer'},
+            {path:'transaction'},
 
+        ]} ,
+        {path:'sales_orders' , populate:[
+            {path:'item' , populate:[
+                {path:'shop'},
+                {path:'owner'}
+            ]},
+            {path:'buyer'},
+            {path:'transaction'},
+
+        ]} ,
+
+        {path:'pending_payments' , populate:[
+            {path:'item' , populate:[
+                {path:'shop'},
+                {path:'owner'}
+            ]},
+            {path:'buyer'},
+            {path:'transaction'},
+
+        ]} ,
+        {path:'settled_orders' , populate:[
+            {path:'item' , populate:[
+                {path:'shop'},
+                {path:'owner'}
+            ]},
+            {path:'buyer'},
+            {path:'transaction'},
+
+        ]} 
+     ])
+
+     if(!account){
+        console.log('no such account found');
+        return res.status(400).json({error:true , message:'account not found'});
+     }
+
+     console.log('account found');
+     return res.status(200).json({error:false ,purchases:account.orders , sales:account.sales_orders , pendingpays:account.pending_payments , settled:account.settled_orders });
     }
     catch(err){
-        console.log('error making token' , err);
+        console.log('error getting seller orders' , err);
+        return res.status(500).json({error:true , message:'server error' , problem:err})
     }
 })
 

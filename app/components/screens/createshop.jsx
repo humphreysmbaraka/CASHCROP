@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { ScrollView, Platform, Alert, Keyboard } from "react-native";
 import { 
-  Box, VStack, Input, Select, CheckIcon, Button, Text, Avatar, Heading, TextArea, Spinner, Pressable, FlatList, Radio 
+  Box, VStack, Input, Select, CheckIcon, Button, Text, Avatar, Heading, TextArea, Spinner, Pressable, FlatList, Radio, HStack 
 } from "native-base";
 import Constants from "expo-constants";
 import base_url from "../constants/baseurl";
@@ -41,7 +41,7 @@ export default function CreateShop({navigation}) {
   const [bankserror , setbankserror] = useState(null);
   const [banks , setbanks] = useState(null);
   const [bank , setbank] = useState(null); // FPR PAYING SHOP RENT
-  const [disbursebank , setdisbursebank] = useState(null);
+  const [disbursebank , setdisbursebank] = useState(null); // FOR RECEIVING PAYMENTS
   const [disburementbankselect ,setdisburementbankselect] = useState(false);
   // const [creating , setcreating] = useState(false);
   // const [createerror , setcreateerror] = useState[null]
@@ -55,6 +55,15 @@ export default function CreateShop({navigation}) {
   
  const {launchimagepicker} = useMediaFunctions();
  
+
+  
+ useEffect(function(){
+    console.log('pay method changed' , paymentmethod);
+ } , [paymentmethod])
+
+ useEffect(function(){
+  console.log('disburse method changed' , disbursementmethod)
+} , [disbursementmethod])
   
   useEffect(function(){
    if(!confirmCard){
@@ -71,7 +80,7 @@ export default function CreateShop({navigation}) {
   }
   setgettingbanks(true);
   setbankserror(null);
-   const banks = await fetch(`${base_url}/banks` , {
+   const banks = await fetch(`https://api.intasend.com/api/v1/send-money/bank-codes/${country.countryCode}/` , {
     method:'GET',
     headers:{
       'Content-Type':'application/json'
@@ -82,7 +91,7 @@ export default function CreateShop({navigation}) {
     setbankserror(null);
     const info = await banks.json()
   console.log('anks fetched successfully' ,info );
-   setbanks(info.banks.data);
+   setbanks(info);
 
    }
    else{
@@ -158,8 +167,8 @@ export default function CreateShop({navigation}) {
   
   const createshop = async function(){
     try{
-       if(!bank ||  !disbursebank || !bankaccountname1 || bankaccountname1.trim()=='' || ! bankaccountname2  || bankaccountname2.trim()=='' || (bankaccountname1 !== bankaccountname2) || ! disburseaccountname1 || disburseaccountname1.trim()=='' || ! disburseaccountname2 || disburseaccountname2.trim()=='' || (disburseaccountname1 !== disburseaccountname2) || !name || name.trim() == '' || !type || type.trim() == ''  || !description|| description.trim() == '' ||  !imageuri|| imageuri.trim() == '' ||  !country || !county|| !area || !paymentmethod || paymentmethod.trim()=='' || !disbursementmethod || disbursementmethod.trim()=='' || !payaccount1 || payaccount1.trim()==''  || !disburseaccount1 || disburseaccount1.trim()=='' || payaccount1 !== payaccount2 || disburseaccount1 !== disburseaccount2    ){
-        setsubmiterror('either some fields have not been filled or are in the wrong format , recheck your data and also confirm thea account nubers match');
+       if(!disbursebank   || !name || name.trim() == '' || !type || type.trim() == ''  || !description|| description.trim() == '' ||  !imageuri|| imageuri.trim() == '' ||  !country || !county|| !area || !paymentmethod || paymentmethod.trim()=='' || !payaccount1 || payaccount1.trim()=='' || payaccount1 !== payaccount2  || !bank ||  !bankaccountname1 || bankaccountname1.trim()=='' || ! bankaccountname2  || bankaccountname2.trim()=='' || (bankaccountname1 !== bankaccountname2)    || !disbursementmethod ||  ! disburseaccountname1 || disburseaccountname1.trim()=='' || ! disburseaccountname2 || disburseaccountname2.trim()==''  || (disburseaccountname1 !== disburseaccountname2)  || disbursementmethod.trim()=='' ||  !disburseaccount1 || disburseaccount1.trim()==''  || disburseaccount1 !== disburseaccount2    ){
+        setsubmiterror('either some fields have not been filled or are in the wrong format , recheck your data and also confirm thea account numbers match');
         return;
        }
        else{
@@ -180,8 +189,8 @@ export default function CreateShop({navigation}) {
         data.append('disbursement_method' , disbursementmethod);
         data.append('payment_account' , payaccount1);
         data.append('disbursement_account' , disburseaccount1);
-        data.append('bank' , bank);
-        data.append('disbursebank' , disbursebank);
+        data.append('bank' , JSON.stringify(bank));
+        data.append('disbursebank' , JSON.stringify(disbursebank));
         data.append('disbursebankaccountname' , disburseaccountname1);
         data.append('bankaccountname' , bankaccountname1);
 
@@ -348,10 +357,46 @@ export default function CreateShop({navigation}) {
             h={20} // default height, will expand as user types
             _focus={{ borderColor: "teal.600" }}
           />
-
-<Text>select payment method(how will you be paying for this shop)</Text>
      
-     <Radio.Group
+        {country &&  
+        
+        <>
+        
+<Text>select payment method(how will you be paying for this shop)</Text>
+
+{/* <HStack alignItems={'center'} justifyContent={'space-around'} width={'100%'} p={'2px'} >
+          <Button width={'40%'} onPress={()=>{
+             setpaymentmethod('mpesa');
+          }}  colorScheme={!paymentmethod?'gray':paymentmethod == 'mpesa'?'blue':'white'}   borderRadius={'10px'}  >M-PESA</Button>
+
+        <Button width={'40%'} onPress={()=>{
+             setpaymentmethod('card');
+          }}  colorScheme={!paymentmethod?'gray':paymentmethod !== 'mpesa'?'blue':'white'}  borderRadius={'10px'}  >BANK CARD</Button>
+
+        </HStack> */}
+
+<HStack alignItems={'center'} justifyContent={'space-around'} width={'100%'} p={'2px'}>
+  <Button 
+    width={'40%'} 
+    onPress={() => setpaymentmethod('mpesa')}  
+    colorScheme={paymentmethod === 'mpesa' ? 'blue' : 'gray'} 
+    borderRadius={'10px'}
+  >
+    M-PESA
+  </Button>
+
+  <Button 
+    width={'40%'} 
+    onPress={() => setpaymentmethod('card')}  
+    colorScheme={paymentmethod === 'card' ? 'blue' : 'gray'} 
+    borderRadius={'10px'}
+  >
+    BANK CARD
+  </Button>
+</HStack>
+
+     
+     {/* <Radio.Group
           name="paymentMethod"
           value={paymentmethod}
           onChange={(val) => {
@@ -373,7 +418,7 @@ export default function CreateShop({navigation}) {
           </Radio>
 
          
-        </Radio.Group>
+        </Radio.Group> */}
 
         {paymentmethod &&  
         
@@ -381,16 +426,21 @@ export default function CreateShop({navigation}) {
      {(paymentmethod == 'card') &&  
         
       <>
+          <Pressable  
+           onPress={() => {
+            Keyboard.dismiss(); // hide keyboard
+            setdisburementbankselect(false);
+            setshowbanksmodal(true);
+           
+          }}
+          >
           <Input
             placeholder="select bank "
-            value={bank}
-            // isReadOnly={true}
-            onPress={() => {
-              setdisburementbankselect(false);
-              setshowbanksmodal(true);
-              Keyboard.dismiss(); // hide keyboard
-            }}
+            value={bank?.bank_name}
+            isReadOnly={true}
+           
           />
+          </Pressable>
 
 
 
@@ -435,9 +485,49 @@ export default function CreateShop({navigation}) {
         
         }
 
+        </>
+        
+        }
 
-        <Text>select disbursement method(how will you be receiving payment in this shop this shop)</Text>
-     
+        
+
+        {country && 
+        
+        <>
+        
+        <Text>select disbursement method(how will you be receiving payment in this shop )</Text>
+
+        {/* <HStack alignItems={'center'} justifyContent={'space-around'} width={'100%'} p={'2px'} >
+          <Button width={'40%'} onPress={()=>{
+             setdisbursementmethod('mpesa');
+          }}  colorScheme={!disbursementmethod?'gray':disbursementmethod == 'mpesa'?'blue':'white'}   borderRadius={'10px'}  >M-PESA</Button>
+
+        <Button width={'40%'} onPress={()=>{
+             setdisbursementmethod('card');
+          }}  colorScheme={!disbursementmethod?'gray':disbursementmethod !== 'mpesa'?'blue':'white'}  borderRadius={'10px'}  >BANK CARD</Button>
+
+        </HStack> */}
+
+<HStack alignItems={'center'} justifyContent={'space-around'} width={'100%'} p={'2px'}>
+  <Button 
+    width={'40%'} 
+    onPress={() => setdisbursementmethod('mpesa')}  
+    colorScheme={disbursementmethod === 'mpesa' ? 'blue' : 'gray'} 
+    borderRadius={'10px'}
+  >
+    M-PESA
+  </Button>
+
+  <Button 
+    width={'40%'} 
+    onPress={() => setdisbursementmethod('card')}  
+    colorScheme={disbursementmethod === 'card' ? 'blue' : 'gray'} 
+    borderRadius={'10px'}
+  >
+    BANK CARD
+  </Button>
+</HStack>
+{/*      
      <Radio.Group
           name="disbursemethod"
           value={disbursementmethod}
@@ -459,7 +549,7 @@ export default function CreateShop({navigation}) {
           </Radio>
 
          
-        </Radio.Group>
+        </Radio.Group> */}
 
         
         {disbursementmethod &&  
@@ -471,16 +561,20 @@ export default function CreateShop({navigation}) {
 {(disbursementmethod == 'card') &&  
         
         <>
-            <Input
+           <Pressable 
+            onPress={() => {
+              setdisburementbankselect(true);
+              setshowbanksmodal(true);
+              Keyboard.dismiss(); // hide keyboard
+            }}
+           >
+           <Input
               placeholder="select bank "
               value={bank}
               isReadOnly={true}
-              onFocus={() => {
-                setdisburementbankselect(true);
-                setshowbanksmodal(true);
-                Keyboard.dismiss(); // hide keyboard
-              }}
+             
             />
+           </Pressable>
         
 
         {disbursebank &&  
@@ -526,6 +620,11 @@ export default function CreateShop({navigation}) {
       
         </>
         
+        }
+
+        
+        </>
+
         }
 
           <Button mb={'60px'} onPress={() => setConfirmCard(true)}>Create</Button>

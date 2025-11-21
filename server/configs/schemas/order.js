@@ -8,7 +8,7 @@ const orderschema = new mongoose.Schema({
     quantity:{type:Number , required:true},
     total:{type:Number , required:true},
     transaction:{type:mongoose.Schema.Types.ObjectId , required:false ,  ref:'transaction' },
-    status:{type:String , required:false , default:'PENDING' },  // STARTS WITH PENDING , CAN GET CANCELLED , REFUNDED ,  AFTER BEING DELIVERED AND NO REFUND IS INITIATED IN 2 DAYS , THEN IT BECOMES COMPLETED values =>[PENDING , CANCELLED , CONFIRMED , TRANSPORTING , DELIVERED , COMPLETED , FAILED , DONE]
+    status:{type:String , required:false , default:'NEW' },  // STARTS WITH NEW , THEN WHEN CONFIRMED IT BECOMES PENDING , CAN GET CANCELLED , REFUNDED ,  AFTER BEING DELIVERED AND NO REFUND IS INITIATED IN 2 DAYS , THEN IT BECOMES COMPLETED values =>[NEW , PENDING(WHEN CONFIRMED BU SELLER) , CANCELLED(CANCELLED BY BUYER)  , DELIVERED(DELIVERED) , COMPLETED(PAID) , REVERSED(BUYER DECIDES TO RETURN) WAITING FOR REFUND , REFUNDED  ]
     payment_method:{
         type:{
              method:{type:String , required:true}, // M-PESA OR BANK
