@@ -1599,7 +1599,7 @@ router.post(`/call_checkout_page` , async function(req , res){
       }
 
    const payload = {
-    "public_key":process.env.ISNTASEND_PUBLIC_API_KEY,
+    "public_key":process.env.INSTASEND_PUBLIC_API_KEY.trim(),
     "amount": amount,
     "currency": "KES",
     "api_ref": order._id.toString(),
