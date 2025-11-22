@@ -1693,7 +1693,7 @@ router.post(`/collection_callback` , async function(req , res){
 
        
 
-         if(info.status === 'COMPLETE'){
+         if(info.state === 'COMPLETE'){
 
             const order = await Order.findOne({_id: new ObjectId(info.api_ref)}).populate([
                 {path:'item' , populate:[{path:'shop' , populate:[{path:'items'} , {path:'owner'}]}]},
@@ -1799,7 +1799,7 @@ router.post(`/collection_callback` , async function(req , res){
     
          }
          else{
-            if((['FAILED','DECLINED','EXPIRED'].includes(info.status))){
+            if ((['FAILED', 'DECLINED', 'EXPIRED'].includes(info.state))){
                 const stat = info.status;
           console.log('transaction failed or was declined');
 
@@ -1825,6 +1825,7 @@ router.post(`/collection_callback` , async function(req , res){
            
             }
             else{
+                console.log('no response status found');
                 return;
             }
            
