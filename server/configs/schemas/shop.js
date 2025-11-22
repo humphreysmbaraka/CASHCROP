@@ -13,15 +13,15 @@ const shopschema = new mongoose.Schema({
    description:{type:String , required:true},
    payment_method: {
       type: {
-        method: { type: String, required: true }, // [mpesa , card]
-        payment_account_number: { type: String, required: true }
+        method: { type: String, required: true , default:null }, // [mpesa , card]
+        payment_account_number: { type: String, required: true  ,  default:null }
       },
       required: true
     },
     disbursement_method: {
       type: {
-        method: { type: String, required: true }, // [mpesa , card]
-        payment_account_number: { type: String, required: true }
+        method: { type: String, required: true ,  default:null  }, // [mpesa , card]
+        payment_account_number: { type: String, required: true  ,  default:null }
       },
       required: true
     },
