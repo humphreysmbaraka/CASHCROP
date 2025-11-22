@@ -240,10 +240,10 @@ initiatesaveddelete = async function(val){
     setremoveerror('error')
     console.log('error removing from cart')
     throw new Error(err);
-  }
+  }   
  }
 
-
+  
  
 
  const removefromsaved = async function(val){

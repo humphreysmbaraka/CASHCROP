@@ -59,7 +59,7 @@ export default function OrdersPage(navigation) {
       setpendingpays(pendingpays);
       setsettled(settled);
 
-     
+      
 
      }
      else{
@@ -72,9 +72,18 @@ export default function OrdersPage(navigation) {
       else{
         setgeterror('server error');
       }
-      setorders(null)
+      setpurchases(null);
+      setsales(null);
+      setpendingpays(null);
+      setsettled(null);
+
      }
     }catch(err){
+      setpurchases(null);
+      setsales(null);
+      setpendingpays(null);
+      setsettled(null);
+
       setgettingorders(false);
       setgeterror('error');
       console.log('could not fetch orders' , err);
@@ -108,9 +117,10 @@ export default function OrdersPage(navigation) {
       else{
         setgeterror('server error');
       }
-      setorders(null)
+      setbuyerorders(null)
      }
     }catch(err){
+      setbuyerorders(null)
       setgettingorders(false);
       setgeterror('error');
       console.log('could not fetch orders' , err);

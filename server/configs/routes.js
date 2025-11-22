@@ -2353,8 +2353,10 @@ router.get(`/get_seller_orders/:id` , async function(req , res){
      const account = await User.findOne({_id: new ObjectId(id)}).populate([
         {path:'orders' , populate:[
             {path:'item' , populate:[
-                {path:'shop'},
-                {path:'owner'}
+                {path:'shop' , populate:[
+                    {path:'owner'}
+                ]},
+               
             ]},
             {path:'buyer'},
             {path:'transaction'},
@@ -2362,8 +2364,9 @@ router.get(`/get_seller_orders/:id` , async function(req , res){
         ]} ,
         {path:'sales_orders' , populate:[
             {path:'item' , populate:[
-                {path:'shop'},
-                {path:'owner'}
+                {path:'shop' , populate:[
+                    {path:'owner'}
+                ]},
             ]},
             {path:'buyer'},
             {path:'transaction'},
@@ -2372,8 +2375,9 @@ router.get(`/get_seller_orders/:id` , async function(req , res){
 
         {path:'pending_payments' , populate:[
             {path:'item' , populate:[
-                {path:'shop'},
-                {path:'owner'}
+                {path:'shop' , populate:[
+                    {path:'owner'}
+                ]},
             ]},
             {path:'buyer'},
             {path:'transaction'},
@@ -2381,8 +2385,9 @@ router.get(`/get_seller_orders/:id` , async function(req , res){
         ]} ,
         {path:'settled_orders' , populate:[
             {path:'item' , populate:[
-                {path:'shop'},
-                {path:'owner'}
+                {path:'shop' , populate:[
+                    {path:'owner'}
+                ]},
             ]},
             {path:'buyer'},
             {path:'transaction'},
