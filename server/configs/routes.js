@@ -1797,13 +1797,25 @@ router.post(`/collection_callback` , async function(req , res){
             //  const  seller = order.item.shop.owner; replace with sellerobj
 
 
-             buyerobj.orders.push(order._id); // ADD OREDER TO THE BUYER'S ORDERS LIST
-             sellerobj.sales_orders.push(order._id); // ADD ORDER TO SELLER'S SALES LIST
+            //  buyerobj.orders.push(order._id); // ADD OREDER TO THE BUYER'S ORDERS LIST
+            await User.findByIdAndUpdate(
+                buyerobj._id,
+                { $push: { orders: order._id } },
+                { new: true }
+              );
+              
+            //  sellerobj.sales_orders.push(order._id); // ADD ORDER TO SELLER'S SALES LIST
+            await User.findByIdAndUpdate(
+                sellerobj._id,
+                { $push: { sales_orders: order._id } },
+                { new: true }
+              );
+              
             //  seller. pending_payments.push(order._id) // ADD ORDER TO THE SELLER'S PENDIG PAYMENTS LIST (REMOVE FROM HERE , WILL BE ADDED WHEN SELLER CONFIRMS ORDER)
 
             //  await buyer.save();
-            await buyerobj.save()
-             await sellerobj.save();
+            // await buyerobj.save();
+            //  await sellerobj.save();
 
 
              
