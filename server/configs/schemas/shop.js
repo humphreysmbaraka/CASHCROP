@@ -13,17 +13,17 @@ const shopschema = new mongoose.Schema({
    description:{type:String , required:true},
    payment_method: {
       type: {
-        method: { type: String, required: true , default:null }, // [mpesa , card]
-        payment_account_number: { type: String, required: true  ,  default:null }
+        method: { type: String, required: false }, // [mpesa , card]
+        payment_account_number: { type: String, required:false }
       },
-      required: true
+      required: false
     },
     disbursement_method: {
       type: {
-        method: { type: String, required: true ,  default:null  }, // [mpesa , card]
-        payment_account_number: { type: String, required: true  ,  default:null }
+        method: { type: String, required: false  }, // [mpesa , card]
+        payment_account_number: { type: String, required:false}
       },
-      required: true
+      required: false
     },
     
     
@@ -31,10 +31,10 @@ const shopschema = new mongoose.Schema({
    country:{type:Object , required:true},
    county:{type:Object , required:true},
    area:{type:Object , required:true},
-   bank:{type:Object , required:true , default:null}, // FOR MAKING PAYMENTS
-   disburse_bank:{type:Object , required:true , default:null}, // FOR RECEIVING PAYMENT
-   bank_account_name:{type:String , required:true , default:null}, // FOR MAKING PAYMENTS
-   disburse_account_name:{type:String , required:true , default:null}, // FOR RECEIVING PAYMENTS
+   bank:{type:Object , required:false}, // FOR MAKING PAYMENTS
+   disburse_bank:{type:Object , required:false}, // FOR RECEIVING PAYMENT
+   bank_account_name:{type:String , required:false}, // FOR MAKING PAYMENTS
+   disburse_account_name:{type:String , required:false}, // FOR RECEIVING PAYMENTS
 
 
     
