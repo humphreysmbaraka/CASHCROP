@@ -713,7 +713,7 @@ router.post(`/create_item` , memuploader.single('image') ,  async function(req ,
            const image = await fileupload;
            
            const newitem = new Item({
-            shop ,  image , name ,type , description , quantity , unit , price , price_unit:priceunit
+            shop ,  image , name ,type , description , quantity , unit , price , price_unit:priceunit ,  quantity_remaining:quantity
            })
            await newitem.save();
            usershop.items.push(newitem._id);
@@ -815,6 +815,7 @@ router.patch(`/edit_item` , memuploader.single('image') ,  async function(req , 
                 item.type = type;
                 item.description = description;
                 item.quantity = quantity;
+                item.quantity_remaining=quantity;
                 item.unit = unit;
                 item.price = price;
                 item.price_unit = priceunit;
@@ -1351,6 +1352,12 @@ router.post(`/increment_cart_item` , async function(req , res){
             console.log('product not in cart')
             return res.status(400).json({error:true , message:'product not in cart'});
         }
+
+        if(incart.quantity + 1 > product.quantity_remaining){
+            console.log('you cannot exceed existing stock');
+            return res.status(400).json({error:true , message:'you cannot exceed existing stock'});
+
+        }
       
         incart.quantity += 1;
 
@@ -1577,7 +1584,12 @@ router.post(`/call_checkout_page` , async function(req , res){
         console.log('no such item found');
         return res.status(400).json({error:true , message:'item not found'});
       }
+    
+      if(quantity > product.quantity_remaining){
+        console.log('the quantity exceeds existing stock');
+        return res.status(400).json({error:true , message:'the quantity exceeds existing stock'});
 
+      }
 
      const amount = product.price * Number(quantity);
 
