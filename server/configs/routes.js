@@ -1705,14 +1705,21 @@ router.post(`/collection_callback` , async function(req , res){
                 console.log('order not found');
                 return;
              }
-    
-             const cart = order.buyer.cart;  // BUYER'S CART
-             const items = order.item.shop.items;
 
+             const buyerobj = await User.findOne({_id:new ObjectId(order.buyer._id)});
+             const sellerobj = await User.findOne({_id: new ObjectId(order.item.shop.owner._id)});
+             const shopobj = await Shop.findOne({_id:new ObjectId(order.item.shop._id)});
+             const transactionobj = await Transaction.findOne({_id:new ObjectId(order.transaction._id)});
+
+    
+             const cart = buyerobj.cart;  // BUYER'S CART
+             const items = shopobj.items;
+
+              
 
              // LOOK FOR THE ITEM IN THE SHOP
              const item = items.find(function(val){
-               return  val._id.toString() == order.item._id.toString();
+               return  val.toString() == order.item._id.toString();
              })
              if(!item){
                 console.log('item was not found in the seller items list');
@@ -1738,12 +1745,13 @@ router.post(`/collection_callback` , async function(req , res){
              const account_name = info.account_name; // bank account name
              const bank_code = info.bank_code // bank_code
              const phonenumber = info.phone_number; // mpesa phone number
+             
+             const itemobj = await Item.findOne({_id: new ObjectId(item)})
 
-
-             item.quantity_remaining -= Number(order.quantity); // REDUCE THE ITEM'S REMAINING STOCK BU THE ORDER'S QUANTITY
-             order.transaction.status = 'COMPLETED';
+             itemobj.quantity_remaining -= Number(order.quantity); // REDUCE THE ITEM'S REMAINING STOCK BU THE ORDER'S QUANTITY
+             transactionobj.status = 'COMPLETED';
              order.status = 'NEW';
-             order.item.shop.orders.push(order._id);
+             shopobj.orders.push(order._id);
 
              const payinfo = order.payment_method;
              if(paymentmethod == 'M-PESA'){
@@ -1762,21 +1770,28 @@ router.post(`/collection_callback` , async function(req , res){
                 payinfo.phone_number = null;
              }
 
-             await order.item.shop.save();
-             await order.item.save();
-             await order.save();
-             await order.transaction.save();
+            //  await order.item.shop.save();
+            await shopobj.save();
+            //  await order.item.save();
+            await itemobj.save();
+            //  await order.save();
+            await order.save();
+            //  await order.transaction.save();
+             await transactionobj.save();
 
              // add order to the buyer and seller accounts
 
-             const buyer = order.buyer;
-             const  seller = order.item.shop.owner;
-             buyer.orders.push(order._id); // ADD OREDER TO THE BUYER'S ORDERS LIST
-             seller.sales_orders.push(order._id); // ADD ORDER TO SELLER'S SALES LIST
+            //  const buyer = order.buyer; replace with buyerobj
+            //  const  seller = order.item.shop.owner; replace with sellerobj
+
+
+             buyerobj.orders.push(order._id); // ADD OREDER TO THE BUYER'S ORDERS LIST
+             sellerobj.sales_orders.push(order._id); // ADD ORDER TO SELLER'S SALES LIST
             //  seller. pending_payments.push(order._id) // ADD ORDER TO THE SELLER'S PENDIG PAYMENTS LIST (REMOVE FROM HERE , WILL BE ADDED WHEN SELLER CONFIRMS ORDER)
 
-             await buyer.save();
-             await seller.save();
+            //  await buyer.save();
+            await buyerobj.save()
+             await sellerobj.save();
 
 
              
@@ -1797,12 +1812,13 @@ router.post(`/collection_callback` , async function(req , res){
             return;
          }
 
-    
-         order.transaction.status = 'FAILED';
+         const transobj = await Transaction.findOne({_id : new ObjectId(order.transaction._id)});
+
+         transobj.status = 'FAILED';
          order.status = 'FAILED';
 
         
-         await order.transaction.save();
+         await transobj.save();
          await order.save();
          
 
