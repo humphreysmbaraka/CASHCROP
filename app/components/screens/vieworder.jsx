@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, Alert } from "react-native";
 import { Box, VStack, HStack, Text, Image, Button, Heading, Divider } from "native-base";
 import Constants from "expo-constants";

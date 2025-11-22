@@ -13,7 +13,8 @@ const sampleOrders = [
   { title: "Order #3" },
 ];
 
-export default function OrdersPage(navigation) {
+
+export default function OrdersPage({navigation}) {
   const [activeTab, setActiveTab] = useState(user?.role=='seller'?"Sales":'All');
   let pageheaders;
  const{user} = useContext(authcontext);
@@ -239,7 +240,7 @@ export default function OrdersPage(navigation) {
                   borderWidth={1}
                   borderColor="gray.200"
                 >
-                  <Pressable onPress={navigation.navigate('vieworder' , {order:order._id})} width={'99%'} p={'2px'}  >
+                  <Pressable onPress={()=>{navigation.navigate('vieworder' , {order:order._id})}} width={'99%'} p={'2px'}  >
                      <HStack>
                       <Image></Image>
                       <VStack p={'4px'} >

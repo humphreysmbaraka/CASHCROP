@@ -1,0 +1,2 @@
+//   get orders (buyer and seller routes) , get order , cancel order 
+// confirm order (reduce stock(permanently , not just the quantity remaining property)) , decline order ( redeem quantity remaining)
