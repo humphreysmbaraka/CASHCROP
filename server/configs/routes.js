@@ -242,11 +242,41 @@ router.get(`/get_item/:id` , async function(req , res){
        }
     }
     catch(err){
-        console.log('error getting shop' , err);
+        console.log('error getting item' , err);
         return res.status(500).json({error:true , message:'server error' , problem:err});
     }
 })
 
+
+router.get(`/get_order/:id` , async function(req , res){
+    try{
+       const id = req.params.id;
+       const order = await Order.findOne({_id:new ObjectId(id)}).populate([
+        {path:'buyer'},
+        {path:'item' , populate:[
+            {path:'shop' , populate:[
+                     {path:'owner'},
+                     {path:'items'}
+            ]},
+
+        ]},
+        {path:'transaction'}
+      ]);
+
+       if(order){
+         console.log('order found');
+         return res.status(200).json({error:false , message:'order found' , order:order})
+       }
+       else{
+        console.log('no such order found');
+        return res.status(400).json({error:true , message:'no order found'})
+       }
+    }
+    catch(err){
+        console.log('error getting order' , err);
+        return res.status(500).json({error:true , message:'server error' , problem:err});
+    }
+})
 
 
 

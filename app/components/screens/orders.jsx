@@ -15,7 +15,7 @@ const sampleOrders = [
 
 
 export default function OrdersPage({navigation}) {
-  const [activeTab, setActiveTab] = useState(user?.role=='seller'?"Sales":'All');
+  const [activeTab, setactivetab] = useState(null);
   let pageheaders;
  const{user} = useContext(authcontext);
  if(user.role == 'seller'){
@@ -33,6 +33,17 @@ export default function OrdersPage({navigation}) {
  const [pendingpays , setpendingpays] = useState(null);
  const [settled  ,setsettled] = useState(null);
  const [buyerorders , setbuyerorders] = useState(null);
+
+ useEffect(function(){
+   if(user.role == 'seller'){
+ setactivetab('Sales')
+ setsampleorders(sales);
+   }else if(user.role =='buyer'){
+    setactivetab('All')
+    setsampleorders(buyerorders);
+
+   }
+ } , [])
 
   const getsellerorders = async function(){  // FOR SELLERS  , SALES ORDERS , PENDING PAYMENTS , PURCHASES , settled orders
     try{
@@ -173,7 +184,7 @@ export default function OrdersPage({navigation}) {
       <ScrollView  style={{width:'100%'}} horizontal={true} showsHorizontalScrollIndicator={false} >
       <HStack space={4}  overflow={'auto'} width={'100%'} >
         {pageheaders?.map((tab) => (
-          <Pressable key={tab} onPress={() => setActiveTab(tab)}>
+          <Pressable key={tab} onPress={() => setactivetab(tab)}>
             <Box
               px={4}
               py={2}
@@ -241,11 +252,11 @@ export default function OrdersPage({navigation}) {
                   borderColor="gray.200"
                 >
                   <Pressable onPress={()=>{navigation.navigate('vieworder' , {order:order._id})}} width={'99%'} p={'2px'}  >
-                     <HStack>
-                      <Image></Image>
+                     <HStack width={'100%'} p={'3px'}   >
+                      <Image  size={'sm'} source={{uri:`${base_url}/item_picture/${order.item.image}`}} />
                       <VStack p={'4px'} >
-                        <Text>order id</Text> 
-                        <Text mr={'10px'} fontWeight={'bold'}   color={'white'}  fontSize={'sm'} p={'3px'} bg={order.status=='NEW'?'green.600':order.status=='PENDING'?'purple.600':order.status=='CANCELLED'?'red.600':order.status=='DELIVERED'?'gray.600':order.status=='COMPLETED'?'green.600':order.status=='REVERSED'?'red.600':order.status=='WAITING FOR REFUND'?'orange.300':order.status=='REFUNDED'?'orange.800':'purple.700'}  > status</Text>
+                        <Text  fontSize={'sm'} fontWeight={'bold'}>{order._id}</Text> 
+                        <Button width={'20%'} size={'sm'}  mr={'10px'}   p={'3px'} colorScheme={order.status=='NEW'?'green':order.status=='PENDING'?'purple':order.status=='CANCELLED'?'red':order.status=='DELIVERED'?'gray':order.status=='COMPLETED'?'green':order.status=='REVERSED'?'red':order.status=='WAITING FOR REFUND'?'orange':order.status=='REFUNDED'?'orange':'purple'}  >{order.status}</Button>
                       </VStack>
                      </HStack>
                   </Pressable>
