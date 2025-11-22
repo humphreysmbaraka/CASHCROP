@@ -31,10 +31,10 @@ const shopschema = new mongoose.Schema({
    country:{type:Object , required:true},
    county:{type:Object , required:true},
    area:{type:Object , required:true},
-   bank:{type:Object , required:true}, // FOR MAKING PAYMENTS
-   disburse_bank:{type:Object , required:true}, // FOR RECEIVING PAYMENT
-   bank_account_name:{type:String , required:true}, // FOR MAKING PAYMENTS
-   disburse_account_name:{type:String , required:true}, // FOR RECEIVING PAYMENTS
+   bank:{type:Object , required:true , default:null}, // FOR MAKING PAYMENTS
+   disburse_bank:{type:Object , required:true , default:null}, // FOR RECEIVING PAYMENT
+   bank_account_name:{type:String , required:true , default:null}, // FOR MAKING PAYMENTS
+   disburse_account_name:{type:String , required:true , default:null}, // FOR RECEIVING PAYMENTS
 
 
     
