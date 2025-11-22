@@ -1705,13 +1705,13 @@ router.post(`/collection_callback` , async function(req , res){
                 console.log('order not found');
                 return;
              }
-
+             console.log('order' , order);
              const buyerobj = await User.findOne({_id:new ObjectId(order.buyer._id)});
              const sellerobj = await User.findOne({_id: new ObjectId(order.item.shop.owner._id)});
              const shopobj = await Shop.findOne({_id:new ObjectId(order.item.shop._id)});
              const transactionobj = await Transaction.findOne({_id:new ObjectId(order.transaction._id)});
-
-    
+             console.log('buyer' , buyerobj , 'seller' , sellerobj , 'shop' , shopobj , 'transaction' , transactionobj  );
+           
              const cart = buyerobj.cart;  // BUYER'S CART
              const items = shopobj.items;
 
