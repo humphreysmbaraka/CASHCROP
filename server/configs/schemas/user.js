@@ -1,0 +1,42 @@
+const mongoose = require('mongoose');
+const dotenv = require('dotenv').config();
+
+
+const userschema = new mongoose.Schema({
+   image:{type:mongoose.Schema.Types.ObjectId , required:false},
+   isadmin:{type:Boolean , required:false , default:false},
+   email:{type:String , required:true , unique:true},
+   password:{type:String , required:true},
+   username:{type:String , required:true},
+   number:{type:String , required:true},
+   OTP:{type:String , required:false , default:null},
+   role:{type:String , required:true}, //[seller , buyer]
+   country:{type:Object , required:true},
+   county:{type:Object , required:true},
+   area:{type:Object , required:true},
+   saerch_querries:[{type:String , required:false , default:[]}],
+   shops:[{type:mongoose.Schema.Types.ObjectId , required:false ,ref:'shop'}],
+   orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // ORDERS YOU HAVE PLACED
+   sales_orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // ORDERS PLACED FOR YOUR PRODUCTS   (IF SELLER)
+   pending_payments:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // PAYMENTS YOU ARE YET TO RECEIVE (IF SELLER)
+   settled_orders:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'order'}],  // ORDERS YOU HAVE ALREADY RECEIVED PAYMENT FOR
+
+   
+   transactions:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'transaction'}],
+
+   cart:[{
+     item:{type:mongoose.Schema.Types.ObjectId , required:false , ref:'item'},
+     quantity:{type : Number , required:false , default:1}
+   }],
+   saved_items:[{
+      item:{type:mongoose.Schema.Types.ObjectId , required:false , ref:'item'},
+      quantity:{type : Number , required:false , default:1}
+    }],
+   favourite_shops:[{type:mongoose.Schema.Types.ObjectId , required:false , ref:'shop'}],
+   expopushtokens: [{type:String , required:false}]
+  
+} , {timestamps:true});
+
+const User = mongoose.model('user' , userschema);
+
+module.exports = User;
