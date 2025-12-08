@@ -13,6 +13,7 @@ import {
   Pressable,
   FlatList,
   Spinner,
+  Button,
 } from "native-base";
 import base_url from "../constants/baseurl";
 
@@ -42,6 +43,12 @@ export default function ShoppingPage({navigation}) {
   const [initerror , setiniterror] = useState(null);
   
 
+  const [selectedtab  ,setselectedtab] = useState('products');
+  // const [] = useState();
+  // const [] = useState();
+  // const [] = useState();
+  // const [] = useState();
+
   const getInitialProducts = async function(){
     try{
       if(gettinginit){
@@ -64,7 +71,7 @@ export default function ShoppingPage({navigation}) {
         console.log('initial results fetched' , info);
         setinitialresults(function(prev){
           if(prev){
-            return info.items;
+            return [...prev , ...info.items];
           }
           else{
             return info.items;
@@ -415,18 +422,297 @@ export default function ShoppingPage({navigation}) {
     await getInitialProducts();
     setRefreshing(false);
   };
+
+
+
+
+
+
+
+
+  // BASED ON SHOPS
+
+  const [shopquery , setshopquery] = useState(null);
+  const [currentshopquery , setcurrentshopquery] = useState(null);
+  const [shopmatches , setshopmatches] = useState(null);  //recomendations
+  const [showshopsuggestionbox , setshowshopsuggestionbox] = useState(false);
+  const [shopresults , setshopresults] = useState(null);  //results after searching
+  const [lookingforshops, setlookingforshops] = useState(false);
+  const [shopsearcherror , setshopsearcherror] = useState(null);
+  const [shopspage , setshopspage] = useState(0);
+  const [gettingmoreshops , setgettingmoreshops] = useState(false);
+  const [gettingmoreshopserror , setgettingmoreshopserror] = useState(null);
+
+  // for when getting initial shops to display
+  const [initialshopresults , setinitialshopresults] = useState(null);
+  const [gettinginitialshops , setgettinginitialshops] = useState(false);
+  const [initialshopserror , setinitialshopserror] = useState(null);
+
+  // GET INITIAL SHOPS
   
+  const getinitialshops = async function(){
+    try{
+      if(gettinginitialshops){
+        return;
+      }
+      setgettinginitialshops(true);
+      setinitialshopserror(null);
+
+      const response = await fetch(`${base_url}/get_initial_shop_results` , {  // should be initial_shops
+        method:'GET',
+        headers:{
+          'Content-Type':'application/json'
+        }
+      }) 
+
+ 
+      if(response.ok){
+        const info = await response.json();
+        setgettinginitialshops(false);
+        setinitialshopserror(null);
+        console.log('initial shops fetched' , info);
+        setinitialshopresults(function(prev){
+          if(prev){
+            return [...prev , ... info.shops];
+          }
+          else{
+            return info.shops;
+          }
+        });
+      }
+      else{
+        const info = await response.json();
+        setgettinginitialshops(false);
+        if(String(response.status).startsWith('4')){
+          setiniterror(info.message);
+        }
+        else{
+          setiniterror('server error')
+        }
+      }
+    }
+    catch(err){
+      console.log('could not get initial shops' ,err);
+      setgettinginitialshops(false);
+      setinitialshopserror('error')
+      throw new Error(err);
+    }
+  }
+
+
+  // GETTING MATCHES FOR THE SHOP QUERY
+  const getshopmatches = async function(){
+    try{
+       setlookingforshops(true);
+       setshopsearcherror(null);
+       const recomendations = await fetch(`${base_url}/get_shop_suggestions/${shopquery}`); // should be shop suggestions
+       if(recomendations.ok){
+        setshopsearcherror(false);
+        setlookingforshops(false);
+         const info = await recomendations.json();
+         console.log('suggestion info' , info)
+         setmatches(info.recomendations);
+    
+       }
+       else{
+    
+        setshopmatches([]);
+        setlookingforshops(false);
+         const info = await recomendations.json();
+         if(String(info.status).startsWith('4')){
+        setshopsearcherror(info.message);
+         }
+         else{
+          setshopsearcherror('server error');
+         }
+
+
+       }
+    }
+    catch(err){
+      console.log('error finding shop suggestions' , err);
+    }
+   }
+
+
+
+   const clickedshoprecomendation = async function(name){
+    try{
+      
+       setlookingforshops(true);
+       setshopsearcherror(null);
+       setshopspage(0);
+       setshopquery(name);
+       setcurrentshopquery(name);
+       setshowshopsuggestionbox(false);
+       const res = await fetch(`${base_url}/search_shop/${name}/${0}`);  // should be search_shop
+       if(res.ok){
+        setshopsearcherror(false);
+        s(false);
+         const info = await res.json();
+         setshopresults(info.results);
+    
+       }
+       else{
+    
+        setlookingforshops(false);
+        setshopresults([])
+         const info = await res.json();
+         if(String(info.status).startsWith('4')){
+        setshopsearcherror(info.message);
+         }
+         else{
+          setshopsearcherror('server error');
+         }
+
+
+       }
+    }
+    catch(err){
+      console.log('error finding matches' , err);
+    }
+   }
+
+
+
    
+  
+   const shopsearch = async function(){
+    try{
+       setlookingforshops(true);
+       setshopsearcherror(null);
+       setshopspage(0);
+       setshopquery(shopquery);
+       setcurrentshopquery(shopquery);
+       const res = await fetch(`${base_url}/search_shop/${shopquery}/${0}`);
+       if(res.ok){
+        setshopsearcherror(false);
+        setlookingforshops(false);
+         const info = await res.json();
+         setshopresults(info.results)
+    
+       }
+       else{
+    
+        setlookingforshops(false);
+         const info = await res.json();
+         if(String(info.status).startsWith('4')){
+        setshopsearcherror(info.message);
+         }
+         else{
+          setshopsearcherror('server error');
+         }
+
+
+       }
+    }
+    catch(err){
+      console.log('error finding matches' , err);
+    }
+   }
+
+
+
+   const searchmoreshops = async function(){
+    try{
+       setgettingmoreshops(true);
+       setgettingmoreshopserror(null);
+       setshopspage(function(prev){
+        return prev + 1;
+       })
+      //  setquery(query);
+      //  setcurrentquery(query);
+       const res = await fetch(`${base_url}/search_shop/${currentshopquery}/${shopspage+1}`);  // should be shop_search
+       if(res.ok){
+        setgettingmoreshopserror(false);
+        setgettingmoreshops(false);
+         const info = await res.json();
+         setresults(function(prev){
+          return [...prev , ...info.results];
+        })
+    
+       }
+       else{
+    
+        setgettingmoreshops(false);
+         const info = await res.json();
+         if(String(info.status).startsWith('4')){
+        setgettingmoreshopserror(info.message);
+         }
+         else{
+          setgettingmoreshopserror('server error');
+         }
+
+
+       }
+    }
+    catch(err){
+       setgettingmoreshops(false);
+       setgettingmoreshopserror('error');
+      console.log('error finding  results for initial display' , err);
+    }
+   }
+
+
+
+   
+   const searchmoreinitialshops =  async function(){
+    try{
+       setgettingmoreshops(true);
+       setgettingmoreshopserror(null);
+       setshopspage(function(prev){
+        return prev + 1;
+       })
+      //  setquery(query);
+      //  setcurrentquery(query);
+       const res = await fetch(`${base_url}/get_initial_shop_results`);  // should be initial shops
+       if(res.ok){
+        setgettingmoreshopserror(false);
+        setgettingmoreshops(false);
+         const info = await res.json();
+         setinitialshopresults(function(prev){
+          return [...prev , ...info.items];
+        })
+    
+       }
+       else{
+    
+        setgettingmoreshops(false);
+         const info = await res.json();
+         if(String(info.status).startsWith('4')){
+        setgettingmoreshopserror(info.message);
+         }
+         else{
+          setgettingmoreshopserror('server error');
+         }
+
+
+       }
+    }
+    catch(err){
+       setgettingmoreshops(false);
+       setgettingmoreshopserror('error');
+      console.log('error finding shop results for initial display' , err);
+    }
+   }
 
   return (
    
       <VStack key={refreshKey}  position={'relative'} flex={1}  bg={'white'}  paddingTop={Platform.OS==='android'?Constants.statusBarHeight:0 } pace={4} padding={4} pb={'70px'} >
+      
+        <HStack width={'100%'} p={'4px'}  alignSelf={'center'}  alignItems={'center'} justifyContent={'space-around'}  >
+        {['products' , 'shops'].map(function(val , ind){
+          return(
+            <Button width={'45%'} borderRadius={'10px'} onPress={()=>{setselectedtab(val)}} colorScheme={selectedtab===val?'green':'gray'} >{val}</Button>
+          )
+        })}
+        </HStack>
         {/* Search Bar */}
         <Input
-          placeholder="Search for items..."
-          value={query}
+          placeholder={selectedtab==='products'?"Search for items...":"Search for shops..."}
+          value={(selectedtab ==='products')?query:shopquery}
           onChangeText={(val)=>{
-            setquery(val.trim())}}
+            (selectedtab ==='products')?setquery(val.trim()):setshopquery(val.trim())}}
           size="lg"
           bg="gray.100"
           borderRadius="full"
@@ -434,7 +720,8 @@ export default function ShoppingPage({navigation}) {
         />
 
         {/* Conditional Results */}
-        {(showsuggestionbox ) && (
+        
+        {(selectedtab == 'products' && showsuggestionbox ) && (
           <Box   position={'absolute'} zIndex={999} alignSelf={'center'} top={'85px'} mt={'5px'} bg={'white'} width={'98%'}  maxH={'300px'} alignItems={'center'} justifyContent={'center'} borderWidth={0} borderRadius={'10px'} p={'2px'} >
             
           
@@ -451,7 +738,29 @@ export default function ShoppingPage({navigation}) {
           </Box>
         )}
 
-        {(results && results?.length !== 0)&&
+
+{(selectedtab == 'shops' && showshopsuggestionbox) && (
+          <Box   position={'absolute'} zIndex={999} alignSelf={'center'} top={'85px'} mt={'5px'} bg={'white'} width={'98%'}  maxH={'300px'} alignItems={'center'} justifyContent={'center'} borderWidth={0} borderRadius={'10px'} p={'2px'} >
+            
+          
+          <FlatList  width={'100%'}  initialNumToRender={15} maxToRenderPerBatch={20}  windowSize={5} data={shopmatches} keyExtractor={function(item , index){return index.toString()}}     renderItem={function({item}){
+            return(
+              <Pressable   onPress={()=>{clickedshoprecomendation(item?.name.trim())}}  width={'98%'} height={'35px'} mt={'5px'} mb={'5px'}           >
+                <Text width={'90%'} textAlign={'left'} fontSize={'sm'} fontWeight={'bold'} color={'black'} >{item?.name}</Text>
+              </Pressable>
+            )
+          }}              />
+
+
+
+          </Box>
+        )}
+
+        {/* IF SELECTED TAB S PRODUCTS */}
+
+         {selectedtab === 'products'  &&  
+         <>
+           {(results && results?.length !== 0)&&
             <Box height={'100%'} width={'100%'} >
            <ScrollView style={{ marginTop:10 ,  flex:1 , backgroundColor: "white" , padding:2  }}  onScroll={handleScroll}  
            scrollEventThrottle={16}  
@@ -497,7 +806,7 @@ export default function ShoppingPage({navigation}) {
            }
 
            {gettingmoreerror &&  
-             <Text  color={'red.600'} fontWeight={'light'} alignSelf={'center'} mt={'10px'}    ></Text>
+             <Text  color={'red.600'} fontWeight={'light'} alignSelf={'center'} mt={'10px'}    >{gettingmoreerror}</Text>
            }
         </ScrollView>
         </Box>
@@ -567,7 +876,7 @@ export default function ShoppingPage({navigation}) {
            }
 
            {gettingmoreerror &&  
-             <Text  color={'red.600'} fontWeight={'light'} alignSelf={'center'} mt={'10px'}    ></Text>
+             <Text  color={'red.600'} fontWeight={'light'} alignSelf={'center'} mt={'10px'}    >{gettingmoreerror}</Text>
            }
              
             </ScrollView>
@@ -576,6 +885,143 @@ export default function ShoppingPage({navigation}) {
           {/* </VStack> */}
           </>
         }
+         </>
+         
+         }
+
+
+     {/* SELECTED TAB IS FOR SHOPS */}
+         {selectedtab === 'shops' &&  
+         <>
+           {(shopresults && shopresults?.length !== 0)&&
+            <Box height={'100%'} width={'100%'} >
+           <ScrollView style={{ marginTop:10 ,  flex:1 , backgroundColor: "white" , padding:2  }}  onScroll={handleScroll}  
+           scrollEventThrottle={16}  
+           refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+           >
+        <HStack  p={'4px'} alignItems={'center'} justifyContent={'center'} flexWrap={'wrap'}  space={3} >
+          {shopresults?.map(function(val , ind){
+            return(
+              <Pressable key={ind} >
+              <Box
+                width={140}
+                bg="white"
+                shadow={2}
+                borderRadius="lg"
+                overflow="hidden"
+                mt={'10px'}
+                mb={'10px'}
+              >
+                <Image
+                  source={{uri:`${base_url}/shop_picture/${val.image}`}}
+                  alt={val.name}
+                  width="100%"
+                  height={100}
+                />
+                <Box p={2}>
+                  <Text fontSize="sm" fontWeight="bold">
+                    {val.name}
+                  </Text>
+                  {/* <Text color="gray.500">{val.price}</Text> */}
+                </Box>
+              </Box>
+            </Pressable>
+            )
+          })}
+
+         
+        </HStack>
+        
+        {gettingmoreshops &&
+           <Spinner     mt={'10px'}    color={'blue'} width={'30px'} height={'30px'} alignSelf={'center'}        />
+           }
+
+           {gettingmoreshopserror &&  
+             <Text  color={'red.600'} fontWeight={'light'} alignSelf={'center'} mt={'10px'}    >{gettingmoreshopserror}</Text>
+           }
+        </ScrollView>
+        </Box>
+}
+
+        {/* initial results , when one opens the page before doing or searching anythig */}
+        {((!results)) &&
+         
+            <>
+           {/* <VStack   key={idx} space={2}> */}
+            {/* <Text onPress={()=>{getfiltereditems(String(section))}} fontSize="md" fontWeight="bold" letterSpacing={'2px'} mt={4} mb={2}>
+              {section}
+            </Text> */}
+              <Box height={'100%'} width={'100%'} >
+              <ScrollView  style={{ height:'100%', marginTop:10 , backgroundColor: "white" }}   contentContainerStyle={{alignItems: 'center', justifyContent: 'center' }}   onScroll={handleinitScroll}
+           scrollEventThrottle={16} 
+           refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+           >
+          {gettinginitialshops &&  
+            <VStack>
+               <Text   color={'blue.600'} alignSelf={'center'} ml={'auto'} mr={'auto'}  fontWeight={'bold'} >fetching shops</Text>
+               <Spinner  ml={'auto'} mr={'auto'} alignSelf={'center'} width={'30px'} height={'30px'} color={'blue'} ></Spinner>
+            </VStack>
+          }
+
+          {initialshopserror  &&  
+               <Text  color={'red.600'} alignSelf={'center'} ml={'auto'} mr={'auto'} fontWeight={'bold'} >{initialshopserror}</Text>
+          }
+              {(initialshopresults && initialshopresults.length > 0)  &&  
+              
+              <HStack   width={'95%'} alignSelf={'center'} mr={'auto'} ml={'auto'} flexWrap={'wrap'}  alignItems={'center'} justifyContent={'center'} space={3}>
+              {initialshopresults.map((shop, i) => (
+                <Pressable key={i} >
+                  <Box
+                    width={140}
+                    bg="white"
+                    shadow={2}
+                    borderRadius="lg"
+                    overflow="hidden"
+                    mt={'10px'}
+                    mb={'10px'}
+                  >
+                    <Image
+                      source={{uri:`${base_url}/shop_picture/${shop.image}`}}
+                      alt={shop.name}
+                      width="100%"
+                      height={100}
+                    />
+                    <Box p={2}>
+                      <Text fontSize="sm" fontWeight="bold">
+                        {shop.name}
+                      </Text>
+                      {/* <Text color="gray.500">{item.price}</Text> */}
+                    </Box>
+                  </Box>
+                </Pressable>
+              ))}
+            </HStack>
+
+              
+
+              }
+               {gettingmoreshops &&
+           <Spinner     mt={'10px'}    color={'blue'} width={'30px'} height={'30px'} alignSelf={'center'}        />
+           }
+
+           {gettingmoreshopserror &&  
+             <Text  color={'red.600'} fontWeight={'light'} alignSelf={'center'} mt={'10px'}    >{gettingmoreshopserror}</Text>
+           }
+             
+            </ScrollView>
+              </Box>
+       
+          {/* </VStack> */}
+          </>
+        }
+         </>
+         
+         }
+
       </VStack>
  
   );

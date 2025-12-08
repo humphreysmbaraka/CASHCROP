@@ -2108,7 +2108,7 @@ router.get(`/get_initial_results` , async function(req , res){
 
 
 
-         if(!results){
+         if(results.length === 0){
             console.log('no initial results found');
             return res.status(400).json({error:true , message:'no results found'});
          }
@@ -2142,6 +2142,45 @@ router.get(`/get_initial_results` , async function(req , res){
      }
 })
 
+
+
+router.get(`/get_initial_shop_results` , async function(req , res){
+  try{
+     console.log('getting initial shop reesults');
+      const results = await Shop.aggregate([
+        { $sample : {size:20}}
+      ])
+
+
+
+      if(results.length === 0){
+         console.log('no initial shop results found');
+         return res.status(400).json({error:true , message:'no shop results found'});
+      }
+
+      else{
+         console.log('shop results fetched');
+        
+         // const populatedItems = await Item.populate(results, { path: 'shop' });
+         const populatedshops = await Shop.populate(results, [
+          { path: "items", model: "item" },
+          { path: "owner", model: "user" }
+      ]);
+           
+           
+         return res.status(200).json({error:false , message:'results fetched successfully', shops:populatedshops})
+      }
+  }
+  catch(err){
+     console.log('could not get results to display' , err);
+     return res.status(500).json({error:true , message:'server error' , problem:err});
+  }
+})
+
+
+
+
+
 router.get(`/get_suggestions/:query` , async function(req , res){
     try{
        const query = req.params.query;
@@ -2172,6 +2211,35 @@ router.get(`/get_suggestions/:query` , async function(req , res){
 
 
 
+router.get(`/get_shop_suggestions/:query` , async function(req , res){
+  try{
+     const query = req.params.query;
+
+     const recomendations = await Shop.find({
+      $or: [
+          { name: { $regex: query, $options: "i" } },  // match by name
+          // { description: { $regex: query, $options: "i" } }, // match by desc
+          // { type: { $regex: query, $options: "i" } },  // match by type
+        ]
+     }).select('name').limit(10);
+
+     if(!recomendations || recomendations.length == 0){
+          console.log('no  shop recomendations found');
+          return res.status(200).json({error:false , message:'no recomendations found' , recomendations:[]});
+     }
+     else{
+      console.log('some shop  recomendations were  found');
+      return res.status(200).json({error:false , message:'recomendations found' , recomendations:recomendations}); 
+     }
+  }
+  catch(err){
+      console.log('error geting shop recomendations' , err);
+      return res.status(500).json({error:true , message:'server error' , problem:err});
+  }
+})
+
+
+
 
 
 router.get(`/search/:query/:page` , async function(req , res){
@@ -2199,7 +2267,7 @@ router.get(`/search/:query/:page` , async function(req , res){
        }
        else{
         console.log('some results were  found');
-        return res.status(200).json({error:false , message:'recomendations found' , results:results}); 
+        return res.status(200).json({error:false , message:'results found' , results:results}); 
        }
     }
     catch(err){
@@ -2210,6 +2278,125 @@ router.get(`/search/:query/:page` , async function(req , res){
 
 
 
+router.get(`/search_shop/:query/:page` , async function(req , res){
+  try{
+     const {query , page} = req.params;
+     const limit = 30;
+
+     const results = await Shop.find({
+      $or: [
+          { name: { $regex: query, $options: "i" } },  // match by name
+          { description: { $regex: query, $options: "i" } }, // match by desc
+          { type: { $regex: query, $options: "i" } },  // match by type
+        ]
+     }).populate([
+      { path: 'owner', model: 'user' },   // populate shop.owner
+      { path: 'items', model: 'item' }    // populate shop.items
+    
+     ]
+       
+    ).limit(limit).skip(page * limit).sort({createdAt:-1});
+
+     if(!results || results.length == 0){
+          console.log('no  shop results found');
+          return res.status(200).json({error:false , message:'no shop  results found' , results:[]});
+     }
+     else{
+      console.log('some shop results were  found');
+      return res.status(200).json({error:false , message:'shops found' , results:results}); 
+     }
+  }
+  catch(err){
+      console.log('error geting results' , err);
+      return res.status(500).json({error:true , message:'server error' , problem:err});
+  }
+})
+
+
+
+
+
+router.get(`/like_shop/:id/:client` , async function(req , res){
+  const session = await mongoose.startSession();
+  try{
+    session.startTransaction();
+     const {id , client} = req.params;
+     
+     const shop = await Shop.findOne({_id:new ObjectId(id)}).populate('owner');
+     if(!shop){
+      console.log('shop not found');
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(400).json({error:true , message:'shop not found'});
+     }
+     const visitor = await User.findOne({_id:new ObjectId(client)});
+     if(!visitor){
+      console.log('user not found');
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({error:true , message:'user not found'});
+           }
+      const shopindex = visitor.favourite_shops.findIndex(function(val){
+        return val.toString() === shop._id.toString();
+      })
+
+      if(shopindex === -1){
+              //ADD TO LIKED
+              await User.findOneAndUpdate(
+                {_id:visitor._id},
+                {
+                    $addToSet:{favourite_shops:shop._id}
+                },
+                {new:true , session}
+              )
+      
+         // ADD TO SHOP'S  LIKES
+              await Shop.findOneAndUpdate(
+                {_id:shop._id},
+                {
+                    $addToSet:{likes:visitor._id}
+                },
+                {new:true , session}
+              )
+      
+      }else{
+ 
+
+         // REMOVE FROM LIKED
+         await User.findOneAndUpdate(
+          {_id:visitor._id},
+          {
+             
+              $pull:{favourite_shops:shop._id}
+          },
+          {new:true , session}
+        )
+
+        // remove from shop's likes
+        await Shop.findOneAndUpdate(
+          {_id:shop._id},
+          {
+             
+              $pull:{likes:visitor._id}
+          },
+          {new:true , session}
+        )
+
+      }
+      
+    await session.commitTransaction();
+    session.endSession();
+    return res.status(200).json({error:false , message:'shop liked/unliked successfully'})
+
+  }
+
+  catch(err){
+    await session.abortTransaction();
+    session.endSession();
+      console.log('error liking shop' , err);
+      return res.status(500).json({error:true , message:'server error' , problem:err});
+  }
+})
 
 
 

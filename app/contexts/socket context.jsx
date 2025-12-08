@@ -24,11 +24,11 @@ useEffect(() => {
 
    const  socket = io(SOCKET_URL, {
       transports: ["websocket"], // Recommended for mobile / Render deployment
-      autoConnect: false,        // We’ll connect manually
+      autoConnect: true,        // We’ll connect manually
     });
    
 
-  socket.connect();
+  // socket.connect();
 
   // Listen for connection
   socket.on("connect", () => {
@@ -36,7 +36,13 @@ useEffect(() => {
   });
 
   setsocketref(socket);
+  // socket.on("connect", () => console.log("Connected:", socket.id));
+socket.on("disconnect", () => console.log("Disconnected"));
+socket.on("connect_error", (err) => console.log("Connect error:",err ,  err.message));
+socket.on("connect_timeout", () => console.log("Connection timeout"));
+
   // ORDER HAS BEEN CONFIRMED BY SELLER
+
    socket.on('confirmed order' ,  async function(data){
     try{
       sendlocalnotification('ORDER CONFIRMED' , `your order ${data} has been confirmed , and is now awaiting dispatch`)

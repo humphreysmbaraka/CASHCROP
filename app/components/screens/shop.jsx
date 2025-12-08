@@ -12,8 +12,18 @@ export default function ShopView({navigation ,route}) {
     const {client ,shop} = route.params || {}
     const [shopobj , setshopobj] = useState(null);
      const {user} = useContext(authcontext);
-
+     const [liked , setliked] = useState(null)
   //  console.log('SHOP INFO' , shopobj , 'SHOP IMAGE' , shopobj?.image)
+     useEffect(function(){
+        if(shopobj){
+          const isliked = user.favouriteshops.some(function(val){
+            return val.toString == shopobj._id.toString();
+          }) 
+
+          setliked(isliked);
+        }
+     } , [shopobj])
+
 
      const handlereturn = function(newshop){
        setshopobj(newshop);
@@ -97,9 +107,18 @@ export default function ShopView({navigation ,route}) {
       ):(
         <>
           <ImageBackground source={{uri:`${base_url}/shop_picture/${shopobj?.image}?t=${Date.now()}`}} alt="shop"  style={{height:300 ,  width:"100%" , overflow:'hidden' ,  borderRadius:10 , position:'relative' }} >
-             <Pressable onPress={()=>{navigation.navigate('shopinfo' , {shopid:shopobj?._id , handlereturn})}} position={'absolute'} opacity={0.6} top={'10px'} right={'10px'} width={'50px'}  height={'50px'} borderRadius={'50%'} bg={'white'} alignItems={'center'} justifyContent={'center'} >
-             <AntDesign  name="home" size={24} color="black" />
-             </Pressable>
+              {
+                client?(
+                  <Pressable position={'absolute'} opacity={0.6} top={'10px'} right={'10px'} width={'50px'}  height={'50px'} borderRadius={'50%'} bg={'white'} alignItems={'center'} justifyContent={'center'} >
+                  <AntDesign name="heart" size={24} color={liked?'green.600':'gray.600'} />
+                  </Pressable>
+                ):
+                (
+                  <Pressable   onPress={()=>{navigation.navigate('shopinfo' , {shopid:shopobj?._id , handlereturn})}}  position={'absolute'} opacity={0.6} top={'10px'} right={'10px'} width={'50px'}  height={'50px'} borderRadius={'50%'} bg={'white'} alignItems={'center'} justifyContent={'center'} >
+                  <AntDesign  name="home" size={24} color="black" />
+                  </Pressable>
+                )
+              }
           </ImageBackground>
       <Heading mt={2}>{shopobj?.name}</Heading>
       <Text>Created on 08/09/2025</Text>

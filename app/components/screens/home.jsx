@@ -19,8 +19,10 @@ const cards = [
   // { title: "Settings", image: require("../../assets/gmail.jpeg")},
 ];
 const {sendlocalnotification} = useNotificationsetup();
+
 export default function HomePage({navigation}) {
   const {socket} = useContext(socketcontext);
+  console.log('SOCKET' , socket)
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white" , paddingTop:Platform.OS==='android'?Constants.statusBarHeight:0 }}>
       <VStack space={4} padding={4}  pb={'40px'} >
