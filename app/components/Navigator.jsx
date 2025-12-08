@@ -247,8 +247,9 @@ function Navigator() {
         <Stack8.Navigator screenOptions={{ headerShown: false }}  initialRouteName='shoppingpage' >
         <Stack8.Screen  name='shoppingpage'  component={ShoppingPage}    />
         <Stack8.Screen  name='clickitem'  component={Itemstacks}    />
+
         
-        {/* <Stack8.Screen        /> */}
+        <Stack8.Screen   name='clickshop' component={Shopstacks}       />
         </Stack8.Navigator>
       )
      }

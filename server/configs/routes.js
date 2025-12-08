@@ -2351,7 +2351,7 @@ router.get(`/like_shop/:id/:client` , async function(req , res){
               )
       
          // ADD TO SHOP'S  LIKES
-              await Shop.findOneAndUpdate(
+         const updatedshop =  await Shop.findOneAndUpdate(
                 {_id:shop._id},
                 {
                     $addToSet:{likes:visitor._id}
@@ -2386,7 +2386,7 @@ router.get(`/like_shop/:id/:client` , async function(req , res){
       
     await session.commitTransaction();
     session.endSession();
-    return res.status(200).json({error:false , message:'shop liked/unliked successfully'})
+    return res.status(200).json({error:false , message:'shop liked/unliked successfully' ,shop:updatedshop})
 
   }
 

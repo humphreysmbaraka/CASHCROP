@@ -100,6 +100,7 @@ export default function ShoppingPage({navigation}) {
         (async function(){
           try{
        await getInitialProducts();
+       await getinitialshops();
           }
           catch(err){
             console.log('could not fetch initial products' , err);
@@ -202,7 +203,7 @@ export default function ShoppingPage({navigation}) {
 
 
   
-   const search = async function(){
+   const search = async function(){  // will use when i add a search key/icon to the input
     try{
        setlooking(true);
        setsearcherror(null);
@@ -358,7 +359,7 @@ export default function ShoppingPage({navigation}) {
 
 
 
-   const handleScroll =async ({ nativeEvent }) => {
+   const handleScroll =async ({ nativeEvent }) => {  // for searched results
          try{
           const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
 
@@ -368,7 +369,11 @@ export default function ShoppingPage({navigation}) {
       
           if (isEnd) {
             console.log("Reached bottom!");
+          if(selectedtab === 'products'){
             await searchmore();
+          }else if(selectedtab == 'shops'){
+            await searchmoreshops();
+          }
           }
 
          }
@@ -377,7 +382,7 @@ export default function ShoppingPage({navigation}) {
          }
   };
 
-  const handleinitScroll = async ({ nativeEvent }) => {
+  const handleinitScroll = async ({ nativeEvent }) => {  // for initial results
     try{
      const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
 
@@ -387,7 +392,11 @@ export default function ShoppingPage({navigation}) {
  
      if (isEnd) {
        console.log("Reached bottom!");
-       await searchmoreinit();
+       if(selectedtab === 'products'){
+        await searchmoreinit();
+       }else if(selectedtab === 'shops'){
+        await searchmoreinitialshops();
+       }
      }
 
     }
@@ -408,6 +417,18 @@ export default function ShoppingPage({navigation}) {
   } , [query])
 
 
+  
+  useEffect(function(){
+    if(!shopquery || shopquery.trim()==''){
+      setshowshopsuggestionbox(false);
+      return;
+    }
+    else{
+     setshowshopsuggestionbox(true);
+    }
+ } , [shopquery])
+
+
   const [refreshKey, setRefreshKey] = useState(0);
 
   const [refreshing, setRefreshing] = useState(false);
@@ -421,6 +442,25 @@ export default function ShoppingPage({navigation}) {
     setcurrentquery(null);
     await getInitialProducts();
     setRefreshing(false);
+  };
+
+
+
+
+  // FOR SHOPS
+
+
+  const [shopsrefreshing, setshopsrefreshing] = useState(false);
+
+  const onRefreshshops = async () => {
+    setshopsrefreshing(true);
+    setrefreshKey(prev => prev + 1);
+    // optionally re-fetch initial products
+    setshopresults(null);
+    setshopquery(null);
+    setcurrentshopquery(null);
+    await getInitialProducts();
+    setshopsrefreshing(false);
   };
 
 
@@ -465,7 +505,7 @@ export default function ShoppingPage({navigation}) {
         }
       }) 
 
- 
+    
       if(response.ok){
         const info = await response.json();
         setgettinginitialshops(false);
@@ -511,7 +551,7 @@ export default function ShoppingPage({navigation}) {
         setlookingforshops(false);
          const info = await recomendations.json();
          console.log('suggestion info' , info)
-         setmatches(info.recomendations);
+         setshopmatches(info.recomendations);
     
        }
        else{
@@ -535,6 +575,28 @@ export default function ShoppingPage({navigation}) {
    }
 
 
+   useEffect(function(){
+    if(!shopquery|| shopquery.trim()== ''){
+      setshowshopsuggestionbox(false);
+      return;
+    }
+    else{
+      setshowshopsuggestionbox(true);
+
+     (async function(){
+      try{
+       await getshopmatches();
+      }
+      catch(err){
+        console.log('could not get shop matches' , err);
+      }
+     })();
+    }
+} , [shopquery]);
+
+
+
+
 
    const clickedshoprecomendation = async function(name){
     try{
@@ -548,7 +610,7 @@ export default function ShoppingPage({navigation}) {
        const res = await fetch(`${base_url}/search_shop/${name}/${0}`);  // should be search_shop
        if(res.ok){
         setshopsearcherror(false);
-        s(false);
+        setlookingforshops(false);
          const info = await res.json();
          setshopresults(info.results);
     
@@ -577,7 +639,7 @@ export default function ShoppingPage({navigation}) {
 
    
   
-   const shopsearch = async function(){
+   const shopsearch = async function(){  // will use when i add a search key/icon to the input
     try{
        setlookingforshops(true);
        setshopsearcherror(null);
@@ -695,6 +757,8 @@ export default function ShoppingPage({navigation}) {
       console.log('error finding shop results for initial display' , err);
     }
    }
+
+
 
   return (
    
@@ -898,13 +962,13 @@ export default function ShoppingPage({navigation}) {
            <ScrollView style={{ marginTop:10 ,  flex:1 , backgroundColor: "white" , padding:2  }}  onScroll={handleScroll}  
            scrollEventThrottle={16}  
            refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            <RefreshControl refreshing={shopsrefreshing} onRefresh={onRefreshshops} />
           }
            >
         <HStack  p={'4px'} alignItems={'center'} justifyContent={'center'} flexWrap={'wrap'}  space={3} >
           {shopresults?.map(function(val , ind){
             return(
-              <Pressable key={ind} >
+              <Pressable key={ind} onPress={()=>{navigation.navigate('clickshop' , {screen:'shop' , params:{shop:val._id , client:true} })}} >
               <Box
                 width={140}
                 bg="white"
@@ -957,7 +1021,7 @@ export default function ShoppingPage({navigation}) {
               <ScrollView  style={{ height:'100%', marginTop:10 , backgroundColor: "white" }}   contentContainerStyle={{alignItems: 'center', justifyContent: 'center' }}   onScroll={handleinitScroll}
            scrollEventThrottle={16} 
            refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            <RefreshControl refreshing={shopsrefreshing} onRefresh={onRefreshshops} />
           }
            >
           {gettinginitialshops &&  
@@ -974,7 +1038,7 @@ export default function ShoppingPage({navigation}) {
               
               <HStack   width={'95%'} alignSelf={'center'} mr={'auto'} ml={'auto'} flexWrap={'wrap'}  alignItems={'center'} justifyContent={'center'} space={3}>
               {initialshopresults.map((shop, i) => (
-                <Pressable key={i} >
+                <Pressable key={i}  onPress={()=>{navigation.navigate('clickshop' , {screen:'shop' , params:{shop:shop._id , client:true} })}} >
                   <Box
                     width={140}
                     bg="white"

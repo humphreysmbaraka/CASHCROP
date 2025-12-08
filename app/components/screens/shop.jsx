@@ -14,15 +14,63 @@ export default function ShopView({navigation ,route}) {
      const {user} = useContext(authcontext);
      const [liked , setliked] = useState(null)
   //  console.log('SHOP INFO' , shopobj , 'SHOP IMAGE' , shopobj?.image)
+
+
      useEffect(function(){
         if(shopobj){
-          const isliked = user.favouriteshops.some(function(val){
+          const isliked = user?.favourite_shops?.some(function(val){
             return val.toString == shopobj._id.toString();
           }) 
 
           setliked(isliked);
         }
      } , [shopobj])
+
+     const [likingshop , setlikingshop] = useState(false);
+     const [likeerror , setlikeerror] = useState(null);
+
+     const likeshop = async function(){
+      try{
+        if(likingshop){
+
+        }
+    // console.log(user._id);
+        setlikeerror(null);
+        setlikingshop(true);
+          //  console.log('user info' , user);
+          const res = await fetch(`${base_url}/like_shop/${shopobj?._id}/${user?._id}`);
+          if(res.ok){
+            setlikeerror(null);
+            setlikingshop(false);
+            const info = await res.json();
+            const shopinfo = info.shop;
+            setshopobj(shopinfo);
+  
+  
+  
+          }
+          else{
+           
+            setlikingshop(false);
+            const info = await res.json();
+            // setshopobj(null);
+            if(String(res.status).startsWith('4')){
+              setlikeerror(info.message);
+            }
+            else{
+             setlikeerror('server error , could not like shop');
+            }
+          }
+      }
+      catch(err){
+        setlikingshop(false);
+        setlikeerror('could not like shop')
+        // setshopobj(null);
+        console.log('could not like shop' , err);
+        throw new Error(` error liking shops , ${err}`)
+      }
+    }
+
 
 
      const handlereturn = function(newshop){
@@ -109,7 +157,7 @@ export default function ShopView({navigation ,route}) {
           <ImageBackground source={{uri:`${base_url}/shop_picture/${shopobj?.image}?t=${Date.now()}`}} alt="shop"  style={{height:300 ,  width:"100%" , overflow:'hidden' ,  borderRadius:10 , position:'relative' }} >
               {
                 client?(
-                  <Pressable position={'absolute'} opacity={0.6} top={'10px'} right={'10px'} width={'50px'}  height={'50px'} borderRadius={'50%'} bg={'white'} alignItems={'center'} justifyContent={'center'} >
+                  <Pressable  onPress={()=>{likeshop()}} position={'absolute'} opacity={0.6} top={'10px'} right={'10px'} width={'50px'}  height={'50px'} borderRadius={'50%'} bg={'white'} alignItems={'center'} justifyContent={'center'} >
                   <AntDesign name="heart" size={24} color={liked?'green.600':'gray.600'} />
                   </Pressable>
                 ):
