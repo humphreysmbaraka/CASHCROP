@@ -11,7 +11,7 @@ import { socketcontext } from "../../contexts/socket context";
 
 const cards = [
   { title: "My Shops", image: require("../../assets/shops.png") },
-  { title: "Orders",  image: require("../../assets/groceries.png")},
+  { title: "Favourite Shops",  image: require("../../assets/groceries.png")},
   { title: "Settings", image: require("../../assets/gears.png")},
   // { title: "Orders",  image: require("../../assets/gmail.jpeg")},
   // { title: "Settings", image: require("../../assets/gmail.jpeg")},
@@ -22,12 +22,18 @@ const {sendlocalnotification} = useNotificationsetup();
 
 export default function HomePage({navigation}) {
   const {socket} = useContext(socketcontext);
-  console.log('SOCKET' , socket)
+  
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white" , paddingTop:Platform.OS==='android'?Constants.statusBarHeight:0 }}>
       <VStack space={4} padding={4}  pb={'40px'} >
         {cards.map((card, index) => (
-          <Pressable key={index}  onPress={()=>{navigation.navigate('shops')}}  >
+          <Pressable key={index}  onPress={() => {
+            if (card.title === 'My Shops') {
+              navigation.navigate('shops');
+            } else if (card.title === 'Favourite Shops') {
+              navigation.navigate('shops', { screen: 'favourites' });
+            }
+          }} >
             <Box
               bg="white"
               shadow={2}

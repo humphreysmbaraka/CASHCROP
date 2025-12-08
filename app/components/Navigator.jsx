@@ -25,6 +25,7 @@ import PayPage from './screens/paypage';
 import ViewOrder from './screens/vieworder';
 import shopProfile from './screens/shop profile';
 import LoadingScreen from './laning pages/loading';
+import Favshops from './screens/fav shops';
 
 
 function Navigator() {
@@ -198,7 +199,7 @@ function Navigator() {
             <Stack2.Navigator screenOptions={{ headerShown: false }}  initialRouteName='shops' >
                 <Stack2.Screen              name='shops' component={MyShops}                                />
                 <Stack2.Screen              name='shop' component={ShopView}                                />
-                {/* <Stack2.Screen              name='shopitem' component={Shopitemstack}                                /> */}
+                <Stack2.Screen              name='favourites' component={Favshops}                                />
                 {/* <Stack2.Screen              name='additem' component={Additemstack}  /> WAS IN THE ADDITEMSTACK NAVIGATOR , WHOSE SCREEN(S) I MOVED TO THIS NAVIGATOR UNDER ADD SCREEN */}
                 <Stack2.Screen             name='visitview' component={Itemstacks}                                />
                 <Stack2.Screen             name='create'    component={CreateShop}                                />

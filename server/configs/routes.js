@@ -1011,6 +1011,37 @@ router.get(`/get_shops/:id` , async function(req , res){
 
 
 
+
+router.get(`/get_favourite_shops/:id` , async function(req , res){
+  try{
+       const id = req.params.id;
+       console.log('USER ID...' ,id);
+       const user = await User.findOne({_id: new ObjectId(id)});
+       if(!user){
+          console.log('no such user found');
+          return res.status(400).json({error:true , message:'no such user found'});
+       }
+       const shops = user.favourite_shops;
+       if(user.shops.length == 0){
+          console.log('user has no shops yet');
+          return res.status(200).json({error:false , shops:[]});
+       }
+       else{
+          const shoppromises = shops.map(function(val , ind){
+              return Shop.findOne({_id:new ObjectId(val)}).populate('owner').populate('items').exec();
+          })
+
+          const shopobjects = await Promise.all(shoppromises);
+          return res.status(200).json({error:false , shops:shopobjects});
+       }
+  }
+  catch(err){
+      console.log('error getting shops' , err);
+      return res.status(500).json({error:true , message:'server error' , problem:err})
+  }
+})
+
+
 router.get('/banks', async (req, res) => {
     try {
       const response = await fetch('https://api.intasend.com/v1/banks', {
@@ -3875,7 +3906,6 @@ router.get(`make_token` , async function(req , res){
         console.log('error making token' , err);
     }
 })
-
 
 
 

@@ -15,11 +15,12 @@ export default function ShopView({navigation ,route}) {
      const [liked , setliked] = useState(null)
   //  console.log('SHOP INFO' , shopobj , 'SHOP IMAGE' , shopobj?.image)
 
- console.log(user.favourite_shops);
+ console.log('favs' , user.favourite_shops);
+ console.log('shop' , shopobj?._id);
      useEffect(function(){
         if(shopobj){
           const isliked = user?.favourite_shops?.some(function(val){
-            return val.toString == shopobj._id.toString();
+            return val.toString() == shopobj._id.toString();
           }) 
 
           setliked(isliked);
@@ -162,7 +163,7 @@ export default function ShopView({navigation ,route}) {
                     <Spinner position={'absolute'}  top={'10px'} right={'10px'}     width={'25px'} height={'25px'} color={'blue'}       />
                    ):(
                     <Pressable  onPress={()=>{likeshop()}} position={'absolute'} opacity={0.6} top={'10px'} right={'10px'} width={'50px'}  height={'50px'} borderRadius={'50%'} bg={'white'} alignItems={'center'} justifyContent={'center'} >
-                    <AntDesign name="heart" size={24} color={liked?'green.600':'gray.600'} />
+                    <AntDesign name="heart" size={24} color={liked?'green':'gray'} />
                     </Pressable>
                    )
                 ):
