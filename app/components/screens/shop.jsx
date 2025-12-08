@@ -11,11 +11,11 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 export default function ShopView({navigation ,route}) {
     const {client ,shop} = route.params || {}
     const [shopobj , setshopobj] = useState(null);
-     const {user} = useContext(authcontext);
+     const {user , setuser} = useContext(authcontext);
      const [liked , setliked] = useState(null)
   //  console.log('SHOP INFO' , shopobj , 'SHOP IMAGE' , shopobj?.image)
 
-
+ console.log(user.favourite_shops);
      useEffect(function(){
         if(shopobj){
           const isliked = user?.favourite_shops?.some(function(val){
@@ -45,6 +45,7 @@ export default function ShopView({navigation ,route}) {
             const info = await res.json();
             const shopinfo = info.shop;
             setshopobj(shopinfo);
+            setuser(info.user)
   
   
   

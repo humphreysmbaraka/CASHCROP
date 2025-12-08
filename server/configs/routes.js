@@ -2341,10 +2341,11 @@ router.get(`/like_shop/:id/:client` , async function(req , res){
       })
 
       let updatedshop
+      let updateduser
 
       if(shopindex === -1){
               //ADD TO LIKED
-              await User.findOneAndUpdate(
+              updateduser =    await User.findOneAndUpdate(
                 {_id:visitor._id},
                 {
                     $addToSet:{favourite_shops:shop._id}
@@ -2367,7 +2368,7 @@ router.get(`/like_shop/:id/:client` , async function(req , res){
  
 
          // REMOVE FROM LIKED
-         await User.findOneAndUpdate(
+         updateduser =  await User.findOneAndUpdate(
           {_id:visitor._id},
           {
              
@@ -2392,7 +2393,7 @@ router.get(`/like_shop/:id/:client` , async function(req , res){
       
       await session.commitTransaction();
       session.endSession();
-      return res.status(200).json({error:false , message:'shop liked/unliked successfully' ,shop:updatedshop})
+      return res.status(200).json({error:false , message:'shop liked/unliked successfully' ,shop:updatedshop , user:updateduser})
 
 
   }
