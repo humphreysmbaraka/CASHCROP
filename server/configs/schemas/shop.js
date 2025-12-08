@@ -10,6 +10,7 @@ const shopschema = new mongoose.Schema({
    customtype:{type:String , required:false},
    visits:{type:Number , required:false},
    likes:{type:Number , required:false},
+   customers:[{type:mongoose.Schema.Types.ObjectId , required:false ,ref:'user'}],
    description:{type:String , required:true},
    payment_method: {
       type: {

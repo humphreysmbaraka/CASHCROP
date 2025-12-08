@@ -2354,7 +2354,7 @@ router.get(`/like_shop/:id/:client` , async function(req , res){
          const updatedshop =  await Shop.findOneAndUpdate(
                 {_id:shop._id},
                 {
-                    $addToSet:{likes:visitor._id}
+                    $addToSet:{customers:visitor._id}
                 },
                 {new:true , session}
               )
@@ -2373,11 +2373,11 @@ router.get(`/like_shop/:id/:client` , async function(req , res){
         )
 
         // remove from shop's likes
-        await Shop.findOneAndUpdate(
+       const updatedshop = await Shop.findOneAndUpdate(
           {_id:shop._id},
           {
              
-              $pull:{likes:visitor._id}
+              $pull:{customers:visitor._id}
           },
           {new:true , session}
         )

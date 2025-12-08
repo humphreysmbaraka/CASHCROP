@@ -157,9 +157,13 @@ export default function ShopView({navigation ,route}) {
           <ImageBackground source={{uri:`${base_url}/shop_picture/${shopobj?.image}?t=${Date.now()}`}} alt="shop"  style={{height:300 ,  width:"100%" , overflow:'hidden' ,  borderRadius:10 , position:'relative' }} >
               {
                 client?(
-                  <Pressable  onPress={()=>{likeshop()}} position={'absolute'} opacity={0.6} top={'10px'} right={'10px'} width={'50px'}  height={'50px'} borderRadius={'50%'} bg={'white'} alignItems={'center'} justifyContent={'center'} >
-                  <AntDesign name="heart" size={24} color={liked?'green.600':'gray.600'} />
-                  </Pressable>
+                   likingshop?(
+                    <Spinner position={'absolute'}  top={'10px'} right={'10px'}     width={'25px'} height={'25px'} color={'blue'}       />
+                   ):(
+                    <Pressable  onPress={()=>{likeshop()}} position={'absolute'} opacity={0.6} top={'10px'} right={'10px'} width={'50px'}  height={'50px'} borderRadius={'50%'} bg={'white'} alignItems={'center'} justifyContent={'center'} >
+                    <AntDesign name="heart" size={24} color={liked?'green.600':'gray.600'} />
+                    </Pressable>
+                   )
                 ):
                 (
                   <Pressable   onPress={()=>{navigation.navigate('shopinfo' , {shopid:shopobj?._id , handlereturn})}}  position={'absolute'} opacity={0.6} top={'10px'} right={'10px'} width={'50px'}  height={'50px'} borderRadius={'50%'} bg={'white'} alignItems={'center'} justifyContent={'center'} >
@@ -170,6 +174,9 @@ export default function ShopView({navigation ,route}) {
           </ImageBackground>
       <Heading mt={2}>{shopobj?.name}</Heading>
       <Text>Created on 08/09/2025</Text>
+      {likeerror &&  
+      <Text alignSelf={'center'} mr={'auto'} ml={'auto'} mt={'5px'}color={'red.600'}  mb={'5px'} >{likeerror}</Text>
+      }
        {client && 
        <HStack width={'95%'}  space={'100px'} alignSelf={'center'} mt={'10px'} mb={'10px'} p={'4px'} alignItems={'center'} justifyContent={'center'} >
        <Feather name="phone-call" size={24} color="black" />
