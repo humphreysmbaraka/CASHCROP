@@ -118,7 +118,7 @@ useEffect(function(){
               width="48%"
               mb={4}
               overflow="hidden"
-             
+              
             >
               <Image
                 source={{uri:`${base_url}/shop_picture/${shop?.image}`}}
@@ -132,7 +132,7 @@ useEffect(function(){
               <Button
                 mb={2}
                 mx={2}
-                onPress = {()=>{navigation.navigate('shop' , {shop:shop._id})}}
+                onPress = {()=>{navigation.navigate('shop' , {shop:shop._id , client:true})}}
                
               >
                 View

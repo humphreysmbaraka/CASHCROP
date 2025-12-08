@@ -15,6 +15,7 @@ app.use(express.urlencoded({extended:true}));
 
 
 const whitelist = [
+
     'http://localhost:5173',
     'https://localhost:5173',
     'http://127.0.0.1:5173',
@@ -47,27 +48,27 @@ const io = new Server(server, {
 
 
 
-// app.use(cors({
-//     origin: function (origin, callback) {
-//         // Allow requests with no origin (React Native)
-//         if (!origin) return callback(null, true);
+app.use(cors({
+    origin: function (origin, callback) {
+        // Allow requests with no origin (React Native)
+        if (!origin) return callback(null, true);
 
-//         // Allow if the origin is in the whitelist
-//         if (whitelist.includes(origin)) {
-//             return callback(null, true);
-//         }
+        // Allow if the origin is in the whitelist
+        if (whitelist.includes(origin)) {
+            return callback(null, true);
+        }
 
-//         // Allow LAN IPs (actual phone)
-//         if (origin.startsWith('http://192.168.')) {
-//             return callback(null, true);
-//         }
+        // Allow LAN IPs (actual phone)
+        if (origin.startsWith('http://192.168.')) {
+            return callback(null, true);
+        }
 
-//         return callback(new Error('Not allowed by CORS: ' + origin));
-//     },
-//     credentials: true,
-//     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-//     allowedHeaders: ['Content-Type', 'Authorization']
-// }));
+        return callback(new Error('Not allowed by CORS: ' + origin));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 
 app.use(express.json());
