@@ -2984,7 +2984,7 @@ router.post(`/initiate_refund` , async function(req , res){
         {path:'transaction'}
       ])
 
-  console.log(order.status);
+
        if(!order){
         console.log('order not found');
         return res.status(400).json({error:true , message:'order not found'})
@@ -2994,7 +2994,9 @@ router.post(`/initiate_refund` , async function(req , res){
         console.log('order was already refunded');
         return res.status(400).json({error:true , message:'order is already refunded'})
        }
-
+       console.log('ORER INFO BEFORE REFUND');
+       console.log(order)
+       console.log(order.status);
        
        if(!['CANCELLED', 'DECLINED' , 'RETURNED'].includes(order.status)){
         console.log('order is not cancelled , or no refund request');
