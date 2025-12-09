@@ -18,19 +18,19 @@ export default function CartPage({navigation}) {
   const [selecteditem , setselecteditem] = useState(null);
   const [showpaymodal , setshowpaymodal] = useState(false);
   // removing from cart
-  const [removing , setremoving] = useState(false);
+  const [removingid , setremovingid] = useState(false);
   const [removeerror , setremoveerror] = useState(null);
   //removing from saved
   const [remerror , setremerror] = useState(null);
-  const [reming , setreming] = useState(false);
+  const [remingid , setremingid] = useState(false);
   // save for later
 
-  const [saving , setsaving] = useState(false);
+  const [savingid , setsavingid] = useState(false);
   const [savingerror , setsavingerror] = useState(null);
 
   // move to cart
 
-  const [moving , setmoving] = useState(false);
+  const [movingid , setmovingid] = useState(false);
   const [moveerror , setmoveerror] = useState(null);
 
   // fethig cart items
@@ -202,11 +202,11 @@ initiatesaveddelete = async function(val){
 
  const removefromcart = async function(val){
   try{
-      if(removing){
+      if(removingid){
         return;
       }
       else{
-        setremoving(true);
+        setremovingid(val._id);
         setremoveerror(null);
         const res = await fetch(`${base_url}/remove_from_cart?user=${user?._id}&item=${val?.item?._id}` , {
           method:'PATCH',
@@ -216,7 +216,7 @@ initiatesaveddelete = async function(val){
         })
   
         if(res.ok){
-         setremoving(false);
+         setremovingid(false);
          setremoveerror(null);
          const info = await res.json();
          const newcart = info.cart;
@@ -224,7 +224,7 @@ initiatesaveddelete = async function(val){
         }
         else{
           const info = await res.json();
-          setremoving(false);
+          setremovingid(false);
           if(String(res.status).startsWith('4')){
            setremoveerror(res.message);
           }
@@ -236,7 +236,7 @@ initiatesaveddelete = async function(val){
       
   }
   catch(err){
-    setremoving(false);
+    setremovingid(false);
     setremoveerror('error')
     console.log('error removing from cart')
     throw new Error(err);
@@ -248,11 +248,11 @@ initiatesaveddelete = async function(val){
 
  const removefromsaved = async function(val){
   try{
-      if(reming){
+      if(remingid){
         return;
       }
       else{
-        setreming(true);
+        setremingid(val._id);
         setremerror(null);
         const res = await fetch(`${base_url}/remove_from_saved?user=${user?._id}&item=${val?.item?._id}` , {
           method:'PATCH',
@@ -262,7 +262,7 @@ initiatesaveddelete = async function(val){
         })
   
         if(res.ok){
-         setreming(false);
+         setremingid(false);
          setremerror(null);
          const info = await res.json();
          const newsaved = info.saved;
@@ -270,7 +270,7 @@ initiatesaveddelete = async function(val){
         }
         else{
           const info = await res.json();
-          setreming(false);
+          setremingid(false);
           if(String(res.status).startsWith('4')){
            setremerror(res.message);
           }
@@ -282,7 +282,7 @@ initiatesaveddelete = async function(val){
       
   }
   catch(err){
-    setreming(false);
+    setremingid(false);
     setremerror('error')
     console.log('error removing from saved' , err)
   }
@@ -295,11 +295,11 @@ initiatesaveddelete = async function(val){
 
  const movetosaved = async function(val){
   try{
-      if(saving){
+      if(savingid){
         return;
       }
       else{
-        setsaving(true);
+        setsavingid(val._id);
         setsavingerror(null);
         const res = await fetch(`${base_url}/move_to_saved?user=${user?._id}&item=${val?.item?._id}` , {
           method:'PATCH',
@@ -309,7 +309,7 @@ initiatesaveddelete = async function(val){
         })
   
         if(res.ok){
-         setsaving(false);
+         setsavingid(false);
          setsavingerror(null);
          const info = await res.json();
          const newcart = info.cart;
@@ -320,7 +320,7 @@ initiatesaveddelete = async function(val){
         }
         else{
           const info = await res.json();
-          setsaving(false);
+          setsavingid(false);
           if(String(res.status).startsWith('4')){
            setsavingerror(res.message);
           }
@@ -332,7 +332,7 @@ initiatesaveddelete = async function(val){
       
   }
   catch(err){
-    setsaving(false);
+    setsavingid(false);
     setsavingerror('error')
     console.log('error moving to saved' , err);
   }
@@ -343,11 +343,11 @@ initiatesaveddelete = async function(val){
 
  const movetocart = async function(val){
   try{
-      if(moving){
+      if(movingid){
         return;
       }
       else{
-        setmoving(true);
+        setmovingid(val._id);
         setmoveerror(null);
         const res = await fetch(`${base_url}/move_to_cart?user=${user?._id}&item=${val?.item?._id}` , {
           method:'PATCH',
@@ -357,7 +357,7 @@ initiatesaveddelete = async function(val){
         })
   
         if(res.ok){
-         setmoving(false);
+         setmovingid(false);
          setmoveerror(null);
          const info = await res.json();
          const newsaved = info.saved;
@@ -367,7 +367,7 @@ initiatesaveddelete = async function(val){
         }
         else{
           const info = await res.json();
-          setmoving(false);
+          setmovingid(false);
           if(String(res.status).startsWith('4')){
            setmoveerror(res.message);
           }
@@ -379,7 +379,7 @@ initiatesaveddelete = async function(val){
       
   }
   catch(err){
-    setmoving(false);
+    setmovingid(false);
     setmoveerror('error')
     console.log('error moving to cart')
   }
@@ -457,10 +457,10 @@ initiatesaveddelete = async function(val){
                   <Text>{`total : ${val.item.price * val.quantity}`}</Text>
                   {activeTab === "cart" ? (
                     <>
-                       {removeerror && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{removeerror}</Text>}
-                      <Button alignItems={'center'} justifyContent={'center'} colorScheme="red" onPress={()=>{initiatecartdelete(val)}}>DELETE  {removing && <Spinner  alignSelf={'center'} mr={'auto'} ml={'auto'} color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
-                      {savingerror && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{savingerror}</Text>}
-                      <Button colorScheme="gray"  alignItems={'center'} justifyContent={'center'} onPress={() => movetosaved(val)}>Save for later  {saving && <Spinner alignSelf={'center'} mr={'auto'} ml={'auto'} color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
+                       {(removeerror && removingid == val._id) && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{removeerror}</Text>}
+                      <Button alignItems={'center'} justifyContent={'center'} colorScheme="red" onPress={()=>{initiatecartdelete(val)}}>DELETE  {(removingid == val._id) && <Spinner  alignSelf={'center'} mr={'auto'} ml={'auto'} color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
+                      {(savingerror && savingid == val._id) && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{savingerror}</Text>}
+                      <Button colorScheme="gray"  alignItems={'center'} justifyContent={'center'} onPress={() => movetosaved(val)}>Save for later  {(savingid == val._id)&& <Spinner alignSelf={'center'} mr={'auto'} ml={'auto'} color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
                     </>
                   ) : (
                     <>
@@ -529,10 +529,10 @@ initiatesaveddelete = async function(val){
                 </>
               ) : (
                 <>
-                {remerror &&  <Text color={'red'} fontSize={'xs'} alignSelf={'center'} >{remerror}</Text>}
-                  <Button colorScheme="red"  alignItems={'center'} justifyContent={'center'} onPress={() =>{initiatesaveddelete(val)}}>DELETE  {reming && <Spinner  alignSelf={'center'} mr={'auto'} ml={'auto'} color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
-                  {moveerror &&  <Text color={'red'} fontSize={'xs'} alignSelf={'center'} >{moveerror}</Text>}
-                  <Button justifyContent={'center'} alignItems={'center'} colorScheme="teal" onPress={() => movetocart(val)}>Move to Cart  {moving && <Spinner  alignSelf={'center'} mr={'auto'} ml={'auto'} color={'white'}  width={'20px'} height={'20px'}       />  }  </Button>
+                {(remerror && remingid== val._id ) &&  <Text color={'red'} fontSize={'xs'} alignSelf={'center'} >{remerror}</Text>}
+                  <Button colorScheme="red"  alignItems={'center'} justifyContent={'center'} onPress={() =>{initiatesaveddelete(val)}}>DELETE  {(remingid == val._id) && <Spinner  alignSelf={'center'} mr={'auto'} ml={'auto'} color={'white'}  width={'20px'} height={'20px'}       />  }</Button>
+                  {(moveerror && movingid == val._id) &&  <Text color={'red'} fontSize={'xs'} alignSelf={'center'} >{moveerror}</Text>}
+                  <Button justifyContent={'center'} alignItems={'center'} colorScheme="teal" onPress={() => movetocart(val)}>Move to Cart  {(movingid == val._id) && <Spinner  alignSelf={'center'} mr={'auto'} ml={'auto'} color={'white'}  width={'20px'} height={'20px'}       />  }  </Button>
                 </>
               )}
             </VStack>
