@@ -2816,19 +2816,20 @@ router.post(`/collection_callback` , async function(req , res){
 
 
 router.post(`/initiate_payout` , async function(req , res){
+  let payout;
     try{
         const {initiator , orderid} = req.body;
-        const account = await User.findOne({_id:new ObjectId(initiator)});
+        const account = await Admin.findOne({_id:new ObjectId(initiator)});
         if(!account){
-            console.log('no such user found');
-            return res.status(400).json({error:true , message:'no such user found'});
+            console.log('no such admin found');
+            return res.status(400).json({error:true , message:'admin not found'});
 
         }
-        if(!account.isadmin){
-            console.log('initiator is not an admin');
-            return res.status(400).json({error:true , message:'initiator is not an admin'});
+        // if(!account.isadmin){
+        //     console.log('initiator is not an admin');
+        //     return res.status(400).json({error:true , message:'initiator is not an admin'});
 
-        }
+        // }
 
       const order = await Order.findOne({_id: new ObjectId(orderid)}).populate([
         {path:'buyer'},
@@ -2848,100 +2849,107 @@ router.post(`/initiate_payout` , async function(req , res){
         return res.status(400).json({error:true , message:'order not found'})
        }
 
-       if(order.status == 'COMPLETED'){
+       if(order.status == 'SETTLED'){
         console.log('order was already settled');
         return res.status(400).json({error:true , message:'order is already settled'})
        }
 
-       if(order.status !== 'DELIVERED'){
-        console.log('order not yet delivered');
-        return res.status(400).json({error:true , message:'order not yet delivered'})
+       if(order.status !== 'MATURED'){
+        console.log('order not yet mature for payment to be made');
+        return res.status(400).json({error:true , message:'order not yet matured'})
        }
-
-     const buyer = order.buyer;
-     const seller = order.item.shop.owner;
-     const sellingshop = order.item.shop;
-     const amount = order.total;
-
-     // check seller's mode of receiving payments ,  pay seller ,  (update seller's pending payments , update seller's settled payments)  , update buyer's order status (remove from pending to completed orders) , 
-
-     // 1 . check seller's mode of receiving payments
-
-      const receivemethod = sellingshop.disbursement_method;
-      let accnumber; // account number for card if receiving via bank or phone number if receiving via mpesa
-      let bankcode;  // for bank code if receiving via card
-      let url = 'https://payment.intasend.com/api/v1/payouts/'
-      ;  
-      let payload;
-      if(receivemethod.method == 'card'){
+       else
+       {
+        const buyer = order.buyer;
+        const seller = order.item.shop.owner;
+        const sellingshop = order.item.shop;
+        const amount = order.total;
+   
+        // check seller's mode of receiving payments ,  pay seller ,  (update seller's pending payments , update seller's settled payments)  , update buyer's order status (remove from pending to completed orders) , 
+   
+        // 1 . check seller's mode of receiving payments
+   
+         const receivemethod = sellingshop.disbursement_method;
+         let accnumber; // account number for card if receiving via bank or phone number if receiving via mpesa
+         let bankcode;  // for bank code if receiving via card
+         let url = 'https://payment.intasend.com/api/v1/payouts/'
+         ;  
+         let payload;
+         if(receivemethod.method == 'card'){
+              accnumber = receivemethod.payment_account_number;
+              bankcode = sellingshop.disburse_bank.bank_code;
+   
+              payload = {
+               public_key: process.env.INSTASEND_PUBLIC_API_KEY.trim(),
+               provider: "BANK",
+               amount: amount,
+               currency: "KES",
+               account_name: "John Doe",    // WILL ADD A BANK ACCOUNT NAME FIELD IN CREATE SHOP
+               account_number:accnumber,
+               bank_code: bankcode,     // Equity
+               // branch_code: "000",  // Sometimes required
+               api_ref: order._id,
+               callback_url: "https://cashcrop.onrender.com/payout_callback"
+              }
+         } else if(receivemethod.method == 'mpesa'){
            accnumber = receivemethod.payment_account_number;
-           bankcode = sellingshop.disburse_bank.bank_code;
-
-           payload = {
-            public_key: process.env.INSTASEND_PUBLIC_API_KEY.trim(),
-            provider: "BANK",
-            amount: amount,
-            currency: "KES",
-            account_name: "John Doe",    // WILL ADD A BANK ACCOUNT NAME FIELD IN CREATE SHOP
-            account_number:accnumber,
-            bank_code: bankcode,     // Equity
-            // branch_code: "000",  // Sometimes required
-            api_ref: order._id,
-            callback_url: "https://cashcrop.onrender.com/payout_callback"
-           }
-      } else if(receivemethod.method == 'mpesa'){
-        accnumber = receivemethod.payment_account_number;
-        // bankcode = sellingshop.disburse_bank.bank_code;
-         payload = {
-            public_key: process.env.INSTASEND_PUBLIC_API_KEY.trim(),
-            provider: "M-PESA",
-            amount: amount,
-            currency: "KES",
-            phone_number: receivemethod.payment_account_number,
-            api_ref:order._id,
-            callback_url: "https://cashcrop.onrender.com/payout_callback"
+           // bankcode = sellingshop.disburse_bank.bank_code;
+            payload = {
+               public_key: process.env.INSTASEND_PUBLIC_API_KEY.trim(),
+               provider: "M-PESA",
+               amount: amount,
+               currency: "KES",
+               phone_number: receivemethod.payment_account_number,
+               api_ref:order._id,
+               callback_url: "https://cashcrop.onrender.com/payout_callback"
+            }
          }
-      }
-
-      const payoutresponse = await fetch("https://api.intasend.com/api/v1/send-money/initiate/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${process.env.INSTASEND_SECRET_API_KEY.trim()}`
-                },
-                body: JSON.stringify(payload)
-});
-
-     const info = await payoutresponse.json();
-     if(!payoutresponse.ok){
-        console.log('response from payout url is not OK');
-        console.log(payoutresponse);
-        return res.status(400).json({error:true , message:'payout url call unsuccessful'});
-
-     }
-     else{
-        console.log('payout api call successful');
-        if(info.status !== 'success'){
-            return res.status(400).json({error:true , message:'payout initiation failed'});
-
+   
+         const payoutresponse = await fetch("https://api.intasend.com/api/v1/send-money/initiate/", {
+                   method: "POST",
+                   headers: {
+                       "Content-Type": "application/json",
+                       "Authorization": `Bearer ${process.env.INSTASEND_SECRET_API_KEY.trim()}`
+                   },
+                   body: JSON.stringify(payload)
+   });
+   
+        const info = await payoutresponse.json();
+        if(!payoutresponse.ok){
+           console.log('response from payout url is not OK');
+           console.log(payoutresponse);
+           return res.status(400).json({error:true , message:'payout url call unsuccessful'});
+   
         }
         else{
-
-            const payout = new Payout({
-                total:amount , status:'PENDING' , order:order._id , instasend_id:info.data.id , type:'payment'
-            });
-            await payout.save();
-            return res.status(200).json({error:true , message:'payout initiated'});
-
+           console.log('payout api call successful');
+           if(info.status !== 'success'){
+               return res.status(400).json({error:true , message:'payout initiation failed'});
+   
+           }
+           else{
+   
+                payout = new Payout({
+                administrator:account._id ,  total:amount , status:'PENDING' , order:order._id , instasend_id:info.data.id , type:'payment'
+               });
+               await payout.save();
+               return res.status(200).json({error:true , message:'payout initiated'});
+   
+           }
+           
         }
-        
-     }
+       }
+
+   
      
 
     
     }
     catch(err){
         console.log('error occuder in initiate payout route' , err);
+        if (payout) {
+          await Payout.findByIdAndDelete(payout._id);
+      }
         return res.status(500).json({error:true , message:'server error' , problem:err})
     }
 })
@@ -2949,19 +2957,20 @@ router.post(`/initiate_payout` , async function(req , res){
 
 
 router.post(`/initiate_refund` , async function(req , res){
-    try{
+    let payout;
+  try{
         const {initiator , orderid} = req.body;
-        const account = await User.findOne({_id:new ObjectId(initiator)});
+        const account = await Admin.findOne({_id:new ObjectId(initiator)});
         if(!account){
-            console.log('no such user found');
-            return res.status(400).json({error:true , message:'no such user found'});
+            console.log('no such admin found');
+            return res.status(400).json({error:true , message:'user not an admin'});
 
         }
-        if(!account.isadmin){
-            console.log('initiator is not an admin');
-            return res.status(400).json({error:true , message:'initiator is not an admin'});
+        // if(!account.isadmin){
+        //     console.log('initiator is not an admin');
+        //     return res.status(400).json({error:true , message:'initiator is not an admin'});
 
-        }
+        // }
 
       const order = await Order.findOne({_id: new ObjectId(orderid)}).populate([
         {path:'buyer'},
@@ -2987,7 +2996,7 @@ router.post(`/initiate_refund` , async function(req , res){
        }
 
        
-       if(!['CANCELLED', 'REVERSED'].includes(order.status)){
+       if(!['CANCELLED', 'DECLINED' , 'RETURNED'].includes(order.status)){
         console.log('order is not cancelled , or no refund request');
         return res.status(400).json({error:true , message:'order not cancelled or no refund request'})
        }
@@ -3059,8 +3068,8 @@ router.post(`/initiate_refund` , async function(req , res){
         }
         else{
 
-            const payout = new Payout({
-                total:amount , status:'PENDING' , order:order._id , instasend_id:info.data.id , type:'refund'
+             payout = new Payout({
+              administrator:account._id ,   total:amount , status:'PENDING' , order:order._id , instasend_id:info.data.id , type:'refund'
             });
             await payout.save();
             return res.status(200).json({error:true , message:'refund initiated'});
@@ -3074,6 +3083,9 @@ router.post(`/initiate_refund` , async function(req , res){
     }
     catch(err){
         console.log('error occuder in initiate refund route' , err);
+        if (payout) {
+          await Payout.findByIdAndDelete(payout._id);
+      }
         return res.status(500).json({error:true , message:'server error' , problem:err})
     }
 })
