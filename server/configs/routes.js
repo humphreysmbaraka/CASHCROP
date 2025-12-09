@@ -2984,7 +2984,7 @@ router.post(`/initiate_refund` , async function(req , res){
         {path:'transaction'}
       ])
 
-
+  console.log(order.status);
        if(!order){
         console.log('order not found');
         return res.status(400).json({error:true , message:'order not found'})
