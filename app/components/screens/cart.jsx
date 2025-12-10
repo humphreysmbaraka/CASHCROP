@@ -7,6 +7,7 @@ import AddToCartModal from "./addtocartmodal";
 import { authcontext } from "../../contexts/authcontext";
 import base_url from "../constants/baseurl";
 import Paymodal from "../modals/paymodal";
+import { RefreshControl } from "react-native";
 
 
 export default function CartPage({navigation}) {
@@ -405,8 +406,27 @@ initiatesaveddelete = async function(val){
           getitems();
    } , [])
 
+   const [refreshKey, setRefreshKey] = useState(0);
+
+   const [refreshing, setRefreshing] = useState(false);
+
+
+
+
+const onRefresh = async () => {
+  setRefreshing(true);
+  setRefreshKey(prev => prev + 1);
+  await getcartitems();
+  await getsaveditems();
+  setRefreshing(false);
+};
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10, paddingTop: Platform.OS === "android" ? Constants.statusBarHeight : 0 , marginBottom:'20px' }}>
+    <ScrollView key={refreshKey}  style={{ flex: 1, backgroundColor: "white", padding: 10, paddingTop: Platform.OS === "android" ? Constants.statusBarHeight : 0 , marginBottom:'20px' }}  
+    
+    refreshControl={
+     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }
+    >
       {/* Tabs */}
       <HStack space={4} mb={4} mt={'40px'} >
         <Button flex={1} colorScheme={activeTab === "cart" ? "teal" : "gray"} onPress={() => setActiveTab("cart")}>
@@ -450,11 +470,11 @@ initiatesaveddelete = async function(val){
             return (
               <Pressable onPress={() => select(val)} key={val._id} mb={'5px'} >
               <HStack space={4} alignItems="center" bg="gray.50" p={3} borderRadius="md">
-                <Image  source={{uri:`${base_url}/item_picture/${val.item.image}`}} alt="img" size="lg" borderRadius="md"/>
+                <Image  source={{uri:`${base_url}/item_picture/${val?.item?.image}`}} alt="img" size="lg" borderRadius="md"/>
                 <VStack space={'4px'} width={'55%'} flex={1}>
                   <Text width={'90%'} isTruncated={true} fontWeight="bold">{val.item.name}</Text>
-                  <Text>{`Price : ${val.item.price}    quntity : ${val.quantity}`}</Text>
-                  <Text>{`total : ${val.item.price * val.quantity}`}</Text>
+                  <Text>{`Price : ${val?.item?.price}    quntity : ${val?.quantity}`}</Text>
+                  <Text>{`total : ${val?.item?.price * val?.quantity}`}</Text>
                   {activeTab === "cart" ? (
                     <>
                        {(removeerror && removingid == val._id) && <Text color={'red.500'} fontSize={'xs'} alignSelf={'center'} >{removeerror}</Text>}
