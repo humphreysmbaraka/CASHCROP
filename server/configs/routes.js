@@ -2656,7 +2656,8 @@ router.post(`/collection_callback` , async function(req , res){
             //  order.status = 'NEW';
             //  shopobj.orders.push(order._id);
 
-             const payinfo = order.payment_method;
+             let payinfo = {};
+             
              if(paymentmethod == 'M-PESA'){
                   payinfo.method = 'M-PESA';
                   payinfo.account_number = phonenumber;
