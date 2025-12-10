@@ -2585,7 +2585,7 @@ router.post(`/collection_callback` , async function(req , res){
         session.startTransaction();
          console.log('running collection callback' , req.body);
          const info = req.body;
-
+         
        
 
          if(info.state === 'COMPLETE'){
@@ -2701,7 +2701,9 @@ router.post(`/collection_callback` , async function(req , res){
                 buyerobj._id,
                 {
                      $push: { orders: order._id },// add orer to buyer's orders array
-                     $pull:{cart:item._id} // remove item from buyer's cart
+                     $pull: {
+                      cart: { item: itemobj._id }
+                    } // remove item from buyer's cart
                     
                     },
                

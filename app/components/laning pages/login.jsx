@@ -227,9 +227,9 @@ Alert.alert(
 
 
 
-          <Button onPress={forgot} colorScheme={'purple'} mt={6}  width={'50%'} alignSelf={'center'} rounded="xl"  alignItems={'center'} justifyContent={'center'} >
+          {/* <Button onPress={forgot} colorScheme={'purple'} mt={6}  width={'50%'} alignSelf={'center'} rounded="xl"  alignItems={'center'} justifyContent={'center'} >
               FORGOT PASSWORD?
-          </Button>
+          </Button> */}
         </VStack>
     
 
