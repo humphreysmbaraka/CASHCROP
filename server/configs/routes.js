@@ -2816,7 +2816,7 @@ router.post(`/collection_callback` , async function(req , res){
 
 
 router.post(`/initiate_payout` , async function(req , res){
-  let payout;
+  let payoutid;
     try{
         const {initiator , orderid} = req.body;
         const account = await Admin.findOne({_id:new ObjectId(initiator)});
@@ -2929,10 +2929,11 @@ router.post(`/initiate_payout` , async function(req , res){
            }
            else{
    
-                payout = new Payout({
+                const payout = new Payout({
                 administrator:account._id ,  total:amount , status:'PENDING' , order:order._id , instasend_id:info.data.id , type:'payment'
                });
                await payout.save();
+               payoutid = payout._id;
                return res.status(200).json({error:true , message:'payout initiated'});
    
            }
@@ -2947,8 +2948,8 @@ router.post(`/initiate_payout` , async function(req , res){
     }
     catch(err){
         console.log('error occuder in initiate payout route' , err);
-        if (payout) {
-          await Payout.findByIdAndDelete(payout._id);
+        if (payoutid) {
+          await Payout.findByIdAndDelete(payoutid);
       }
         return res.status(500).json({error:true , message:'server error' , problem:err})
     }
@@ -2957,7 +2958,7 @@ router.post(`/initiate_payout` , async function(req , res){
 
 
 router.post(`/initiate_refund` , async function(req , res){
-    let payout;
+    let payoutid;
   try{
         const {initiator , orderid} = req.body;
         const account = await Admin.findOne({_id:new ObjectId(initiator)});
@@ -3070,10 +3071,11 @@ router.post(`/initiate_refund` , async function(req , res){
         }
         else{
 
-             payout = new Payout({
+            const  payout = new Payout({
               administrator:account._id ,   total:amount , status:'PENDING' , order:order._id , instasend_id:info.data.id , type:'refund'
             });
             await payout.save();
+            payoutid = payout._id;
             return res.status(200).json({error:true , message:'refund initiated'});
 
         }
@@ -3085,8 +3087,8 @@ router.post(`/initiate_refund` , async function(req , res){
     }
     catch(err){
         console.log('error occuder in initiate refund route' , err);
-        if (payout) {
-          await Payout.findByIdAndDelete(payout._id);
+        if (payoutid) {
+          await Payout.findByIdAndDelete(payoutid);
       }
         return res.status(500).json({error:true , message:'server error' , problem:err})
     }
