@@ -8,7 +8,7 @@ const orderschema = new mongoose.Schema({
     quantity:{type:Number , required:true},
     total:{type:Number , required:true},
     transaction:{type:mongoose.Schema.Types.ObjectId , required:false ,  ref:'transaction' },
-    // status:{type:String , required:false , default:'NEW' },  [NEW , CONFIRMED , DECLINED , CANCELLED , DELIVERED , COMPLETED , REVERSED , RETURNED , REFUNDED , MATURED , SETTLED]
+    status:{type:String , required:false , default:'NEW' }, // [NEW , CONFIRMED , DECLINED , CANCELLED , DELIVERED , COMPLETED , REVERSED , RETURNED , REFUNDED , MATURED , SETTLED]
     payment_method:{
         type:{
              method:{type:String , required:false}, // M-PESA OR BANK
