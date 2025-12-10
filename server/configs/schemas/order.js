@@ -10,14 +10,14 @@ const orderschema = new mongoose.Schema({
     transaction:{type:mongoose.Schema.Types.ObjectId , required:false ,  ref:'transaction' },
     status:{type:String , required:false , default:'NEW' }, // [NEW , CONFIRMED , DECLINED , CANCELLED , DELIVERED , COMPLETED , REVERSED , RETURNED , REFUNDED , MATURED , SETTLED]
     payment_method:{
-        type:{
+        
              method:{type:String , required:false}, // M-PESA OR BANK
              account_number:{type:String , required:false},  // PHONE NUMBER OR BANK ACCOUNT NUMBER
              account_name:{type:String , required:false}, // NULL FOR MPESA OR BANK ACCOUNT NUMBER
              bank_code:{type:String , required:false} ,// FOR BANK AND NULL FOR MPESA
              phone_number:{type:String , required:false} // NULL FOR BANK
-        },
-        required:false
+        
+    
     },
     isopenedbyadmin:{
         type:{

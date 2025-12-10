@@ -98,18 +98,19 @@ Alert.alert(
         else{
           setsending(true);
           setloginerror(null);
-           const expopushtoken = await getpushtoken();
-           if(!expopushtoken){
-            console.log('cannot push without notification push token');
-            return;
-           }
-            // const fetchedtoken = await gettoken(); // GET THE JWT TOKEN FROM BACK END
+          //  const expopushtoken = await getpushtoken();
+          //  if(!expopushtoken){
+          //   setsending(false);
+          //   setloginerror('error getting push token')
+          //   console.log('cannot push without notification push token');
+          //   return;
+          //  }
           
             const login = await fetch(`${base_url}/log_in` , {
               method : 'POST',
               headers : {'Content-Type' : 'application/json'},
               credentials:'include',
-              body : JSON.stringify({email , password , expopushtoken})
+            body : JSON.stringify({email , password })
             })
 
             if(login.ok){
