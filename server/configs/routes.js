@@ -2669,8 +2669,7 @@ router.post(`/collection_callback` , async function(req , res){
              if(paymentmethod == 'CARD'){
                 payinfo.method = 'CARD';
                 payinfo.account_number = accountnumber;
-                payinfo.account_name = account_name;
-                payinfo.bank_code = bank_code;
+                 payinfo.bank_code = bank_code;
                 payinfo.phone_number = null;
              }
        console.log('PAYMENT INFO' , payinfo);
@@ -2735,30 +2734,16 @@ router.post(`/collection_callback` , async function(req , res){
               )
 
 
-              // await Order.findOneAndUpdate(
-              //   {_id:order._id},
-              //   {
-              //       $set:{status:'NEW' ,payment_method:payinfo},  // SET ORDER'S STATUS TO NEW
-
-              //   },
-              //   {new:true , session}
-              // )
-
-
               await Order.findOneAndUpdate(
-                { _id: order._id },
+                {_id:order._id},
                 {
-                  $set: {
-                    status: 'NEW',
-                    'payment_method.method': payinfo.method,
-                    'payment_method.account_number': payinfo.account_number,
-                    'payment_method.account_name': payinfo.account_name,
-                    'payment_method.bank_code': payinfo.bank_code,
-                    'payment_method.phone_number': payinfo.phone_number
-                  }
+                    $set:{status:'NEW' ,payment_method:payinfo},  // SET ORDER'S STATUS TO NEW
+
                 },
-                { new: true, session }
+                {new:true , session}
               )
+
+
               
             //  seller. pending_payments.push(order._id) // ADD ORDER TO THE SELLER'S PENDIG PAYMENTS LIST (REMOVE FROM HERE , WILL BE ADDED WHEN SELLER CONFIRMS ORDER)
 
